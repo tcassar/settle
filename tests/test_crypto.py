@@ -42,9 +42,6 @@ class TestHash(TestCase):
             with self.assertRaises(rsa.HashError):
                 h = rsa.Hash('dave')
 
-
-
-
     def test_update_digest(self) -> None:
         """Ensures that a hash with a given value will digest the correct thing"""
         h = rsa.Hasher(b'1234')
