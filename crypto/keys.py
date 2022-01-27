@@ -110,51 +110,5 @@ class RSAKeyFromFile(RSAKeyLoader):
             exponent2
             coefficient
         """
-        try:
-            return self.lookup[item]
-        except KeyError:
-            raise KeyError(f"No attribute {item}")
+        return self.lookup[item]
 
-
-@dataclass
-class RSAKeyGenerator(RSAKeyLoader):
-    """Generates keys, writes to file, loads in standard way"""
-
-    def load(self, source) -> str:
-        """Generates a private key at filepath to source"""
-        pass
-
-    def parse(self, loaded_key: str) -> None:
-        pass
-
-    def modulus(self) -> int:
-        pass
-
-    def pub_exp(self) -> int:
-        pass
-
-    def priv_exp(self) -> int:
-        pass
-
-
-@dataclass
-class RSAKey:
-    """RSA Key pair; can verify RSA pair. Program does not deal with generation (v insecure in python)
-    Outsource verifying to system (interest of security)"""
-
-    def __init__(self, loader: RSAKeyLoader):
-        _n = loader.modulus()
-        _e = loader.pub_exp()
-        _d = loader.priv_exp()
-
-        # maybe expand to p & q
-
-        self.public = [_n, _e]
-        self.private = [_n, _d]
-
-    def validate_keypair(self):
-        """
-        Ensures that keypair is valid
-        Compare modulus of pub and priv; ensure MATCHING;
-        """
-        pass

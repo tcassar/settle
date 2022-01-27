@@ -80,14 +80,12 @@ class TestRSAKeyLoading(TestCase):
     def test_file_loading(self):
         """Tests that file is being loaded correctly"""
 
-        expected_start = "RSA Private-Key (2048 bit, 2 primes".replace(
-            " ", ""
-        )  # TODO change to clip header in load
+        expected_start = 'modulus'
         loader = keys.RSAKeyFromFile()
         # test assumes if it starts off fine it will continue being fine
         received_start = loader.load("../crypto/sample_keys/private-key.pem")
         print(type(received_start))
-        self.assertEqual(expected_start, received_start.split(")")[0])
+        self.assertEqual(expected_start, received_start[:7])
 
     def test_parsing(self):
         loader = keys.RSAKeyFromFile()
@@ -102,13 +100,28 @@ class TestRSAKeyLoading(TestCase):
         k_n = 21616792031143752746309415579452320202510893126073087652383723408105063600070147761500936454570470862786970206983368636166003008975173251124763374054321346030354457021425165356037781636930036106404418295413726431002556836900067049867944499904312842155745102543727981913742755364262501982105715862022723433985738139067694378476466514455677010796867090616789485577458637370869261774337704654931841775536224420241750390318182742144140878560279532281843455113675020983184252503669138492451882883596202775900911000502696129433770297061845035322423193568722584809589006962060587421954603201784497846158263582144177430642603
 
         # build lists for testing
-        cases = ["pub_exp", "priv_exp", "mod"]
+        cases = [
+            "pub_exp",
+            "priv_exp",
+            "mod",
+            "prime1",
+            "prime2",
+            "exponent1",
+            "exponent2",
+            "coefficient",
+        ]
         known = [k_e, k_d, k_n]
-        received = [loader.publicExponent, loader.privateExponent, loader.modulus]
+        received = [
+            loader.publicExponent,
+            loader.privateExponent,
+            loader.modulus,
+            loader.prime1,
+            loader.prime2,
+            loader.exponent1,
+            loader.exponent2,
+            loader.coefficient
+        ]
 
         for test, known_val, rec_val in zip(cases, known, received):
             with self.subTest(test):
                 self.assertEqual(rec_val, known_val)
-
-    def test_gen(self):
-        """Tests that key can be generated when needed"""
