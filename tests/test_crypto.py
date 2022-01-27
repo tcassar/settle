@@ -5,7 +5,7 @@ Unittests for crypto
 Will test hashing, encrypt/decrypt, sign/verify, validity checking of keys
 """
 
-from crypto import hashes
+from crypto import hashes, keys
 import hashlib
 from unittest import TestCase
 
@@ -25,14 +25,16 @@ class TestHash(TestCase):
     """
 
     def test_init(self) -> None:
-        """Checks that _hasher is initialised correctly i.e. no strange start values """
+        """Checks that _hasher is initialised correctly i.e. no strange start values"""
         h = hashes.Hasher()
-        self.assertEqual(h.digest().h, hex_to_int(hashlib.sha3_256(b'')))  # should be initialised empty
+        self.assertEqual(
+            h.digest().h, hex_to_int(hashlib.sha3_256(b""))
+        )  # should be initialised empty
 
     def test_hash(self) -> None:
         """tests that hash object can validate hash looking numbers"""
-        with self.subTest('valid'):
-            h_val = int(hashlib.sha3_256(b'1234').hexdigest(), 16)
+        with self.subTest("valid"):
+            h_val = int(hashlib.sha3_256(b"1234").hexdigest(), 16)
             h = hashes.Hash(h_val)  # create a definitely valid hash
 
         with self.subTest("too short"):
@@ -41,32 +43,35 @@ class TestHash(TestCase):
 
         with self.subTest("too long"):
             with self.assertRaises(hashes.HashError):
-                hashes.Hash(1157920892373161954235709850086879078532699846656405640394575840079131296399360)
+                hashes.Hash(
+                    1157920892373161954235709850086879078532699846656405640394575840079131296399360
+                )
 
         with self.subTest("wrong type"):
             with self.assertRaises(hashes.HashError):
                 # noinspection PyTypeChecker
-                hashes.Hash('dave')
+                hashes.Hash("dave")
 
     def test_update_digest(self) -> None:
         """Ensures that a hash with a given value will digest the correct thing"""
-        h = hashes.Hasher(b'1234')
-        h_ = hashlib.sha3_256(b'1234')
+        h = hashes.Hasher(b"1234")
+        h_ = hashlib.sha3_256(b"1234")
 
-        with self.subTest('before update'):
+        with self.subTest("before update"):
             self.assertEqual(h.digest().h, hex_to_int(h_))
 
-        update_msg = b'test hash update'
+        update_msg = b"test hash update"
         h.update(update_msg)
         h_.update(update_msg)
 
-        with self.subTest('after update'):
+        with self.subTest("after update"):
             self.assertEqual(h.digest().h, hex_to_int(h_))
 
     def test_hasher_fails(self):
         """Checks that hasher objects when not bytes are passed into it"""
         with self.assertRaises(hashes.HasherError):
-            hasher = hashes.Hasher('abd')
+            # noinspection PyTypeChecker
+            hasher = hashes.Hasher("abd")
 
 
 class TestRSAKeyLoading(TestCase):
@@ -75,16 +80,35 @@ class TestRSAKeyLoading(TestCase):
     def test_file_loading(self):
         """Tests that file is being loaded correctly"""
 
-        expected_start = """RSA Private-Key: (2048 bit, 2 primes)
-modulus:
-    "00:ab:3c:ec:18:ae:8d:f6:8c:50:2e:d7:1c:e3:37:
-    "6c:ca:00:c5:e8:2a:ee:bf:9a:a5:04:79:4e:d2:b4:
-    "b3:40:09:3e:38:1c:be:2d:c8:4c:27:4d:a6:40:a2:
-    "d2:c3:79:a8:c4:78:68:81:39:49:a4:a7:9c:4e:eb:
-    "01:4b:f3:c3:fd:53:58:cf:68:23:04:b7:b8:0d:b6:
-    "b8:8c:fc:93:e7:d0:21:e3:46:c0:1c:8d:73:e4:2f:
-    "cf:a8:7f:36:6f:9d:53:5c:ef:b8:46:a0:bb:32:9a:
-    "c2:75:27:9e:35:74:1c:2f:95:7e:d4:e6:f7:d0:62:"""
+        expected_start = "RSA Private-Key (2048 bit, 2 primes".replace(
+            " ", ""
+        )  # TODO change to clip header in load
+        loader = keys.RSAKeyFromFile()
         # test assumes if it starts off fine it will continue being fine
+        received_start = loader.load("../crypto/sample_keys/private-key.pem")
+        print(type(received_start))
+        self.assertEqual(expected_start, received_start.split(")")[0])
 
+    def test_parsing(self):
+        loader = keys.RSAKeyFromFile()
+        source = loader.load("../crypto/sample_keys/private-key.pem")
+        loader.parse()
 
+        # compare parsed file to known values from test keys.
+        # lay out known values
+        k_e = 65537
+
+        k_d = 423186050261034755535269850442304756394425681382299639257340389895765698748645796695083715629551461265478779552919144303233011283933461726857674426838187389672166384767207640749446478175400709896956965882109510825583722503971588949457143192047749767090665830959656389449195952398626578010004019881519663179628663104934464442218001900390545484791408136305694447208476899929648797502449480345178716038904650329939041655974782350016040380747036826804133887037575013624446801222227013175622248318544806446620343545422752812273143870468255255703768242786844602119540704162618235709118874694072838664235842554512315661905
+        k_n = 21616792031143752746309415579452320202510893126073087652383723408105063600070147761500936454570470862786970206983368636166003008975173251124763374054321346030354457021425165356037781636930036106404418295413726431002556836900067049867944499904312842155745102543727981913742755364262501982105715862022723433985738139067694378476466514455677010796867090616789485577458637370869261774337704654931841775536224420241750390318182742144140878560279532281843455113675020983184252503669138492451882883596202775900911000502696129433770297061845035322423193568722584809589006962060587421954603201784497846158263582144177430642603
+
+        # build lists for testing
+        cases = ["pub_exp", "priv_exp", "mod"]
+        known = [k_e, k_d, k_n]
+        received = [loader.publicExponent, loader.privateExponent, loader.modulus]
+
+        for test, known_val, rec_val in zip(cases, known, received):
+            with self.subTest(test):
+                self.assertEqual(rec_val, known_val)
+
+    def test_gen(self):
+        """Tests that key can be generated when needed"""

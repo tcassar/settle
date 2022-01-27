@@ -36,7 +36,7 @@ class Hash:
 
 
 class Hasher:
-    """Interface to hashing; for consistency always use SHA256, """
+    """Interface to hashing; for consistency always use SHA256,"""
 
     @staticmethod
     def _validate(inp):
@@ -44,7 +44,7 @@ class Hasher:
         if type(inp) is not bytes:
             raise HasherError(f"Type passed into _hasher was not bytes but {type(inp)}")
 
-    def __init__(self, initial: bytes = b'') -> None:
+    def __init__(self, initial: bytes = b"") -> None:
         self._validate(initial)
         self._hasher = hashlib.sha3_256(initial)
 
@@ -54,7 +54,7 @@ class Hasher:
         self._hasher.update(msg)
 
     def digest(self) -> Hash:
-        """Digests current hash; digests always returns a Hash object """
+        """Digests current hash; digests always returns a Hash object"""
         hexd: str | int = self._hasher.hexdigest()
         # convert to an int
         hexd = int(hexd, 16)  # hashlib does not do hex prefix in str thus no slicing
