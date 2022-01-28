@@ -78,18 +78,18 @@ class TestRSAKeyLoading(TestCase):
     """Tests for RSA Keys"""
 
     def test_file_loading(self):
-        """Tests that file is being loaded correctly"""
+        """Tests that file is being loaded correctly assuming correct file"""
 
         expected_start = 'modulus'
-        loader = keys.RSAKeyFromFile()
+        loader = keys.RSAFileKey()
         # test assumes if it starts off fine it will continue being fine
         received_start = loader.load("../crypto/sample_keys/private-key.pem")
         print(type(received_start))
         self.assertEqual(expected_start, received_start[:7])
 
     def test_parsing(self):
-        loader = keys.RSAKeyFromFile()
-        source = loader.load("../crypto/sample_keys/private-key.pem")
+        loader = keys.RSAFileKey()
+        loader.load("../crypto/sample_keys/private-key.pem")
         loader.parse()
 
         # compare parsed file to known values from test keys.
@@ -110,6 +110,7 @@ class TestRSAKeyLoading(TestCase):
             "exponent2",
             "coefficient",
         ]
+
         known = [k_e, k_d, k_n]
         received = [
             loader.publicExponent,

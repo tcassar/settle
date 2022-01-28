@@ -10,8 +10,12 @@ class RSAKeyError(Exception):
     """Problem with RSA Key"""
 
 
+class RSAParserError(Exception):
+    """Error in parsing file containing key"""
+
+
 @dataclass
-class RSAKeyLoader(ABC):
+class RSABaseKey(ABC):
     """General interface for classes that load RSA Keys"""
 
     @abstractmethod
@@ -28,7 +32,13 @@ class RSAKeyLoader(ABC):
 
 
 @dataclass
-class RSAKeyFromFile(RSAKeyLoader):
+class RSAPublicKey(RSABaseKey, ABC):
+    """Public key stuff"""
+
+
+# noinspection SpellCheckingInspection
+@dataclass
+class RSAFileKey(RSABaseKey):
     """Will load a key from a private key file"""
 
     # initialise what we need, don't pass in anything at instantiation
@@ -65,11 +75,15 @@ class RSAKeyFromFile(RSAKeyLoader):
         # split after title section, discard info
         # pub exp is given in bin in text format; breaks splitting header with )
         key = re.sub(r"\(0x[0|1]*\)", "", key)  # matches of the form (0x[0|1]*)
-        key = key.split(")")[1]
+        head, key = key.split(")")
+
+        if head != "RSAPrivate-Key(2048bit,2primes":
+            raise RSAParserError
 
         self.key = key
         return key
 
+    # TODO: Handle parsing errors may be a good idea
     def parse(self, keys: str | None = None) -> None:
         """Given loaded SSL info, parses and populates n, d, e, p, q"""
 
@@ -93,7 +107,6 @@ class RSAKeyFromFile(RSAKeyLoader):
             keys,
         )
         keys = map(hexstr_to_int, keys.split())
-        print(keys)
 
         # combine to dict
         self.lookup = {label: key for label, key in zip(delimiters, keys)}
@@ -112,3 +125,7 @@ class RSAKeyFromFile(RSAKeyLoader):
         """
         return self.lookup[item]
 
+
+class RSADatabaseKey(RSAPublicKey):
+    """Loads a key from database
+    WILL BE PUB KEY; not an issue, probably"""
