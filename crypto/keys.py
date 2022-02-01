@@ -1,7 +1,9 @@
 # coding=utf-8
 """Interface to all RSA encrypt / decrypt functions"""
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import os.path
 import re
 import subprocess
 
@@ -55,16 +57,20 @@ class RSAFileKey(RSABaseKey):
 
         pass
 
-    def load(self, path_to_private_key) -> str:
+    def load(self, path_to_private_key: str) -> str:
         """
         Loads PEM private key from file in file path;
         """
 
-        key = str(
-            subprocess.check_output(
-                f"openssl rsa -noout -text < {path_to_private_key}", shell=True
+        # will only attempt to load if file exists
+        if os.path.exists(path_to_private_key):
+            key = str(
+                subprocess.check_output(
+                    f"openssl rsa -noout -text < {path_to_private_key}", shell=True
+                )
             )
-        )
+        else:
+            raise RSAParserError('File not found')
 
         # strip into long easily parsable str; => remove spaces, newlines, colons
         key = key.replace(" ", "").replace("\\n", "").replace(":", "")
@@ -78,7 +84,7 @@ class RSAFileKey(RSABaseKey):
         head, key = key.split(")")
 
         if head != "RSAPrivate-Key(2048bit,2primes":
-            raise RSAParserError
+            raise RSAParserError("File not in correct format")
 
         self.key = key
         return key
@@ -123,9 +129,11 @@ class RSAFileKey(RSABaseKey):
             exponent2
             coefficient
         """
-        return self.lookup[item]
+        if self._exists(item):
+            return self.lookup[item]
 
 
+@dataclass
 class RSADatabaseKey(RSAPublicKey):
     """Loads a key from database
     WILL BE PUB KEY; not an issue, probably"""
