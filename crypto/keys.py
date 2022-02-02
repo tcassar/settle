@@ -76,10 +76,10 @@ class RSAKeyLoader:
         if keys is None:
             keys = self.key
             if self.key is None:
-                raise RSAParserError('Key has not been loaded')
+                raise RSAParserError("Key has not been loaded")
 
         # set up delimiters; tells us to split when parsing
-        delimiters = ['n', 'e', 'd', 'p', 'q', 'exp1', 'exp2', 'crt_coef']
+        delimiters = ["n", "e", "d", "p", "q", "exp1", "exp2", "crt_coef"]
 
         # split into a list along delimiters
         keys = re.sub(
@@ -123,10 +123,9 @@ class RSAKey:
 
 
 class RSAPublicKey(RSAKey):
-
     def __getattr__(self, item: str) -> int:
         """Redefine getattr so that will only give n and e"""
-        if item == 'n' or item == 'e':
+        if item == "n" or item == "e":
             return self.lookup[item]
         else:
             raise RSAPublicKeyError("Requested attribute not part of the Public Key")

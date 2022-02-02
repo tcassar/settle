@@ -104,9 +104,9 @@ class TestRSAKeyLoading(TestCase):
 
         pub_key = keys.RSAPublicKey(ldr)
 
-        with self.subTest('allowed access'):
+        with self.subTest("allowed access"):
             self.assertEqual(pub_key.e, 65537)
 
-        with self.subTest('deny access'):
+        with self.subTest("deny access"):
             with self.assertRaises(keys.RSAPublicKeyError):
                 _ = pub_key.p

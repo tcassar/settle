@@ -24,7 +24,7 @@ class RSA(ABC):
     @staticmethod
     def bytes_to_str(b: bytes) -> str:
         # TODO: Understand why this isn't working don't just delete redundant bytes
-        return b.decode('utf8').replace('\x00', '')
+        return b.decode("utf8").replace("\x00", "")
 
     @staticmethod
     def encrypt(message: bytes, publicKey: keys.RSAPublicKey) -> bytes:
@@ -37,7 +37,7 @@ class RSA(ABC):
     @staticmethod
     def naive_decrypt(ciphertext: bytes, privateKey: keys.RSAKey) -> bytes:
         # TODO: CRT decryption
-        if privateKey is keys.RSAPublicKey:
+        if type(privateKey) == keys.RSAPublicKey:
             raise DecryptionError("Cannot decrypt with a public key")
 
         ciphertext = int.from_bytes(ciphertext, sys.byteorder)

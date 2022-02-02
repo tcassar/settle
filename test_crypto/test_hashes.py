@@ -19,7 +19,8 @@ class TestHash(TestCase):
         """Checks that _hasher is initialised correctly i.e. no strange start values"""
         h = hashes.Hasher()
         self.assertEqual(
-            h.digest().int_digest(), int.from_bytes(hashlib.sha3_256(b"").digest(), byteorder=sys.byteorder)
+            h.digest().int_digest(),
+            int.from_bytes(hashlib.sha3_256(b"").digest(), byteorder=sys.byteorder),
         )  # should be initialised empty
 
     def test_hash(self) -> None:
@@ -30,12 +31,12 @@ class TestHash(TestCase):
 
         with self.subTest("too short"):
             with self.assertRaises(hashes.HashError):
-                hashes.Hash(b'12')
+                hashes.Hash(b"12")
 
         with self.subTest("too long"):
             with self.assertRaises(hashes.HashError):
                 hashes.Hash(
-                    b'1157920892373161954235709850086879078532699846656405640394575840079131296399360'
+                    b"1157920892373161954235709850086879078532699846656405640394575840079131296399360"
                 )
 
         with self.subTest("wrong type"):
