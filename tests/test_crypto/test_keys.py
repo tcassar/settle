@@ -5,8 +5,8 @@ Unit tests for key handling
 """
 
 from crypto import keys
-import hashlib
 from unittest import TestCase
+import os
 
 
 class TestRSAKeyLoading(TestCase):
@@ -14,8 +14,9 @@ class TestRSAKeyLoading(TestCase):
 
     def setUp(self) -> None:
         """Initialise loaders fresh between tests"""
-        self.loader = keys.RSAFileKey()
-        self.key_path = "../../crypto/sample_keys/private-key.pem"
+        self.loader = keys.RSAKeyLoader()
+        os.chdir('/home/tcassar/projects/settle/')
+        self.key_path = "./crypto/sample_keys/private-key.pem"
 
     def test_file_loading(self):
         """Tests that file is being loaded correctly assuming correct file"""
@@ -23,7 +24,6 @@ class TestRSAKeyLoading(TestCase):
         expected_start = "modulus"
         # test assumes if it starts off fine it will continue being fine
         received_start = self.loader.load(self.key_path)
-        print(type(received_start))
         self.assertEqual(expected_start, received_start[:7])
 
     def test_parsing(self):
@@ -52,15 +52,18 @@ class TestRSAKeyLoading(TestCase):
         ]
 
         known = [k_e, k_d, k_n]
+
+        key = keys.RSAKey(loader)
+
         received = [
-            loader.publicExponent,
-            loader.privateExponent,
-            loader.modulus,
-            loader.prime1,
-            loader.prime2,
-            loader.exponent1,
-            loader.exponent2,
-            loader.coefficient,
+            key.publicExponent,
+            key.privateExponent,
+            key.modulus,
+            key.prime1,
+            key.prime2,
+            key.exponent1,
+            key.exponent2,
+            key.coefficient,
         ]
 
         for test, known_val, rec_val in zip(cases, known, received):
@@ -84,6 +87,7 @@ class TestRSAKeyLoading(TestCase):
         """Check accessing attributes"""
         loader = self.loader
         loader.load(self.key_path)
+        key = keys.RSAKey(loader)
 
         with self.assertRaises(keys.RSAKeyError):
-            _ = loader.asdf
+            _ = key.asdf

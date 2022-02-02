@@ -17,43 +17,12 @@ class RSAParserError(Exception):
 
 
 @dataclass
-class RSABaseKey(ABC):
-    """General interface for classes that load RSA Keys"""
-
-    @abstractmethod
-    def load(self, source) -> str:
-        """Loads from source (source can be self i.e. generated within class)"""
-
-    @abstractmethod
-    def parse(self, loaded_key: str) -> None:
-        """Parses information from source"""
-
-    @abstractmethod
-    def __getattr__(self, item):
-        """Define getattr so can parse into dict, store dict, pull from dict as if attr"""
-
-
-@dataclass
-class RSAPublicKey(RSABaseKey, ABC):
-    """Public key stuff"""
-
-
-# noinspection SpellCheckingInspection
-@dataclass
-class RSAFileKey(RSABaseKey):
+class RSAKeyLoader:
     """Will load a key from a private key file"""
 
     # initialise what we need, don't pass in anything at instantiation
     lookup: dict[str:int] | None = None
     key: None | str = None
-
-    def _exists(self, item) -> bool:
-        """Returns an attribute if it exists else raise an RSAKeyError"""
-        if self.lookup is not None:
-            if self.lookup[item] is not None:
-                return True
-        else:
-            raise RSAKeyError("Requested attribute not found; have you parsed a key?")
 
     def load(self, path_to_private_key: str) -> str:
         """
@@ -61,14 +30,17 @@ class RSAFileKey(RSABaseKey):
         """
 
         # will only attempt to load if file exists
-        if os.path.exists(path_to_private_key):
-            key = str(
-                subprocess.check_output(
-                    f"openssl rsa -noout -text < {path_to_private_key}", shell=True
+        try:
+            if os.path.exists(path_to_private_key):
+                key = str(
+                    subprocess.check_output(
+                        f"openssl rsa -noout -text < {path_to_private_key}", shell=True
+                    )
                 )
-            )
-        else:
-            raise RSAParserError('File not found')
+            else:
+                raise RSAParserError('File not found')
+        except subprocess.CalledProcessError:
+            raise RSAParserError('File not in PEM private key format')
 
         # strip into long easily parsable str; => remove spaces, newlines, colons
         key = key.replace(" ", "").replace("\\n", "").replace(":", "")
@@ -115,6 +87,13 @@ class RSAFileKey(RSABaseKey):
         # combine to dict
         self.lookup = {label: key for label, key in zip(delimiters, keys)}
 
+
+@dataclass
+class RSAKey:
+
+    def __init__(self, loader: RSAKeyLoader):
+        self.lookup = loader.lookup
+
     def __getattr__(self, item: str) -> int:
         """
         Accepted items:
@@ -130,8 +109,14 @@ class RSAFileKey(RSABaseKey):
         if self._exists(item):
             return self.lookup[item]
 
+    def _exists(self, item) -> bool:
+        """Returns an attribute if it exists else raise an RSAKeyError"""
+        if self.lookup is not None:
+            if self.lookup[item] is not None:
+                return True
+        else:
+            raise RSAKeyError("Requested attribute not found; have you parsed a key?")
 
-@dataclass
-class RSADatabaseKey(RSAPublicKey):
-    """Loads a key from database
-    WILL BE PUB KEY; not an issue, probably"""
+
+class RSAPublicKey:
+    pass

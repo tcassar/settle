@@ -2,31 +2,13 @@
 """
 RSA Sign/Verify classes
 """
-import keys
-import hashes
-from dataclasses import dataclass
-from abc import abstractmethod, ABC
+import crypto.keys
 
-
-@dataclass
-class Signature:
-    s: int
+from abc import ABC
 
 
 class RSA(ABC):
-
-    @classmethod
-    @abstractmethod
-    def sign(cls, message: hashes.Hash, key: keys.RSABaseKey) -> Signature:
-        """Signs a message"""
-        return Signature(cls._mod_exp(message.h, key.privateExponent, key.modulus))
+    """RSA methods; ABC so is never instantiated"""
 
     @staticmethod
-    @abstractmethod
-    def verify(s: Signature, key: keys.RSABaseKey) -> bool:
-        """Checks if a signature matches a public key"""
-
-    @staticmethod
-    @abstractmethod
-    def _mod_exp(base: int, exp: int, modulus: int) -> int:
-        return pow(base, exp, modulus)
+    def encrypt(message: int, publicKey: keys.):
