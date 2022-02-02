@@ -124,7 +124,7 @@ class TestNotary(TestCase):
         wrong_e = 65537
 
         wrong_key = keys.TestPubKey(wrong_n, wrong_e)
-        wrong_notary = rsa.RestictedNotary(wrong_key)
+        wrong_notary = rsa.RestrictedNotary(wrong_key)
 
         with self.assertRaises(rsa.SigningError):
             wrong_notary.verify_object(self.tamper)
