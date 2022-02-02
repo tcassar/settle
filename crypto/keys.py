@@ -94,10 +94,27 @@ class RSAKeyLoader:
 
 
 @dataclass
-class RSAKey:
+class RSAPublicKey:
     def __init__(self, loader: RSAKeyLoader):
         self.lookup = loader.lookup
 
+    def __getattr__(self, item: str) -> int:
+        """Redefine getattr so that will only give n and e"""
+        if item == "n" or item == "e":
+            return self.lookup[item]
+        else:
+            raise RSAPublicKeyError("Requested attribute not part of the Public Key")
+
+    def _exists(self, item) -> bool:
+        """Returns an attribute if it exists else raise an RSAKeyError"""
+        if self.lookup is not None:
+            if self.lookup[item] is not None:
+                return True
+        else:
+            raise RSAKeyError("Requested attribute not found; have you parsed a key?")
+
+
+class RSAPrivateKey(RSAPublicKey):
     def __getattr__(self, item: str) -> int:
         """
         Accepted items:
@@ -112,20 +129,3 @@ class RSAKey:
         """
         if self._exists(item):
             return self.lookup[item]
-
-    def _exists(self, item) -> bool:
-        """Returns an attribute if it exists else raise an RSAKeyError"""
-        if self.lookup is not None:
-            if self.lookup[item] is not None:
-                return True
-        else:
-            raise RSAKeyError("Requested attribute not found; have you parsed a key?")
-
-
-class RSAPublicKey(RSAKey):
-    def __getattr__(self, item: str) -> int:
-        """Redefine getattr so that will only give n and e"""
-        if item == "n" or item == "e":
-            return self.lookup[item]
-        else:
-            raise RSAPublicKeyError("Requested attribute not part of the Public Key")
