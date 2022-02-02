@@ -66,6 +66,7 @@ class TestRSAKeyLoading(TestCase):
         for test, known_val, rec_val in zip(cases, known, received):
             with self.subTest(test):
                 self.assertEqual(rec_val, known_val)
+                self.assertEqual(type(rec_val), type(known_val))
 
     def test_file_not_found(self):
         path = "./adsads"

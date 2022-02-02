@@ -47,15 +47,13 @@ class RSAFileKey(RSABaseKey):
     lookup: dict[str:int] | None = None
     key: None | str = None
 
-    @staticmethod
-    def _exists(attr):
+    def _exists(self, item) -> bool:
         """Returns an attribute if it exists else raise an RSAKeyError"""
-        if type(attr) is int:
-            return attr
+        if self.lookup is not None:
+            if self.lookup[item] is not None:
+                return True
         else:
             raise RSAKeyError("Requested attribute not found; have you parsed a key?")
-
-        pass
 
     def load(self, path_to_private_key: str) -> str:
         """
