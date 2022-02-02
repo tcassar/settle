@@ -15,7 +15,7 @@ class TestRSAKeyLoading(TestCase):
     def setUp(self) -> None:
         """Initialise loaders fresh between tests"""
         self.loader = keys.RSAFileKey()
-        self.key_path = "../crypto/sample_keys/private-key.pem" 
+        self.key_path = "../../crypto/sample_keys/private-key.pem"
 
     def test_file_loading(self):
         """Tests that file is being loaded correctly assuming correct file"""

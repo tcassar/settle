@@ -9,6 +9,7 @@ from unittest import TestCase
 
 class TestRSA(TestCase):
     """Just tests RSA parts"""
+
     def test_encrypt(self):
         """RSA Encryption test"""
 
@@ -18,6 +19,7 @@ class TestRSA(TestCase):
 
 class TestSigning(TestCase):
     """Tests entire sign / verify process"""
+
     def test_sign(self):
         pass
 
