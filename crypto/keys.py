@@ -16,6 +16,10 @@ class RSAParserError(Exception):
     """Error in parsing file containing key"""
 
 
+class RSAPublicKeyError(Exception):
+    ...
+
+
 @dataclass
 class RSAKeyLoader:
     """Will load a key from a private key file"""
@@ -30,17 +34,18 @@ class RSAKeyLoader:
         """
 
         # will only attempt to load if file exists
+        # if openssl rsa doesn't like file report as incorrect format
+
         try:
-            if os.path.exists(path_to_private_key):
-                key = str(
-                    subprocess.check_output(
-                        f"openssl rsa -noout -text < {path_to_private_key}", shell=True
-                    )
+            if not os.path.exists(path_to_private_key):
+                raise RSAParserError("File not found")
+            key = str(
+                subprocess.check_output(
+                    f"openssl rsa -noout -text < {path_to_private_key}", shell=True
                 )
-            else:
-                raise RSAParserError('File not found')
+            )
         except subprocess.CalledProcessError:
-            raise RSAParserError('File not in PEM private key format')
+            raise RSAParserError("File not in PEM private key format")
 
         # strip into long easily parsable str; => remove spaces, newlines, colons
         key = key.replace(" ", "").replace("\\n", "").replace(":", "")
@@ -70,11 +75,11 @@ class RSAKeyLoader:
         # use local key if key not given
         if keys is None:
             keys = self.key
+            if self.key is None:
+                raise RSAParserError('Key has not been loaded')
 
         # set up delimiters; tells us to split when parsing
-        delimiters = "modulus|publicExponent|privateExponent|prime1|prime2|exponent1|exponent2|coefficient".split(
-            "|"
-        )
+        delimiters = ['n', 'e', 'd', 'p', 'q', 'exp1', 'exp2', 'crt_coef']
 
         # split into a list along delimiters
         keys = re.sub(
@@ -90,21 +95,20 @@ class RSAKeyLoader:
 
 @dataclass
 class RSAKey:
-
     def __init__(self, loader: RSAKeyLoader):
         self.lookup = loader.lookup
 
     def __getattr__(self, item: str) -> int:
         """
         Accepted items:
-            modulus
-            publicExponent
-            privateExponent
-            prime1
-            prime2
-            exponent1
-            exponent2
-            coefficient
+            n
+            e
+            d
+            p
+            q
+            exp1
+            exp2
+            crt_coef
         """
         if self._exists(item):
             return self.lookup[item]
@@ -118,5 +122,11 @@ class RSAKey:
             raise RSAKeyError("Requested attribute not found; have you parsed a key?")
 
 
-class RSAPublicKey:
-    pass
+class RSAPublicKey(RSAKey):
+
+    def __getattr__(self, item: str) -> int:
+        """Redefine getattr so that will only give n and e"""
+        if item == 'n' or item == 'e':
+            return self.lookup[item]
+        else:
+            raise RSAPublicKeyError("Requested attribute not part of the Public Key")

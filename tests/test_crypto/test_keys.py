@@ -15,7 +15,7 @@ class TestRSAKeyLoading(TestCase):
     def setUp(self) -> None:
         """Initialise loaders fresh between tests"""
         self.loader = keys.RSAKeyLoader()
-        os.chdir('/home/tcassar/projects/settle/')
+        os.chdir("/home/tcassar/projects/settle/")
         self.key_path = "./crypto/sample_keys/private-key.pem"
 
     def test_file_loading(self):
@@ -56,14 +56,14 @@ class TestRSAKeyLoading(TestCase):
         key = keys.RSAKey(loader)
 
         received = [
-            key.publicExponent,
-            key.privateExponent,
-            key.modulus,
-            key.prime1,
-            key.prime2,
-            key.exponent1,
-            key.exponent2,
-            key.coefficient,
+            key.e,
+            key.d,
+            key.n,
+            key.p,
+            key.q,
+            key.exp1,
+            key.exp2,
+            key.crt_coef,
         ]
 
         for test, known_val, rec_val in zip(cases, known, received):
@@ -91,3 +91,22 @@ class TestRSAKeyLoading(TestCase):
 
         with self.assertRaises(keys.RSAKeyError):
             _ = key.asdf
+
+    def test_unloaded_key(self):
+        ldr = self.loader
+        with self.assertRaises(keys.RSAParserError):
+            ldr.parse()
+
+    def test_public_key(self):
+        ldr = self.loader
+        ldr.load(self.key_path)
+        ldr.parse()
+
+        pub_key = keys.RSAPublicKey(ldr)
+
+        with self.subTest('allowed access'):
+            self.assertEqual(pub_key.e, 65537)
+
+        with self.subTest('deny access'):
+            with self.assertRaises(keys.RSAPublicKeyError):
+                _ = pub_key.p

@@ -15,24 +15,25 @@ class HashError(Exception):
 
 
 class HasherError(Exception):
-    """Hasher didn't like that"""
+    ...
 
 
 @dataclass
 class Hash:
-    """Hash; implemented for typehinting. Stores a str; should be hex number"""
+    def __init__(self, h: bytes):
+        self.validate(h)
+        self.h: bytes = h
 
-    def __init__(self, h: int):
-        self.h = h
-        self.is_hash()
+    def int_digest(self) -> int:
+        return int.from_bytes(self.h, byteorder='big')
 
-    def is_hash(self):
-        """check that hash is valid format"""
-        if type(self.h) is not int:
-            raise HashError
-        if self.h.bit_length() > 256 or self.h.bit_length() < 240:
-            # TODO: Find out why hashes arent always 256; fairly annoying
-            raise HashError
+    @staticmethod
+    def validate(passed_hash):
+        try:
+            assert len(passed_hash) == 32  # 256 / 8
+            assert type(passed_hash) == bytes
+        except AssertionError:
+            raise HashError("Hash was not in the form of a hash")
 
 
 class Hasher:
@@ -42,7 +43,9 @@ class Hasher:
     def _validate(inp):
         """Raises HasherError if input isn't bytes"""
         if type(inp) is not bytes:
-            raise HasherError(f"Type passed into _hasher was not bytes but {type(inp)}")
+            raise HasherError(
+                f"Type passed into _hasher was not bytes; received {type(inp)}"
+            )
 
     def __init__(self, initial: bytes = b"") -> None:
         self._validate(initial)
@@ -55,8 +58,4 @@ class Hasher:
 
     def digest(self) -> Hash:
         """Digests current hash; digests always returns a Hash object"""
-        hexd: str | int = self._hasher.hexdigest()
-        # convert to an int
-        hexd = int(hexd, 16)  # hashlib does not do hex prefix in str thus no slicing
-
-        return Hash(hexd)
+        return Hash(self._hasher.digest())

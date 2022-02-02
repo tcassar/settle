@@ -3,25 +3,21 @@
 """
 Testing sign / verify through RSA working as expected
 """
-
+import os
 from unittest import TestCase
 
 
 class TestRSA(TestCase):
     """Just tests RSA parts"""
 
-    def test_encrypt(self):
-        """RSA Encryption test"""
+    def setUpClass(cls) -> None:
+        os.chdir('/home/tcassar/projects/settle/')
 
-    def test_decrypt(self):
-        """RSA Decryption"""
+    def setUp(self) -> None:
 
 
-class TestSigning(TestCase):
-    """Tests entire sign / verify process"""
+    def test_encryption(self):
+        ...
 
-    def test_sign(self):
-        pass
-
-    def test_verify(self):
-        pass
+    def test_signing(self):
+        ...
