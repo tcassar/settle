@@ -86,7 +86,7 @@ class RSA(ABC):
 class Notary:
     """Simplest interface possible to sign with"""
 
-    private_key: keys.RSAPrivateKey
+    key: keys.RSAPrivateKey
 
     def sign_object(self, obj: Signable) -> Signable:
         """Will sign an object; returns object, having added a signature"""
@@ -98,18 +98,16 @@ class Notary:
         msg = hashes.Hasher(msg).digest().h
 
         # get signature of object
-        sig: bytes = RSA.sign(msg, self.private_key)
+        sig: bytes = RSA.sign(msg, self.key)
 
         # append signature to object
         obj.add_sig(sig)
 
         # make sure signature is valid
-        if not self.verify_object(obj):
-            raise SigningError(f"Valid Signature of {obj} could not be produced")
-
+        self.verify_object(obj)
         return obj
 
-    def verify_object(self, obj: Signable):
+    def verify_object(self, obj: Signable) -> None:
         sig = obj.signature
 
         # make sure object is signed
@@ -120,6 +118,19 @@ class Notary:
         h = hashes.Hasher(str(obj).encode('utf8')).digest().h
 
         # generate what the int representation of the hash (bytes) should have been
-        h_ = RSA.inv_sig(sig, self.private_key)
+        h_ = RSA.inv_sig(sig, self.key)
 
-        return h == h_
+        if h != h_:
+            raise SigningError("Signature for object is invalid")
+
+
+class RestictedNotary(Notary):
+    """Can only verify with a given public key cannot sign"""
+
+    def __init__(self, key: keys.RSAPublicKey):
+        self.key = key
+
+    def sign_object(self, obj: Signable) -> Signable:
+        raise SigningError('Cannot sign with a public key')
+
+

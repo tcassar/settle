@@ -129,3 +129,9 @@ class RSAPrivateKey(RSAPublicKey):
         """
         if self._exists(item):
             return self.lookup[item]
+
+
+class TestPubKey(RSAPublicKey):
+    def __init__(self, n, e):
+        self.n = n
+        self.e = e
