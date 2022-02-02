@@ -1,4 +1,5 @@
 # coding=utf-8
+import sys
 
 from crypto import hashes
 import hashlib
@@ -18,7 +19,7 @@ class TestHash(TestCase):
         """Checks that _hasher is initialised correctly i.e. no strange start values"""
         h = hashes.Hasher()
         self.assertEqual(
-            h.digest().int_digest(), int.from_bytes(hashlib.sha3_256(b"").digest(), byteorder='big')
+            h.digest().int_digest(), int.from_bytes(hashlib.sha3_256(b"").digest(), byteorder=sys.byteorder)
         )  # should be initialised empty
 
     def test_hash(self) -> None:

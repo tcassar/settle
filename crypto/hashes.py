@@ -7,6 +7,7 @@ Hashing is done through hashlib library
 """
 
 import hashlib
+import sys
 from dataclasses import dataclass
 
 
@@ -25,7 +26,7 @@ class Hash:
         self.h: bytes = h
 
     def int_digest(self) -> int:
-        return int.from_bytes(self.h, byteorder='big')
+        return int.from_bytes(self.h, byteorder=sys.byteorder)
 
     @staticmethod
     def validate(passed_hash):
