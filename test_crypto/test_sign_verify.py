@@ -3,7 +3,8 @@
 """
 Testing sign / verify through RSA working as expected
 """
-from crypto import keys, hashes, rsa
+from transactions.transaction import Signable
+from crypto import keys, rsa
 
 import os
 from unittest import TestCase
@@ -23,7 +24,7 @@ class TestRSA(TestCase):
         ldr.parse()
 
         # build public and private
-        self.private = keys.RSAKey(ldr)
+        self.private = keys.RSAPrivateKey(ldr)
         self.public = keys.RSAPublicKey(ldr)
 
     def test_encryption(self):
@@ -44,11 +45,58 @@ class TestRSA(TestCase):
         with self.subTest("Successful decryption"):
             self.assertEqual(message, decrypted)
 
-    def test_sigs(self):
+    def test_RSA_sign(self):
         """Checks for consistent creating / verifying of a 'signature'"""
+
         message = " | maia"
         m_bytes = message.encode("utf8")
         sig: bytes = rsa.RSA.sign(m_bytes, self.private)
-        de_sign: bytes = rsa.RSA.de_sig(sig, self.public)
+        de_sign: bytes = rsa.RSA.inv_sig(sig, self.public)
 
         self.assertEqual(m_bytes, de_sign)
+
+
+class TestNotary(TestCase):
+    """Test interface to sign signable objects"""
+
+    def setUp(self) -> None:
+        # load keys
+        ldr = keys.RSAKeyLoader()
+        ldr.load("./crypto/sample_keys/private-key.pem")
+        ldr.parse()
+
+        # build public and private
+        self.private = keys.RSAPrivateKey(ldr)
+        self.public = keys.RSAPublicKey(ldr)
+
+    def test_sign_auth(self):
+        # set up signable object
+
+        class TestTransaction(Signable):
+
+            def __init__(self, msg: str):
+                self.msg = msg
+                self.signature: None | bytes = None
+
+            def add_sig(self, sig: bytes):
+                self.signature = sig
+
+            def __str__(self):
+                return self.msg
+
+        test = TestTransaction('hello, world')
+
+        notary = rsa.Notary(self.private)
+
+        try:
+            notary.sign_object(test)
+        except rsa.SigningError:
+            # leave signing error as it means there is problem in verification
+            ...
+
+        with self.subTest('Add signature'):
+            self.assertIsNotNone(test.signature)
+            print(test.signature)
+
+        with self.subTest('Verification'):
+            self.assertTrue(notary.verify_object(test))

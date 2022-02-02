@@ -53,7 +53,7 @@ class TestRSAKeyLoading(TestCase):
 
         known = [k_e, k_d, k_n]
 
-        key = keys.RSAKey(loader)
+        key = keys.RSAPrivateKey(loader)
 
         received = [
             key.e,
@@ -87,7 +87,7 @@ class TestRSAKeyLoading(TestCase):
         """Check accessing attributes"""
         loader = self.loader
         loader.load(self.key_path)
-        key = keys.RSAKey(loader)
+        key = keys.RSAPrivateKey(loader)
 
         with self.assertRaises(keys.RSAKeyError):
             _ = key.asdf

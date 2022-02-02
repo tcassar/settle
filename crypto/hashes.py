@@ -26,6 +26,7 @@ class Hash:
         self.h: bytes = h
 
     def int_digest(self) -> int:
+        # int representation of bytes, not actual value
         return int.from_bytes(self.h, byteorder=sys.byteorder)
 
     @staticmethod
