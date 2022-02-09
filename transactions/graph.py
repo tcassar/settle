@@ -28,6 +28,9 @@ def shell_init():
     return d, vertices
 
 
+class GraphBuildingError(Exception): ...
+
+
 @dataclass
 class Vertex:
     """Representation of a vertex; carries data and ID"""
@@ -60,14 +63,6 @@ class Digraph:
         # initialise with values being empty
         self.graph: dict[Vertex, list[Vertex]] = {vertex: [] for vertex in vertices}
 
-    def add_edge(self, src: Vertex, dest: Vertex) -> None:
-        """Adds edge from src  -> destination; **directional**"""
-        self.graph[src].append(dest)
-
-    def remove_edge(self, src: Vertex, dest: Vertex) -> None:
-        """removes dest from src's adj list"""
-        self.graph[src].remove(dest)
-
     def __str__(self):
         """Pretty print graph"""
         out = ""
@@ -78,3 +73,14 @@ class Digraph:
             out += f"{str(node).upper()} -> {pretty_nodes}\n"
 
         return out
+
+    def add_edge(self, src: Vertex, dest: Vertex) -> None:
+        """Adds edge from src  -> destination; **directional**"""
+        self.graph[src].append(dest)
+
+    def remove_edge(self, src: Vertex, dest: Vertex) -> None:
+        """removes dest from src's adj list"""
+        self.graph[src].remove(dest)
+
+    def is_edge(self, src: Vertex, dest: Vertex) -> bool:
+        return dest in self.graph[src]
