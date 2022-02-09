@@ -13,22 +13,22 @@ List con is edge queries are O(V) instead of O(1) like with adj. matrix
 """
 
 
-def shell_init():
-    """For ease of shell"""
-    labels = ["a", "b", "c"]
-    vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
+# def shell_init():
+#     """For ease of shell"""
+#     labels = ["a", "b", "c"]
+#     vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
+#
+#     d = Digraph(vertices)
+#     u, v, w = vertices
+#     d.add_edge(u, v)
+#     d.add_edge(u, w)
+#     d.add_edge(v, w)
+#
+#     return d, vertices
 
-    d = Digraph(vertices)
-    u, v, w = vertices
-    d.add_edge(u, v)
-    d.add_edge(u, w)
-    d.add_edge(v, w)
-    print(d)
 
-    return d, vertices
-
-
-class GraphBuildingError(Exception): ...
+class GraphBuildingError(Exception):
+    ...
 
 
 @dataclass
