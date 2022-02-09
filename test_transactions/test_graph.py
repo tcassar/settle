@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from transactions.graph import Vertex, Digraph
+from transactions.graph import Vertex, Digraph, GraphGenError
 from unittest import TestCase
 
 
@@ -29,7 +29,7 @@ class TestDigraph(TestCase):
         no = self.d.is_edge(w, u)
 
         for case, expected, received in zip(
-            ["exists", "doesn't exist"], [True, False], [yes, no]
+                ["exists", "doesn't exist"], [True, False], [yes, no]
         ):
             with self.subTest(case):
                 self.assertIs(expected, received)
@@ -51,4 +51,10 @@ class TestDigraph(TestCase):
         self.assertFalse(d.is_edge(u, w))
 
     def test_bad_vertex(self):
-        ...
+        with self.subTest('Bad gen'), \
+                self.assertRaises(GraphGenError):
+            _ = Digraph([1, 2, 3])  # type: ignore
+
+        with self.subTest('Bad op'), \
+                self.assertRaises(GraphGenError):
+            self.d.is_edge(1, 2)  # type: ignore
