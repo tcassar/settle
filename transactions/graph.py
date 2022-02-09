@@ -27,7 +27,7 @@ List con is edge queries are O(V) instead of O(1) like with adj. matrix
 #     return d, vertices
 
 
-class GraphBuildingError(Exception):
+class GraphGenError(Exception):
     ...
 
 
@@ -61,7 +61,14 @@ class Digraph:
         Sets up a graph given a list of vertices
         """
         # initialise with values being empty
-        self.graph: dict[Vertex, list[Vertex]] = {vertex: [] for vertex in vertices}
+        self.graph: dict[Vertex, list[Vertex]] = {}
+
+        # build dict checking each type as we go
+        for vertex in vertices:
+            if type(vertex) is Vertex:
+                self.graph[vertex] = []
+            else:
+                raise GraphGenError("Cannot build graph without vertex objects")
 
     def __str__(self):
         """Pretty print graph"""
