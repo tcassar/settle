@@ -61,14 +61,11 @@ class Digraph:
         Sets up a graph given a list of vertices
         """
         # initialise with values being empty
-        self.graph: dict[Vertex, list[Vertex]] = {}
-
         # build dict checking each type as we go
-        for vertex in vertices:
-            if type(vertex) is Vertex:
-                self.graph[vertex] = []
-            else:
-                raise GraphGenError("Cannot build graph without vertex objects")
+        self.graph: dict[Vertex, list[Vertex]] = {
+            vertex: []  # type: ignore
+            if self._sanitize(vertex) else None
+            for vertex in vertices}
 
     def __str__(self):
         """Pretty print graph"""
@@ -81,13 +78,27 @@ class Digraph:
 
         return out
 
+    @staticmethod
+    def _sanitize(v: Vertex, *args) -> bool:
+        if args is not None:
+            tests = [v, *args]
+        else:
+            tests = [v]
+        for test in tests:
+            if type(test) is not Vertex:
+                raise GraphGenError(f"{test} if of type {type(test)} not Vertex ")
+        return True
+
     def add_edge(self, src: Vertex, dest: Vertex) -> None:
         """Adds edge from src  -> destination; **directional**"""
+        self._sanitize(src, dest)
         self.graph[src].append(dest)
 
     def remove_edge(self, src: Vertex, dest: Vertex) -> None:
         """removes dest from src's adj list"""
+        self._sanitize(src, dest)
         self.graph[src].remove(dest)
 
     def is_edge(self, src: Vertex, dest: Vertex) -> bool:
+        self._sanitize(src, dest)
         return dest in self.graph[src]
