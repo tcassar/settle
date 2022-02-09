@@ -3,7 +3,8 @@
 """
 Set up graph object to be used in condensing debt settling
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from ordered_set import OrderedSet
 
 """
 Adj list vs matrix;
@@ -13,22 +14,7 @@ List con is edge queries are O(V) instead of O(1) like with adj. matrix
 """
 
 
-# def shell_init():
-#     """For ease of shell"""
-#     labels = ["a", "b", "c"]
-#     vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
-#
-#     d = Digraph(vertices)
-#     u, v, w = vertices
-#     d.add_edge(u, v)
-#     d.add_edge(u, w)
-#     d.add_edge(v, w)
-#
-#     return d, vertices
-
-
-class GraphGenError(Exception):
-    ...
+class GraphGenError(Exception): ...
 
 
 @dataclass
@@ -50,6 +36,25 @@ class Vertex:
         return hash(bytes(f"{self._key()}".encode("utf8")))
 
 
+class BFSQueue:
+    """Standard queue, but does not allow the repetition of elements; also typed as only accepting vertices"""
+
+    # TODO: Check use of orderedset is okay
+
+    def __init__(self):
+        self.q = OrderedSet([])
+
+    def enqueue(self, v: Vertex):
+        Digraph.sanitize(v)
+        _ = self.q.append(v)
+
+    def dequeue(self):
+        return self.q.pop()
+
+    def is_empty(self) -> bool:
+        return not not len(self.q)
+
+
 class Digraph:
     """
     Simple graph; no weighting of edges, edges directional
@@ -64,7 +69,7 @@ class Digraph:
         # build dict checking each type as we go
         self.graph: dict[Vertex, list[Vertex]] = {
             vertex: []  # type: ignore
-            if self._sanitize(vertex) else None
+            if self.sanitize(vertex) else None
             for vertex in vertices}
 
     def __str__(self):
@@ -79,7 +84,7 @@ class Digraph:
         return out
 
     @staticmethod
-    def _sanitize(v: Vertex, *args) -> bool:
+    def sanitize(v: Vertex, *args) -> bool:
         if args is not None:
             tests = [v, *args]
         else:
@@ -91,14 +96,17 @@ class Digraph:
 
     def add_edge(self, src: Vertex, dest: Vertex) -> None:
         """Adds edge from src  -> destination; **directional**"""
-        self._sanitize(src, dest)
+        self.sanitize(src, dest)
         self.graph[src].append(dest)
 
     def remove_edge(self, src: Vertex, dest: Vertex) -> None:
         """removes dest from src's adj list"""
-        self._sanitize(src, dest)
+        self.sanitize(src, dest)
         self.graph[src].remove(dest)
 
     def is_edge(self, src: Vertex, dest: Vertex) -> bool:
-        self._sanitize(src, dest)
+        self.sanitize(src, dest)
         return dest in self.graph[src]
+
+    def bfs(self):
+        ...

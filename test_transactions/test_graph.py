@@ -58,3 +58,7 @@ class TestDigraph(TestCase):
         with self.subTest('Bad op'), \
                 self.assertRaises(GraphGenError):
             self.d.is_edge(1, 2)  # type: ignore
+
+
+class TestBFS(TestCase):
+    def test_BFSQueue(self): ...
