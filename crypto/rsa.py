@@ -96,13 +96,14 @@ class RestrictedNotary:
             raise SigningError("Object has no signature to verify")
 
         # calculate hash of the object
-        h = hashes.Hasher(str(obj).encode('utf8')).digest().h
+        h = hashes.Hasher(str(obj).encode("utf8")).digest().h
 
         # generate what the int representation of the hash (bytes) should have been
         h_ = RSA.inv_sig(sig, self.key)
 
         if h != h_:
             raise SigningError("Signature for object is invalid")
+
 
 @dataclass
 class Notary(RestrictedNotary):
@@ -114,7 +115,7 @@ class Notary(RestrictedNotary):
         """Will sign an object; returns object, having added a signature"""
 
         # create byte representation of object
-        msg = str(obj).encode('utf8')
+        msg = str(obj).encode("utf8")
 
         # hash the msg
         msg = hashes.Hasher(msg).digest().h
@@ -128,6 +129,3 @@ class Notary(RestrictedNotary):
         # make sure signature is valid
         self.verify_object(obj)
         return obj
-
-
-

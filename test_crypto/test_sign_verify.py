@@ -11,6 +11,7 @@ from unittest import TestCase
 
 
 class TestTransaction(Signable):
+    """Signable mock transaction"""
 
     def __init__(self, msg: str):
         self.msg = msg

@@ -25,7 +25,7 @@ class RSAKeyLoader:
     """Will load a key from a private key file"""
 
     # initialise what we need, don't pass in anything at instantiation
-    lookup: dict[str:int] | None = None
+    lookup: dict[str, int] | None = None
     key: None | str = None
 
     def load(self, path_to_private_key: str) -> str:
@@ -74,7 +74,7 @@ class RSAKeyLoader:
 
         # use local key if key not given
         if keys is None:
-            keys = self.key
+            keys: str = self.key
             if self.key is None:
                 raise RSAParserError("Key has not been loaded")
 
@@ -87,7 +87,7 @@ class RSAKeyLoader:
             " ",
             keys,
         )
-        keys = map(hexstr_to_int, keys.split())
+        keys: map = map(hexstr_to_int, keys.split())
 
         # combine to dict
         self.lookup = {label: key for label, key in zip(delimiters, keys)}
