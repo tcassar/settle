@@ -14,7 +14,8 @@ List con is edge queries are O(V) instead of O(1) like with adj. matrix
 """
 
 
-class GraphGenError(Exception): ...
+class GraphGenError(Exception):
+    ...
 
 
 @dataclass
@@ -68,9 +69,9 @@ class Digraph:
         # initialise with values being empty
         # build dict checking each type as we go
         self.graph: dict[Vertex, list[Vertex]] = {
-            vertex: []  # type: ignore
-            if self.sanitize(vertex) else None
-            for vertex in vertices}
+            vertex: [] if self.sanitize(vertex) else None  # type: ignore
+            for vertex in vertices
+        }
 
     def __str__(self):
         """Pretty print graph"""

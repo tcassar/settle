@@ -83,14 +83,14 @@ class TestNotary(TestCase):
         private = keys.RSAPrivateKey(ldr)
 
         self.notary = rsa.Notary(private)
-        self.tamper = TestTransaction('leng1')
+        self.tamper = TestTransaction("leng1")
 
         self.notary.sign_object(self.tamper)
 
     def test_sign_auth(self):
         # set up signable object
 
-        test = TestTransaction('hello, world')
+        test = TestTransaction("hello, world")
 
         notary = self.notary
 
@@ -100,22 +100,22 @@ class TestNotary(TestCase):
             # leave signing error as it means there is problem in verification
             ...
 
-        with self.subTest('Add signature'):
+        with self.subTest("Add signature"):
             self.assertIsNotNone(test.signature)
 
-        with self.subTest('Verification'):
+        with self.subTest("Verification"):
             notary.verify_object(test)
 
     def test_msg_tamper(self):
         tamper = self.tamper
-        tamper.msg = 'dead1'
+        tamper.msg = "dead1"
 
         with self.assertRaises(rsa.SigningError):
             self.notary.verify_object(tamper)
 
     def test_sig_tamper(self):
         tamper = self.tamper
-        tamper.signature += b'1'
+        tamper.signature += b"1"
 
         with self.assertRaises(rsa.SigningError):
             self.notary.verify_object(tamper)
@@ -129,7 +129,3 @@ class TestNotary(TestCase):
 
         with self.assertRaises(rsa.SigningError):
             wrong_notary.verify_object(self.tamper)
-
-
-
-
