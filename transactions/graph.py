@@ -53,8 +53,12 @@ class BFSStruct:
     def __len__(self):
         return len(self.q)
 
-    def __str__(self):
-        return str(self.q)
+    def __getstate__(self) -> list[str]:
+        pretty = []
+        for v in self.q:
+            pretty.append(str(v))
+
+        return pretty
 
 
 class BFSQueue(BFSStruct):
@@ -82,6 +86,12 @@ class BFSDiscovered(BFSStruct):
     def append(self, vertex: Vertex) -> None:
         Digraph.sanitize(vertex)
         _ = self.q.append(vertex)
+
+    def __repr__(self):
+        args = ""
+        for v in self.q:
+            args += str(v) + ", "
+        return f"BFSDiscovered({args[:-2]})"
 
 
 class Digraph:
@@ -137,8 +147,8 @@ class Digraph:
         self.sanitize(src, dest)
         return dest in self.graph[src]
 
-    def BFS(self) -> OrderedSet[Vertex]:
-        """Public facing BFS; starts then returns list at end"""
+    def BFS(self) -> BFSDiscovered:
+        """Public facing BFS; starts then returns list of found vertices"""
 
         # initialise queue and discovered list
         queue = BFSQueue()
@@ -152,14 +162,17 @@ class Digraph:
         queue.enqueue(start)
 
         # recursive call
-        print(f'Queue: {queue}\nDiscovered{discovered}\n')
-        return self._recursiveBFS(queue, discovered)
+        # print(f'Queue: {queue}\nDiscovered{discovered}\n')
+        out = self._recursiveBFS(queue, discovered)
+        repr(out)
+        return out
 
-    def _recursiveBFS(self, queue: BFSQueue, discovered: BFSDiscovered) -> OrderedSet[Vertex]:
-        print(f'Queue: {queue}\nDiscovered{discovered}')
+    def _recursiveBFS(self, queue: BFSQueue, discovered: BFSDiscovered) -> BFSDiscovered:  # type: ignore
+        print(f"Queue: {queue}\nDiscovered: {discovered}\n")
 
         if queue.is_empty():
-            return discovered.q
+            print(f"returning {discovered!r}\n")
+            return discovered
 
         else:
             # dequeue, mark as discovered
@@ -170,5 +183,5 @@ class Digraph:
             queue.enqueue(*self.graph[current])
 
             # bfs on new state
-            print(f'Queue: {queue}\nDiscovered{discovered}')
-            self._recursiveBFS(queue, discovered)
+
+            return self._recursiveBFS(queue, discovered)
