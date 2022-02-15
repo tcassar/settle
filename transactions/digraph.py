@@ -6,7 +6,6 @@ Set up graph object to be used in condensing debt settling
 import copy
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import Optional
 
 """
 Adj list vs matrix;
@@ -41,9 +40,6 @@ class Vertex:
     def __hash__(self):
         """for adding to lists / dicts"""
         return hash(bytes(f"{self._key()}".encode("utf8")))
-
-    def __iter__(self):
-        return self
 
 
 class BaseGraph:
@@ -85,7 +81,8 @@ class BaseGraph:
             tests = [v]
         for test in tests:
             if type(test) is not Vertex:
-                raise GraphGenError(f"{test} if of type {type(test)} not Vertex ")
+                raise GraphOpError(f"{test} if of type {type(test)} not Vertex ")
+
         return True
 
     def _node_in_graph(self, node: Vertex) -> bool:
@@ -95,7 +92,8 @@ class BaseGraph:
         self.basegraph[v] = []
         self._backwards_graph[v] = []
 
-    def remove_node(self, v: Vertex): ...
+    def remove_node(self, v: Vertex):
+        ...
 
     def is_edge(self, src: Vertex, dest: Vertex) -> bool:
         self.sanitize(src, dest)
@@ -197,12 +195,12 @@ class WeightedDigraph(BaseGraph):
 
     def remove_node(self, v: Vertex):
         self.sanitize(v)
+        if v not in self.graph:
+            raise GraphOpError
+
         pointing_to_v: list[Vertex] = self._backwards_graph[v]
 
         for node in pointing_to_v:
-            if self._node_in_graph(v):
-                for edge in self.graph[node]:
-                    if edge.node == v:
-                        self.graph[node].remove(edge)
-            else:
-                raise GraphGenError(f"Node {v} not in graph")
+            for edge in self.graph[node]:
+                if edge.node == v:
+                    self.graph[node].remove(edge)
