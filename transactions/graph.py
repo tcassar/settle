@@ -18,6 +18,10 @@ class GraphGenError(Exception):
     ...
 
 
+class SearchError(Exception):
+    ...
+
+
 @dataclass
 class Vertex:
     """Representation of a vertex; carries data and ID"""
@@ -36,24 +40,48 @@ class Vertex:
         """for adding to lists / dicts"""
         return hash(bytes(f"{self._key()}".encode("utf8")))
 
+    def __iter__(self):
+        return self
 
-class BFSQueue:
+
+class BFSStruct:
+    """Base class for custom BFS data structures"""
+
+    def __init__(self, *args):
+        self.q = OrderedSet(args)
+
+    def __len__(self):
+        return len(self.q)
+
+    def __str__(self):
+        return str(self.q)
+
+
+class BFSQueue(BFSStruct):
     """Standard queue, but does not allow the repetition of elements; also typed as only accepting vertices"""
 
-    # TODO: Check use of orderedset is okay
+    # def __bool__(self) -> bool:
+    #     if len(self.q) == 0:
+    #         return False
+    #     else:
+    #         return True
 
-    def __init__(self):
-        self.q = OrderedSet([])
-
-    def enqueue(self, v: Vertex):
-        Digraph.sanitize(v)
-        _ = self.q.append(v)
+    def enqueue(self, *args: Vertex):
+        for v in args:
+            Digraph.sanitize(v)
+            self.q.append(v)
 
     def dequeue(self):
         return self.q.pop()
 
     def is_empty(self) -> bool:
-        return not not len(self.q)
+        return not len(self.q)
+
+
+class BFSDiscovered(BFSStruct):
+    def append(self, vertex: Vertex) -> None:
+        Digraph.sanitize(vertex)
+        _ = self.q.append(vertex)
 
 
 class Digraph:
@@ -109,5 +137,38 @@ class Digraph:
         self.sanitize(src, dest)
         return dest in self.graph[src]
 
-    def bfs(self):
-        ...
+    def BFS(self) -> OrderedSet[Vertex]:
+        """Public facing BFS; starts then returns list at end"""
+
+        # initialise queue and discovered list
+        queue = BFSQueue()
+        discovered = BFSDiscovered()
+
+        # get arbitrary start node
+        # will always be insertion order but doesn't need to be
+        start = next(iter(self.graph))
+
+        # enqueue initial node
+        queue.enqueue(start)
+
+        # recursive call
+        print(f'Queue: {queue}\nDiscovered{discovered}\n')
+        return self._recursiveBFS(queue, discovered)
+
+    def _recursiveBFS(self, queue: BFSQueue, discovered: BFSDiscovered) -> OrderedSet[Vertex]:
+        print(f'Queue: {queue}\nDiscovered{discovered}')
+
+        if queue.is_empty():
+            return discovered.q
+
+        else:
+            # dequeue, mark as discovered
+            current = queue.dequeue()
+            discovered.append(current)
+
+            # enqueue neighbours
+            queue.enqueue(*self.graph[current])
+
+            # bfs on new state
+            print(f'Queue: {queue}\nDiscovered{discovered}')
+            self._recursiveBFS(queue, discovered)
