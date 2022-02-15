@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from transactions.graph import *
+from transactions.digraph import *
 from unittest import TestCase
 
 
@@ -51,10 +51,10 @@ class TestDigraph(TestCase):
         self.assertFalse(d.is_edge(u, w))
 
     def test_bad_vertex(self):
-        with self.subTest("Bad gen"), self.assertRaises(GraphGenError):
+        with self.subTest("Bad gen"), self.assertRaises(GraphOpError):
             _ = Digraph([1, 2, 3])  # type: ignore
 
-        with self.subTest("Bad op"), self.assertRaises(GraphGenError):
+        with self.subTest("Bad op"), self.assertRaises(GraphOpError):
             self.g.is_edge(1, 2)  # type: ignore
 
     def test_nodes_not_in_graph(self):
@@ -81,30 +81,50 @@ class TestDigraph(TestCase):
         self.assertNotEqual(pre_pop, post_pop)
 
 
-class TestBFS(TestCase):
-    def test_BFSQueue(self):
-        ...
-
-    def setUp(self):
-        # make a graph with 5 nodes
-
-        labels = ["a", "b", "c", "g", "e"]
+class TestWeightedDigraph(TestCase):
+    def setUp(self) -> None:
+        labels = ["u", "v", "w"]
         self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
+        u, v, w = self.vertices
 
-        self.g = Digraph(self.vertices)
-        a, b, c, d, e = self.vertices
-        self.g.add_edge(a, b)
-        self.g.add_edge(a, e)
-        self.g.add_edge(b, c)
-        self.g.add_edge(b, e)
-        self.g.add_edge(d, c)
-        self.g.add_edge(e, c)
-        self.g.add_edge(e, d)
+        self.weighted_digraph = WeightedDigraph(self.vertices)
+        self.weighted_digraph.add_edge(u, v, 12)
+        self.weighted_digraph.add_edge(u, w, 4)
+        self.weighted_digraph.add_edge(v, w, 7)
 
-        # expected repr of ordering from this graph
-        self.expected = "BFSDiscovered(a, e, g, c, b)"
+    def test_add_edge(self):
+        pre_add = str(self.weighted_digraph)
+        (
+            u,
+            v,
+            w,
+        ) = self.vertices
+        self.weighted_digraph.add_edge(w, u, 9)
+        post_add = str(self.weighted_digraph)
 
-    def test_search_successful(self):
-        ordering = f"{self.g.BFS()!r}"
+        print(pre_add, post_add, sep="\n")
+        self.assertNotEqual(pre_add, post_add)
 
-        self.assertEqual(ordering, self.expected)
+    def test_float_edge(self):
+        (
+            u,
+            v,
+            w,
+        ) = self.vertices
+
+        with self.assertRaises(GraphGenError):
+            self.weighted_digraph.add_edge(v, u, 0.5)  # type: ignore
+
+    def test_remove_node(self):
+
+        pre_pop = str(self.weighted_digraph)
+        self.weighted_digraph.remove_node(self.vertices[1])
+        post_pop = str(self.weighted_digraph)
+
+        print(pre_pop, post_pop, sep="\n")
+
+        with self.subTest("valid"):
+            self.assertNotEqual(pre_pop, post_pop)
+
+        with (self.subTest("node not in list"), self.assertRaises(GraphOpError)):
+            self.weighted_digraph.remove_node(Vertex(132, "v"))
