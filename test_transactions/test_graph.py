@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from transactions.graph import Vertex, Digraph, GraphGenError
+from transactions.graph import *
 from unittest import TestCase
 
 
@@ -57,12 +57,35 @@ class TestDigraph(TestCase):
         with self.subTest("Bad op"), self.assertRaises(GraphGenError):
             self.g.is_edge(1, 2)  # type: ignore
 
+    def test_nodes_not_in_graph(self):
+        f = Vertex(6, "f")
+        h = Vertex(7, "h")
+
+        with self.assertRaises(GraphOpError):
+            self.g.add_edge(f, h)
+
+    def test_add_node(self):
+        pre_add = str(self.g)
+        self.g.add_node(Vertex(3, "a"))
+        post_add = str(self.g)
+
+        # print(pre_add, post_add, sep='\n')
+        self.assertNotEqual(pre_add, post_add)
+
+    def test_remove_node(self):
+        pre_pop = str(self.g)
+        self.g.remove_node(self.vertices[0])
+        post_pop = str(self.g)
+
+        print(pre_pop, post_pop, sep="\n")
+        self.assertNotEqual(pre_pop, post_pop)
+
 
 class TestBFS(TestCase):
     def test_BFSQueue(self):
         ...
 
-    def test_BFS_visited(self):
+    def setUp(self):
         # make a graph with 5 nodes
 
         labels = ["a", "b", "c", "g", "e"]
@@ -78,7 +101,10 @@ class TestBFS(TestCase):
         self.g.add_edge(e, c)
         self.g.add_edge(e, d)
 
-        ordering = f"{self.g.BFS()!r}"
-        expected = "BFSDiscovered(a, e, g, c, b)"
+        # expected repr of ordering from this graph
+        self.expected = "BFSDiscovered(a, e, g, c, b)"
 
-        self.assertEqual(ordering, expected)
+    def test_search_successful(self):
+        ordering = f"{self.g.BFS()!r}"
+
+        self.assertEqual(ordering, self.expected)

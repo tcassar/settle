@@ -18,6 +18,10 @@ class GraphGenError(Exception):
     ...
 
 
+class GraphOpError(Exception):
+    ...
+
+
 class SearchError(Exception):
     ...
 
@@ -52,13 +56,6 @@ class BFSStruct:
 
     def __len__(self):
         return len(self.q)
-
-    def __getstate__(self) -> list[str]:
-        pretty = []
-        for v in self.q:
-            pretty.append(str(v))
-
-        return pretty
 
 
 class BFSQueue(BFSStruct):
@@ -111,6 +108,8 @@ class Digraph:
             for vertex in vertices
         }
 
+        self._backwards_graph = self.graph.copy()
+
     def __str__(self):
         """Pretty print graph"""
         out = ""
@@ -124,6 +123,7 @@ class Digraph:
 
     @staticmethod
     def sanitize(v: Vertex, *args) -> bool:
+        """Raises GraphGenError if args are not Vertex"""
         if args is not None:
             tests = [v, *args]
         else:
@@ -133,22 +133,50 @@ class Digraph:
                 raise GraphGenError(f"{test} if of type {type(test)} not Vertex ")
         return True
 
+    def _node_in_graph(self, node: Vertex) -> bool:
+        return node in self.graph
+
+    def add_node(self, v: Vertex):
+        self.graph[v] = []
+        self._backwards_graph[v] = []
+
+    def remove_node(self, v: Vertex):
+        """Delete node from graph"""
+
+        # remove edges to node being deleted by using backwards graph
+        self.sanitize(v)
+        pointing_to_v = self._backwards_graph[v]
+
+        for node in pointing_to_v:
+            self.graph[node].remove(v)
+
+        self.graph.pop(v)
+        self._backwards_graph.pop(v)
+
     def add_edge(self, src: Vertex, dest: Vertex) -> None:
         """Adds edge from src  -> destination; **directional**"""
         self.sanitize(src, dest)
+
+        if not self._node_in_graph(src) or not self._node_in_graph(dest):
+            raise GraphOpError(f"src: {src} or dest: {dest} not in graph")
+
+        # add to graph, reverse to backwards_graph
         self.graph[src].append(dest)
+        self._backwards_graph[dest].append(src)
 
     def remove_edge(self, src: Vertex, dest: Vertex) -> None:
         """removes dest from src's adj list"""
         self.sanitize(src, dest)
+
         self.graph[src].remove(dest)
+        self._backwards_graph[dest].remove(src)
 
     def is_edge(self, src: Vertex, dest: Vertex) -> bool:
         self.sanitize(src, dest)
         return dest in self.graph[src]
 
     def BFS(self) -> BFSDiscovered:
-        """Public facing BFS; starts then returns list of found vertices"""
+        """Public facing BFS; starts then returns BFSDiscovered"""
 
         # initialise queue and discovered list
         queue = BFSQueue()
@@ -168,10 +196,10 @@ class Digraph:
         return out
 
     def _recursiveBFS(self, queue: BFSQueue, discovered: BFSDiscovered) -> BFSDiscovered:  # type: ignore
-        print(f"Queue: {queue}\nDiscovered: {discovered}\n")
+        # print(f"Queue: {queue}\nDiscovered: {discovered}\n")
 
         if queue.is_empty():
-            print(f"returning {discovered!r}\n")
+            # print(f"returning {discovered!r}\n")
             return discovered
 
         else:
