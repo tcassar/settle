@@ -3,6 +3,7 @@
 """
 Set up graph object to be used in condensing debt settling
 """
+from copy import deepcopy
 from dataclasses import dataclass
 from ordered_set import OrderedSet
 
@@ -108,7 +109,7 @@ class Digraph:
             for vertex in vertices
         }
 
-        self._backwards_graph = self.graph.copy()
+        self._backwards_graph = deepcopy(self.graph)
 
     def __str__(self):
         """Pretty print graph"""
