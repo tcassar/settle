@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from transactions.digraph import Digraph, Vertex
+from transactions.graph import Digraph, Vertex
 
 from ordered_set import OrderedSet
 
@@ -76,9 +76,10 @@ class Traversals:
         repr(out)
         return out
 
-    def _recursiveBFS(self, queue: BFSQueue, discovered: BFSDiscovered) -> BFSDiscovered:  # type: ignore
+    def _recursiveBFS(self, queue: BFSQueue, discovered: BFSDiscovered, looking_for: bool | Vertex = False) -> BFSDiscovered:  # type: ignore
         # print(f"Queue: {queue}\nDiscovered: {discovered}\n")
 
+        # base case with empty queue
         if queue.is_empty():
             # print(f"returning {discovered!r}\n")
             return discovered
@@ -87,10 +88,21 @@ class Traversals:
             # dequeue, mark as discovered
             current = queue.dequeue()
             discovered.append(current)
-
             # enqueue neighbours
             queue.enqueue(*self.graph[current])
 
-            # bfs on new state
+            # if found node looking for return
+            if type(current) == Vertex and looking_for:
+                if current == looking_for:
+                    return discovered
 
+            # bfs on new state
             return self._recursiveBFS(queue, discovered)
+
+    def path(self, s: Vertex, t: Vertex) -> bool:
+        """Outputs true if there is a path from s to t"""
+        queue = BFSQueue()
+        discovered = BFSDiscovered()
+
+        queue.enqueue(s)
+        discovered.append(s)

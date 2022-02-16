@@ -41,7 +41,6 @@ class RSA(ABC):
 
     @staticmethod
     def bytes_to_str(b: bytes) -> str:
-        # TODO: Understand why this isn't working don't just delete redundant bytes
         return b.decode("utf8").replace("\x00", "")
 
     @staticmethod

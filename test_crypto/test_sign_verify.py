@@ -51,7 +51,7 @@ class TestRSA(TestCase):
 
         with self.subTest("Catch Public Key"):
             with self.assertRaises(rsa.DecryptionError):
-                _ = rsa.RSA.naive_decrypt(encrypted, self.public)
+                _ = rsa.RSA.naive_decrypt(encrypted, self.public)  # type: ignore
 
         with self.subTest("encrypted"):
             self.assertNotEqual(m_bytes, encrypted)
@@ -83,7 +83,7 @@ class TestNotary(TestCase):
         private = keys.RSAPrivateKey(ldr)
 
         self.notary = rsa.Notary(private)
-        self.tamper = TestTransaction("leng1")
+        self.tamper = TestTransaction("tst")
 
         self.notary.sign_object(self.tamper)
 

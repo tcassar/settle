@@ -1,5 +1,5 @@
 # coding=utf-8
-
+from transactions.graph import *
 from transactions.traversals import *
 from unittest import TestCase
 
@@ -27,7 +27,19 @@ class TestBFS(TestCase):
         # expected repr of ordering from this graph
         self.expected = "BFSDiscovered(a, e, g, c, b)"
 
-    def test_search_successful(self):
+    def test_search_digraph(self):
         ordering = f"{self.g_traversal.BFS()!r}"
 
         self.assertEqual(ordering, self.expected)
+
+    def test_search_weighted(self):
+        self.weighted = WeightedDigraph(self.vertices)
+        a, b, c, d, e = self.vertices
+        self.weighted.add_edge(a, b, 1)
+        self.weighted.add_edge(a, e, 2)
+        self.weighted.add_edge(b, c, 3)
+        self.weighted.add_edge(b, e, 4)
+        self.weighted.add_edge(d, c, 5)
+        self.weighted.add_edge(e, c, 6)
+        self.weighted.add_edge(e, d, 7)
+
