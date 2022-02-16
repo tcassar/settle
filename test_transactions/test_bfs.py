@@ -1,6 +1,6 @@
 # coding=utf-8
 from transactions.graph import *
-from transactions.traversals import *
+from transactions.graph_ops import *
 from unittest import TestCase
 
 
@@ -14,7 +14,6 @@ class TestBFS(TestCase):
         self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
 
         self.g = Digraph(self.vertices)
-        self.g_traversal = Traversals(self.g)
         a, b, c, d, e = self.vertices
         self.g.add_edge(a, b)
         self.g.add_edge(a, e)
@@ -28,9 +27,8 @@ class TestBFS(TestCase):
         self.expected = "BFSDiscovered(a, e, g, c, b)"
 
     def test_search_digraph(self):
-        ordering = f"{self.g_traversal.BFS()!r}"
-
-        self.assertEqual(ordering, self.expected)
+        a, b, c, d, e = self.vertices
+        print(GraphOps.is_path(self.g, a, b))
 
     def test_search_weighted(self):
         self.weighted = WeightedDigraph(self.vertices)
