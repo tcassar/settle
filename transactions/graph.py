@@ -5,7 +5,6 @@ Set up graph object to be used in condensing debt settling
 """
 import copy
 from dataclasses import dataclass
-from typing import List, Callable
 
 """
 Adj list vs matrix;
@@ -16,6 +15,10 @@ List con is edge queries are O(V) instead of O(1) like with adj. matrix
 
 
 class GraphError(Exception):
+    ...
+
+
+class FlowError(Exception):
     ...
 
 
@@ -42,6 +45,8 @@ class Vertex:
 class Edge:
     node: Vertex
 
+    def __str__(self):
+        return str(self.node)
 
 @dataclass
 class WeightedEdge(Edge):
@@ -50,14 +55,22 @@ class WeightedEdge(Edge):
 
 @dataclass
 class FlowEdge(Edge):
-    capacity: int
+    capacity: int = 0
     flow: int = 0
+    residual: bool = not capacity  # class as residual edge if capacity is 0
 
     def __str__(self):
-        return f'{self.node} [{self.flow}/{self.capacity}]'
+        return f"{self.node} [{self.flow}/{self.capacity}]"
 
     def unused_capacity(self):
         return self.capacity - self.flow
+
+    def push_flow(self, flow):
+        if self.flow + flow > self.capacity or type(flow) is not int:
+            raise FlowError(
+                f"Cannot send {flow} units down path of capacity {self.capacity}"
+            )
+        self.flow += flow
 
 
 class GenericDigraph:
@@ -93,7 +106,7 @@ class GenericDigraph:
         return self.graph[item]
 
     @staticmethod
-    def node_in_list(node: Vertex, list_: list[Edge]) -> Edge | None:
+    def edge_from_nodes(node: Vertex, list_: list[Edge]) -> Edge:
         """Checks if node is in a list of edges, will return relevant edge if found"""
         for edge in list_:
             if edge.node == node:
@@ -101,7 +114,14 @@ class GenericDigraph:
             else:
                 continue
 
-        return None
+        raise GraphError('Node not in list')
+
+    @staticmethod
+    def nodes_from_edges(edges: list[Edge]) -> list[Vertex]:
+        nodes = []
+        for edge in edges:
+            nodes.append(edge.node)
+        return nodes
 
     @staticmethod
     def sanitize(v: Vertex, *args) -> bool:
@@ -131,18 +151,21 @@ class GenericDigraph:
             pointing_node_neighbours = self._backwards_graph[
                 edge.node
             ]  # [Edge(A), Edge(C)]
-            pointing_edge = self.node_in_list(v, self.graph[edge.node])
+            pointing_edge = self.edge_from_nodes(v, self.graph[edge.node])
             self.graph[edge.node].remove(pointing_edge)  # type: ignore
 
         return {v: self.graph.pop(v)}
 
     def is_edge(self, s: Vertex, t: Vertex) -> bool:
         """Checks for an edge between nodes (directional: s->t !=> t->s"""
-        return True if self.node_in_list(t, self.graph[s]) is not None else False
+        try:
+            return not not self.edge_from_nodes(t, self.graph[s])
+        except GraphError:
+            return False
 
     def pop_edge(self, s: Vertex, t: Vertex) -> Edge:
         self.sanitize(s, t)
-        edge = self.node_in_list(t, self.graph[s])
+        edge = self.edge_from_nodes(t, self.graph[s])
 
         if edge is None:
             raise GraphError("Cannot pop edge that doesnt exist")
@@ -185,6 +208,10 @@ class FlowGraph(WeightedDigraph):
     Assumes no two way edges: may be problematic
     """
 
+    @staticmethod
+    def edge_from_nodes(node: Vertex, list_: list[Edge]) -> FlowEdge:
+        return Digraph.edge_from_nodes(node, list_)  # type: ignore
+
     def add_edge(self, source: Vertex, *edges: tuple[Vertex, int]) -> None:
         # sanitize source
         self.sanitize(source)
@@ -202,7 +229,7 @@ class FlowGraph(WeightedDigraph):
     def pop_edge(self, s: Vertex, t: Vertex) -> Edge:
         # pop residual edge as well
 
-        edge = self.node_in_list(s, self.graph[t])
+        edge = self.edge_from_nodes(s, self.graph[t])
 
         if edge is None:
             raise GraphError("Cannot pop edge that doesn't exist")
@@ -221,3 +248,15 @@ class FlowGraph(WeightedDigraph):
 
         # fine as (*)
         return filtered  # type: ignore
+
+    def push_flow(self, path: list[Vertex], flow: int):
+        """Pushes flow along path; path denoted as [Vertex(A), Vertex(B)... Vertex(X)]
+        1) get neighbouring edges of first person in path
+        2) push flow along A -> B
+        3) iterate for len(list) - 1
+        """
+
+        for node, next in zip(path, path[1:]):
+            flow_edge: FlowEdge = self.edge_from_nodes(next, self[node])  # type: ignore
+            flow_edge.push_flow(flow)
+

@@ -26,9 +26,9 @@ class TestDigraph(TestCase):
         with self.subTest("helpers"):
             self.assertTrue(self.graph.is_node(self.vertices[0]))
             self.assertTrue(self.graph.sanitize(*self.vertices))
-            self.assertIsNotNone(
-                self.graph.node_in_list(self.vertices[0], [Edge(self.vertices[0])])
-            )
+
+            with self.assertRaises(GraphError):
+                self.graph.edge_from_nodes(self.vertices[2], [Edge(self.vertices[0])])
 
     def test_is_edge(self):
         u, v, w = self.vertices
@@ -53,7 +53,8 @@ class TestDigraph(TestCase):
         self.graph.pop_node(u)
         print(self.graph)
         self.assertFalse(self.graph.is_node(u))
-        self.assertFalse(self.graph.node_in_list(u, self.graph[v]))
+        with self.assertRaises(GraphError):
+            self.graph.edge_from_nodes(u, self.graph[v])
 
     def test_pop_edge(self):
         u, v, w = self.vertices
@@ -114,4 +115,14 @@ class TestFlowGraph(TestCase):
 
     def test_neighbours(self):
         u, v, w = self.vertices
-        self.graph.neighbours(u)
+        pre_flow = self.graph.neighbours(u)
+        # send 3 units from u -> v; hope is that v no longer appears as a neighbour
+        self.graph.push_flow([u, v], 1)
+        post_flow = self.graph.neighbours(u)
+
+        # expected neighbours
+        self.assertEqual(set(self.graph.nodes_from_edges(pre_flow)), {v, w})
+
+        # expected neighbours after flow
+        # expected neighbours
+        self.assertEqual(set(self.graph.nodes_from_edges(post_flow)), {w})
