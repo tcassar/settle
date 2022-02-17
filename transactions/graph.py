@@ -5,7 +5,7 @@ Set up graph object to be used in condensing debt settling
 """
 import copy
 from dataclasses import dataclass
-from typing import List
+from typing import List, Callable
 
 """
 Adj list vs matrix;
@@ -53,6 +53,12 @@ class FlowEdge(Edge):
     capacity: int
     flow: int = 0
 
+    def __str__(self):
+        return f'{self.node} [{self.flow}/{self.capacity}]'
+
+    def unused_capacity(self):
+        return self.capacity - self.flow
+
 
 class GenericDigraph:
     def __init__(self, vertices: list[Vertex]) -> None:
@@ -75,16 +81,16 @@ class GenericDigraph:
         for node, adj_list in self.graph.items():
             pretty_nodes = ""
             for edge in adj_list:
-                pretty_nodes += f"{str(edge.node).upper()}"
-                if type(edge) == WeightedEdge:
-                    pretty_nodes += f"[{edge.weight}]"  # type: ignore
-                pretty_nodes += ", "
+                pretty_nodes += f"{str(edge).upper()}, "
             out += f"{str(node).upper()} -> {pretty_nodes}\n"
 
         return out
 
     def __len__(self):
         return len(self.graph)
+
+    def __getitem__(self, item):
+        return self.graph[item]
 
     @staticmethod
     def node_in_list(node: Vertex, list_: list[Edge]) -> Edge | None:
@@ -139,7 +145,6 @@ class GenericDigraph:
         edge = self.node_in_list(t, self.graph[s])
 
         if edge is None:
-            assert edge is not None
             raise GraphError("Cannot pop edge that doesnt exist")
 
         self.graph[s].remove(edge)
@@ -169,14 +174,50 @@ class WeightedDigraph(GenericDigraph):
             self._backwards_graph[node].append(WeightedEdge(source, weight * -1))
 
 
-class FlowGraph(GenericDigraph):
+class FlowGraph(WeightedDigraph):
     """
     Flow Graph
     Keeps a residual graph
     Can be operated on by BFS
     Can have max flow found
     Uses Max Flow edges
+
+    Assumes no two way edges: may be problematic
     """
 
-    def add_edge(self):
-        ...
+    def add_edge(self, source: Vertex, *edges: tuple[Vertex, int]) -> None:
+        # sanitize source
+        self.sanitize(source)
+
+        for node, capacity in edges:
+            self.sanitize(node)
+
+            # add normal edges
+            self.graph[source].append(FlowEdge(node, capacity))
+            self._backwards_graph[node].append(FlowEdge(source, capacity * -1))
+
+            # add residual edges
+            self.graph[node].append(FlowEdge(source, 0))
+
+    def pop_edge(self, s: Vertex, t: Vertex) -> Edge:
+        # pop residual edge as well
+
+        edge = self.node_in_list(s, self.graph[t])
+
+        if edge is None:
+            raise GraphError("Cannot pop edge that doesn't exist")
+
+        self.graph[t].remove(edge)
+        return super().pop_edge(s, t)
+
+    def neighbours(self, node: Vertex) -> list[Edge]:
+        """Only returns valid neighbours for bfs search (i.e. residual edges included, only where capacity > 0"""
+        filtered: list[FlowEdge] = []
+        # FlowEdge can be treated as Edge, Edge cannot be treated as flow edge (*)
+        unfiltered: list[FlowEdge] = self[node]  # type: ignore
+        for edge in unfiltered:
+            if edge.unused_capacity():
+                filtered.append(edge)
+
+        # fine as (*)
+        return filtered  # type: ignore

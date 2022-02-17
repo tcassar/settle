@@ -29,8 +29,27 @@ class TestBFS(TestCase):
         """
         Checks that we can in fact find shortest path along
         """
-        a, b, c, d, e, f = self.vertices
-        calc_shorted: list[Vertex] = GraphOps.shortest_path(self.g, a, f)
-        expected: list[Vertex] = [a, c, e, f]
 
-        self.assertEqual(expected, calc_shorted)
+        a, b, c, d, e, f = self.vertices
+
+        cases = ["digraph", "weighted", "flow"]
+
+        # set up weighted and flow graphs
+        weighted = WeightedDigraph(self.vertices)
+        flow = FlowGraph(self.vertices)
+
+        for g in [weighted, flow]:
+            g.add_edge(a, (b, 10), (c, 10))
+            g.add_edge(b, (d, 25))
+            g.add_edge(c, (e, 25))
+            g.add_edge(d, (f, 10))
+            g.add_edge(e, (f, 10), (b, 6))
+
+        # check precalulated shortest path
+        graph_cases = [self.g, weighted, flow]
+
+        for case, g in zip(cases, graph_cases):
+            with self.subTest(case):
+                calc_shorted: list[Vertex] = GraphOps.shortest_path(self.g, a, f)
+                expected: list[Vertex] = [a, c, e, f]
+                self.assertEqual(expected, calc_shorted)
