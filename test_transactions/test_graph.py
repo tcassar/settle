@@ -14,8 +14,7 @@ class TestDigraph(TestCase):
 
         self.graph = Digraph(self.vertices)
         u, v, w = self.vertices
-        self.graph.add_edge(u, v)
-        self.graph.add_edge(u, w)
+        self.graph.add_edge(u, v, w)
         self.graph.add_edge(v, w)
 
     def test_init(self):
@@ -74,9 +73,8 @@ class TestWeightedDigraph(TestCase):
 
         self.graph = WeightedDigraph(self.vertices)
         u, v, w = self.vertices
-        self.graph.add_edge(u, v, 1)
-        self.graph.add_edge(u, w, 2)
-        self.graph.add_edge(v, w, 3)
+        self.graph.add_edge(u, (v, 1), (w, 2))
+        self.graph.add_edge(v, (w, 3))
 
     def test_init(self):
         expected = "U -> V[1], W[2], \nV -> W[3], \nW -> \n"
@@ -120,6 +118,6 @@ class TestWeightedDigraph(TestCase):
     def test_add_edge(self):
         u, v, w = self.vertices
         self.assertFalse(self.graph.is_edge(w, v))
-        self.graph.add_edge(w, v, 4)
+        self.graph.add_edge(w, (v, 4))
 
         self.assertTrue(self.graph.is_edge(w, v))

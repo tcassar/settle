@@ -10,7 +10,7 @@ class TestBFS(TestCase):
     def setUp(self):
         # make a graph with 5 nodes
 
-        labels = ["a", "b", "c", "g", "e"]
+        labels = ["a", "b", "c", "d", "e"]
         self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
 
         self.g = Digraph(self.vertices)
@@ -28,16 +28,12 @@ class TestBFS(TestCase):
 
     def test_search_digraph(self):
         a, b, c, d, e = self.vertices
-        print(GraphOps.is_path(self.g, a, b))
+        print(GraphOps.shortest_path(self.g, a, d))
 
     def test_search_weighted(self):
-        self.weighted = WeightedDigraph(self.vertices)
+        weighted = WeightedDigraph(self.vertices)
         a, b, c, d, e = self.vertices
-        self.weighted.add_edge(a, b, 1)
-        self.weighted.add_edge(a, e, 2)
-        self.weighted.add_edge(b, c, 3)
-        self.weighted.add_edge(b, e, 4)
-        self.weighted.add_edge(d, c, 5)
-        self.weighted.add_edge(e, c, 6)
-        self.weighted.add_edge(e, d, 7)
+        weighted.add_edge(a, b)
 
+
+        print(GraphOps.shortest_path(self.g, a, b))

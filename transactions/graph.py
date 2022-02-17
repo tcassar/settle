@@ -76,6 +76,9 @@ class GenericDigraph:
 
         return out
 
+    def __len__(self):
+        return len(self.graph)
+
     @staticmethod
     def node_in_list(node: Vertex, list_: list[Edge]) -> Edge | None:
         """Checks if node is in a list of edges, will return relevant edge if found"""
@@ -128,12 +131,17 @@ class GenericDigraph:
 
 
 class Digraph(GenericDigraph):
-    def add_edge(self, s: Vertex, t: Vertex) -> None:
-        self.sanitize(s, t)
-        self.graph[s].append(Edge(t))
+    def add_edge(self, s: Vertex, *args: Vertex) -> None:
+        self.sanitize(s, *args)
+        for target in args:
+            self.graph[s].append(Edge(target))
 
 
 class WeightedDigraph(GenericDigraph):
-    def add_edge(self, s: Vertex, t: Vertex, weight: int) -> None:
-        self.sanitize(s, t)
-        self.graph[s].append(WeightedEdge(t, weight))
+    def add_edge(self, source: Vertex, *edges: tuple[Vertex, int]) -> None:
+        # sanitize source
+        self.sanitize(source)
+
+        for node, weight in edges:
+            self.sanitize(node)
+            self.graph[source].append(WeightedEdge(node, weight))
