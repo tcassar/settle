@@ -90,7 +90,6 @@ class TestWeightedDigraph(TestCase):
 
 
 class TestFlowGraph(TestCase):
-
     def setUp(self) -> None:
         """Build basic graph"""
         labels = ["u", "v", "w"]
@@ -126,3 +125,8 @@ class TestFlowGraph(TestCase):
         # expected neighbours after flow
         # expected neighbours
         self.assertEqual(set(self.graph.nodes_from_edges(post_flow)), {w})
+
+    def test_bottleneck(self):
+        u, v, w = self.vertices
+
+        self.assertEqual(1, self.graph.bottleneck([u, v, w]))

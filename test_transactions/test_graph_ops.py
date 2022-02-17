@@ -50,6 +50,6 @@ class TestBFS(TestCase):
 
         for case, g in zip(cases, graph_cases):
             with self.subTest(case):
-                calc_shorted: list[Vertex] = GraphOps.shortest_path(self.g, a, f)
+                calc_shorted: list[Vertex] = Path.shortest_path(self.g, a, f)
                 expected: list[Vertex] = [a, c, e, f]
                 self.assertEqual(expected, calc_shorted)

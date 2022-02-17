@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import transactions.graph as graphs
+from transactions.graph import FlowGraph, FlowEdge, FlowError
 
 from dataclasses import dataclass
 from ordered_set import OrderedSet
@@ -41,12 +42,13 @@ class BFSQueue:
         return not len(self.data)
 
 
-class GraphOps:
-    """Namespace for graph operations"""
+class Path:
+    """Namespace for graph operations to do with walking through graph"""
+
+    """Shortest path code: returns list[Vertex], hops along a path"""
 
     @staticmethod
     def shortest_path(
-        # todo: fix
         graph: graphs.GenericDigraph,
         source: graphs.Vertex,
         sink: graphs.Vertex,
@@ -60,10 +62,10 @@ class GraphOps:
         prev: prev_map = {node: None for node in graph.graph.keys()}
 
         # recursive call
-        previous = GraphOps._recursive_BFS(graph, queue, discovered, sink, prev)
+        previous = Path._recursive_BFS(graph, queue, discovered, sink, prev)
         # print(str_map(previous))
 
-        return GraphOps._build_path(previous, source, sink)
+        return Path._build_path(previous, source, sink)
 
     @staticmethod
     def _build_path(
@@ -112,4 +114,17 @@ class GraphOps:
                         queue.enqueue(neighbour.node)
 
                 # recursive call on new state
-                return GraphOps._recursive_BFS(graph, queue, discovered, target, prev)
+                return Path._recursive_BFS(graph, queue, discovered, target, prev)
+
+
+class Flow:
+    """Namespace for all flow operations"""
+
+    def edmonds_karp(self):
+        ...
+
+    def find_aug_path(self):
+        ...
+
+    def augment_path(self):
+        ...

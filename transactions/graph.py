@@ -22,6 +22,10 @@ class FlowError(Exception):
     ...
 
 
+class Default:
+    def __gt__(self, other):
+        return True
+
 @dataclass
 class Vertex:
     """Representation of a vertex; carries data and ID"""
@@ -48,6 +52,7 @@ class Edge:
     def __str__(self):
         return str(self.node)
 
+
 @dataclass
 class WeightedEdge(Edge):
     weight: int
@@ -62,7 +67,7 @@ class FlowEdge(Edge):
     def __str__(self):
         return f"{self.node} [{self.flow}/{self.capacity}]"
 
-    def unused_capacity(self):
+    def unused_capacity(self) -> int:
         return self.capacity - self.flow
 
     def push_flow(self, flow):
@@ -114,7 +119,7 @@ class GenericDigraph:
             else:
                 continue
 
-        raise GraphError('Node not in list')
+        raise GraphError("Node not in list")
 
     @staticmethod
     def nodes_from_edges(edges: list[Edge]) -> list[Vertex]:
@@ -260,3 +265,15 @@ class FlowGraph(WeightedDigraph):
             flow_edge: FlowEdge = self.edge_from_nodes(next, self[node])  # type: ignore
             flow_edge.push_flow(flow)
 
+    def bottleneck(self, path: list[Vertex]) -> int:
+        """Returns the bottleneck (the lowest remaining capacity of an edge) along a path"""
+        bottleneck: Default | int = Default()
+        for node, next in zip(path, path[1:]):
+            edge = self.edge_from_nodes(next, self.graph[node])
+            if (flow := edge.unused_capacity()) < bottleneck:
+                bottleneck = flow
+
+        if type(bottleneck) == Default:
+            bottleneck = 0
+
+        return bottleneck  # type: ignore
