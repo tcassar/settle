@@ -78,16 +78,19 @@ class TestWeightedDigraph(TestCase):
 
     def test_init(self):
         expected = "U -> V[1], W[2], \nV -> W[3], \nW -> \n"
+        u, v, w = self.vertices
+
 
         with self.subTest("init"):
             self.assertEqual(expected, str(self.graph))
 
         with self.subTest("helpers"):
-            self.assertTrue(self.graph.is_node(self.vertices[0]))
+            self.assertTrue(self.graph.is_node(u))
             self.assertTrue(self.graph.sanitize(*self.vertices))
             self.assertIsNotNone(
-                self.graph.node_in_list(self.vertices[0], [Edge(self.vertices[0])])
+                self.graph.node_in_list(u, [Edge(u)])
             )
+            self.assertEqual([edge.node for edge in self.graph.neighbours(u)], [v, w])
 
     def test_is_edge(self):
         u, v, w = self.vertices

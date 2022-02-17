@@ -5,6 +5,7 @@ Set up graph object to be used in condensing debt settling
 """
 import copy
 from dataclasses import dataclass
+from typing import List
 
 """
 Adj list vs matrix;
@@ -129,6 +130,10 @@ class GenericDigraph:
         self.graph[s].remove(edge)
         return edge
 
+    def neighbours(self, node: Vertex) -> list[Edge]:
+        self.sanitize(node)
+        return self.graph[node]
+
 
 class Digraph(GenericDigraph):
     def add_edge(self, s: Vertex, *args: Vertex) -> None:
@@ -145,3 +150,8 @@ class WeightedDigraph(GenericDigraph):
         for node, weight in edges:
             self.sanitize(node)
             self.graph[source].append(WeightedEdge(node, weight))
+
+
+class FlowGraph(WeightedDigraph):
+    # TODO: Define getattr so that self.graph[current] only gives neighbours with possible flow
+    ...
