@@ -47,8 +47,10 @@ class TestDigraph(TestCase):
         self.assertTrue(self.graph.is_node(new))
 
     def test_pop_node(self):
-        self.graph.pop_node(self.vertices[-1])
-        self.assertFalse(self.graph.is_node(self.vertices[-1]))
+        print(self.graph)
+        self.graph.pop_node(self.vertices[-2])
+        print(self.graph)
+        self.assertFalse(self.graph.is_node(self.vertices[-2]))
 
     def test_pop_edge(self):
         u, v, w = self.vertices
@@ -80,16 +82,13 @@ class TestWeightedDigraph(TestCase):
         expected = "U -> V[1], W[2], \nV -> W[3], \nW -> \n"
         u, v, w = self.vertices
 
-
         with self.subTest("init"):
             self.assertEqual(expected, str(self.graph))
 
         with self.subTest("helpers"):
             self.assertTrue(self.graph.is_node(u))
             self.assertTrue(self.graph.sanitize(*self.vertices))
-            self.assertIsNotNone(
-                self.graph.node_in_list(u, [Edge(u)])
-            )
+            self.assertIsNotNone(self.graph.node_in_list(u, [Edge(u)]))
             self.assertEqual([edge.node for edge in self.graph.neighbours(u)], [v, w])
 
     def test_is_edge(self):
@@ -108,7 +107,10 @@ class TestWeightedDigraph(TestCase):
         self.assertTrue(self.graph.is_node(new))
 
     def test_pop_node(self):
+        print(self.graph)
+        self.assertTrue(self.graph.is_node(self.vertices[-1]))
         self.graph.pop_node(self.vertices[-1])
+        print(self.graph)
         self.assertFalse(self.graph.is_node(self.vertices[-1]))
 
     def test_pop_edge(self):

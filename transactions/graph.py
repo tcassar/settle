@@ -48,6 +48,12 @@ class WeightedEdge(Edge):
     weight: int
 
 
+@dataclass
+class FlowEdge(Edge):
+    capacity: int
+    flow: int = 0
+
+
 class GenericDigraph:
     def __init__(self, vertices: list[Vertex]) -> None:
         """
@@ -113,6 +119,15 @@ class GenericDigraph:
 
     def pop_node(self, v: Vertex) -> dict[Vertex, list[Edge]]:
         """Pops node, returns key/value pair of node and previous connections"""
+        # look at _backwards_graph to find associations
+        for edge in self._backwards_graph[v]:
+            # removing B from A and C; A's pass
+            pointing_node_neighbours = self._backwards_graph[
+                edge.node
+            ]  # [Edge(A), Edge(C)]
+            pointing_edge = self.node_in_list(v, self.graph[edge.node])
+            self.graph[edge.node].remove(pointing_edge)  # type: ignore
+
         return {v: self.graph.pop(v)}
 
     def is_edge(self, s: Vertex, t: Vertex) -> bool:
@@ -140,6 +155,7 @@ class Digraph(GenericDigraph):
         self.sanitize(s, *args)
         for target in args:
             self.graph[s].append(Edge(target))
+            self._backwards_graph[target].append(Edge(s))
 
 
 class WeightedDigraph(GenericDigraph):
@@ -150,8 +166,17 @@ class WeightedDigraph(GenericDigraph):
         for node, weight in edges:
             self.sanitize(node)
             self.graph[source].append(WeightedEdge(node, weight))
+            self._backwards_graph[node].append(WeightedEdge(source, weight * -1))
 
 
-class FlowGraph(WeightedDigraph):
-    # TODO: Define getattr so that self.graph[current] only gives neighbours with possible flow
-    ...
+class FlowGraph(GenericDigraph):
+    """
+    Flow Graph
+    Keeps a residual graph
+    Can be operated on by BFS
+    Can have max flow found
+    Uses Max Flow edges
+    """
+
+    def add_edge(self):
+        ...

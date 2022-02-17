@@ -12,9 +12,9 @@ prev_map = dict[graphs.Vertex, graphs.Vertex | None]
 
 def str_map(generic_map: disc_map | prev_map) -> str:
     """"""
-    str_rep = ''
+    str_rep = ""
     for node, prev in generic_map.items():
-        str_rep += f'{node}: {prev},\n'.upper()
+        str_rep += f"{node}: {prev},\n".upper()
     return str_rep
 
 
@@ -24,7 +24,7 @@ class BFSQueue:
         self.data: OrderedSet[graphs.Vertex] = OrderedSet(args)
 
     def __str__(self):
-        str_ = ''
+        str_ = ""
         for datum in self.data:
             str_ += str(datum).upper()
         return str_
@@ -46,10 +46,10 @@ class GraphOps:
 
     @staticmethod
     def shortest_path(
-            # todo: fix
-            graph: graphs.GenericDigraph,
-            source: graphs.Vertex,
-            sink: graphs.Vertex,
+        # todo: fix
+        graph: graphs.GenericDigraph,
+        source: graphs.Vertex,
+        sink: graphs.Vertex,
     ) -> list[graphs.Vertex]:
         """Uses a recursive implementation of BFS to find path between nodes"""
 
@@ -66,7 +66,9 @@ class GraphOps:
         return GraphOps._build_path(previous, source, sink)
 
     @staticmethod
-    def _build_path(previous: prev_map, source: graphs.Vertex, sink: graphs.Vertex) -> list[graphs.Vertex]:
+    def _build_path(
+        previous: prev_map, source: graphs.Vertex, sink: graphs.Vertex
+    ) -> list[graphs.Vertex]:
         path: list[graphs.Vertex] = [sink]
 
         while current := previous[path[0]]:
@@ -75,14 +77,13 @@ class GraphOps:
         assert path[0] == source
         return path
 
-
     @staticmethod
     def _recursive_BFS(
-            graph: graphs.GenericDigraph,
-            queue: BFSQueue,
-            discovered: disc_map,
-            target: graphs.Vertex,
-            prev: prev_map,
+        graph: graphs.GenericDigraph,
+        queue: BFSQueue,
+        discovered: disc_map,
+        target: graphs.Vertex,
+        prev: prev_map,
     ) -> prev_map:
         """BFS Search as part of finding shortest path through unweighted graph. Returns 'previous' list so that
         path can be rebuilt"""
