@@ -1,7 +1,8 @@
 # coding=utf-8
 
-from transactions.graph import *
 from unittest import TestCase
+
+from transactions.graph import *
 
 
 class TestDigraph(TestCase):
@@ -69,6 +70,9 @@ class TestDigraph(TestCase):
         self.graph.add_edge(w, v)
 
         self.assertTrue(self.graph.is_edge(w, v))
+
+    def test_nodes(self):
+        self.assertEqual(self.vertices, self.graph.nodes())
 
 
 class TestWeightedDigraph(TestCase):

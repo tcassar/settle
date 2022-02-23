@@ -26,6 +26,7 @@ class Default:
     def __gt__(self, other):
         return True
 
+
 @dataclass
 class Vertex:
     """Representation of a vertex; carries data and ID"""
@@ -38,7 +39,7 @@ class Vertex:
         return self.ID, self.label
 
     def __str__(self):
-        return self.label
+        return self.label if self.label else str(self.ID)
 
     def __hash__(self):
         """for adding to lists / dicts"""
@@ -109,6 +110,13 @@ class GenericDigraph:
 
     def __getitem__(self, item):
         return self.graph[item]
+
+    def __eq__(self, other):
+        return self.graph == other
+
+    def nodes(self) -> list[Vertex]:
+        """Returns nodes in the graph"""
+        return list(self.graph.keys())
 
     @staticmethod
     def edge_from_nodes(node: Vertex, list_: list[Edge]) -> Edge:
@@ -261,15 +269,15 @@ class FlowGraph(WeightedDigraph):
         3) iterate for len(list) - 1
         """
 
-        for node, next in zip(path, path[1:]):
-            flow_edge: FlowEdge = self.edge_from_nodes(next, self[node])  # type: ignore
+        for node, next_ in zip(path, path[1:]):
+            flow_edge: FlowEdge = self.edge_from_nodes(next_, self[node])  # type: ignore
             flow_edge.push_flow(flow)
 
     def bottleneck(self, path: list[Vertex]) -> int:
         """Returns the bottleneck (the lowest remaining capacity of an edge) along a path"""
         bottleneck: Default | int = Default()
-        for node, next in zip(path, path[1:]):
-            edge = self.edge_from_nodes(next, self.graph[node])
+        for node, next_ in zip(path, path[1:]):
+            edge = self.edge_from_nodes(next_, self.graph[node])
             if (flow := edge.unused_capacity()) < bottleneck:
                 bottleneck = flow
 
