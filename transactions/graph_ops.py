@@ -87,12 +87,12 @@ class Path:
             queue.enqueue(src)
         else:
             # get 'first' item from graph
-            # n = len(graph.graph)
-            # start = list(graph.graph.keys())[random.randint(0, n-1)]
-            # queue.enqueue(start)
-            # logging.debug(f'starting from {start}')
+            n = len(graph.graph)
+            start = list(graph.graph.keys())[random.randint(0, n-1)]
+            queue.enqueue(start)
+            logging.debug(f'starting from {start}')
 
-            queue.enqueue(next(iter(graph.graph)))
+            # queue.enqueue(next(iter(graph.graph)))
 
         return queue, disc, prev
 
@@ -236,7 +236,7 @@ class Flow:
         """One round of graph simplification; done by walking through graph w/ BFS,
         applying maxflow to every neighbour in graph"""
 
-        # TODO: Make consistent for all starting points
+        # FIXME: Make consistent for all starting points
 
         logging.debug(f"cleaning {messy}")
 

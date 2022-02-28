@@ -261,7 +261,6 @@ class FlowGraph(WeightedDigraph):
 
     def flow_neighbours(self, node: Vertex) -> list[Edge]:
         """Only returns valid neighbours for maxflow (i.e. residual edges included, only where capacity > 0"""
-        # TODO: max flow neighbours != BFS neighbours
         filtered: list[FlowEdge] = []
         # FlowEdge can be treated as Edge, Edge cannot be treated as flow edge (*)
         unfiltered: list[FlowEdge] = self[node]  # type: ignore

@@ -48,7 +48,6 @@ class RSA(ABC):
         message = int.from_bytes(message, sys.byteorder)
         cipher = pow(message, publicKey.e, publicKey.n)
 
-        # TODO: figure out what length means
         return RSA.int_to_bytes(cipher)
 
     @staticmethod
