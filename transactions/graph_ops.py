@@ -1,12 +1,19 @@
 # coding=utf-8
+import random
 
 import transactions.graph as graphs
 from transactions.graph import FlowGraph
 
 import copy
 from dataclasses import dataclass
+import logging
 from ordered_set import OrderedSet
+import sys
 from typing import Callable
+
+
+# initialise logger
+logging.basicConfig(stream=sys.stdout, encoding="utf-8", level=logging.DEBUG)
 
 
 # typing
@@ -20,7 +27,9 @@ If node has no links (i.e. is start node), value is None"""
 
 
 class SearchError(Exception):
-    ...
+    def __init__(self, text, node: graphs.Vertex):
+        super(SearchError, self).__init__(text, node)
+        self.node = node
 
 
 def void(current: graphs.Vertex, neighbour: graphs.Vertex) -> None:
@@ -78,6 +87,11 @@ class Path:
             queue.enqueue(src)
         else:
             # get 'first' item from graph
+            # n = len(graph.graph)
+            # start = list(graph.graph.keys())[random.randint(0, n-1)]
+            # queue.enqueue(start)
+            # logging.debug(f'starting from {start}')
+
             queue.enqueue(next(iter(graph.graph)))
 
         return queue, disc, prev
@@ -87,6 +101,7 @@ class Path:
         graph: graphs.GenericDigraph,
         source: graphs.Vertex,
         sink: graphs.Vertex,
+        neighbours: Callable,
     ) -> list[graphs.Vertex]:
         """
         Uses a recursive implementation of BFS to find path between nodes
@@ -98,9 +113,13 @@ class Path:
 
         # recursive call
         previous = Path.BFS(
-            graph=graph, queue=queue, discovered=discovered, target=sink, previous=prev
+            graph=graph,
+            queue=queue,
+            discovered=discovered,
+            target=sink,
+            previous=prev,
+            neighbours=neighbours,
         )
-        # print(str_map(previous))
 
         return Path._build_path(previous, sink)
 
@@ -125,6 +144,7 @@ class Path:
         discovered: disc_map,
         target: graphs.Vertex | None,
         previous: prev_map,
+        neighbours: Callable,
         do_to_neighbour: Callable = void,
     ) -> prev_map:
         """BFS Search as part of finding the shortest path through unweighted graph from src -> target.
@@ -143,6 +163,10 @@ class Path:
             current = queue.dequeue()
             discovered[current] = True
 
+            # check we haven't been fed a standalone node (i.e. no forward or backwards links)
+            if not graph.connected(current):
+                raise SearchError("Cannot traverse a non connected node", current)
+
             # if discovered target node return prev
             if current == target:
                 return previous
@@ -151,7 +175,7 @@ class Path:
                 # otherwise, continue on
                 # enqueue neighbours, keep track of whose neighbours they are given not already discovered
                 # do passed in function to neighbouring nodes
-                for neighbour in graph.neighbours(current):
+                for neighbour in neighbours(current):
                     if not discovered[neighbour.node]:
                         previous[neighbour.node] = current
                         queue.enqueue(neighbour.node)
@@ -165,7 +189,8 @@ class Path:
                     discovered=discovered,
                     target=target,
                     previous=previous,
-                    do_to_neighbour=do_to_neighbour
+                    neighbours=neighbours,
+                    do_to_neighbour=do_to_neighbour,
                 )
 
 
@@ -186,13 +211,15 @@ class Flow:
             # augment path
             Flow.augment_path(graph, aug_path, bottleneck)
 
+        logging.debug(f"{max_flow} units from {source} -> {sink}")
         return max_flow
 
     @staticmethod
     def find_aug_path(
         graph: FlowGraph, u: graphs.Vertex, v: graphs.Vertex
     ) -> list[graphs.Vertex]:
-        return Path.shortest_path(graph, u, v)
+        logging.debug(f"Found augmenting path from {u} -> {v}")
+        return Path.shortest_path(graph, u, v, graph.flow_neighbours)
 
     @staticmethod
     def augment_path(graph: FlowGraph, path: list[graphs.Vertex], bottleneck: int):
@@ -202,11 +229,16 @@ class Flow:
 
         graph.push_flow(path, bottleneck)
         graph.push_flow(residual_path, bottleneck * -1)
+        logging.debug(f"Augmented path {path} by {bottleneck}")
 
     @staticmethod
     def simplify_debt(messy: graphs.FlowGraph) -> graphs.WeightedDigraph:
         """One round of graph simplification; done by walking through graph w/ BFS,
         applying maxflow to every neighbour in graph"""
+
+        # TODO: Make consistent for all starting points
+
+        logging.debug(f"cleaning {messy}")
 
         def get_max(src: graphs.Vertex, sink: graphs.Vertex) -> int:
             """Helper to improve readability. Gets max flow between src and sink"""
@@ -215,18 +247,21 @@ class Flow:
         def cleanup(current: graphs.Vertex, neighbour: graphs.Vertex) -> None:
             """To be passed into bfs
             calculates max flow from current -> neighbour, adds edge to clean with that weight"""
-            # print(f'currently at {current}')
 
-            flow = get_max(current, neighbour)
-            # print(f'{flow} from {current} -> {neighbour}')
-            if flow:
+            if flow := get_max(current, neighbour):
+                # add max flow edge to clean graph
                 clean.add_edge(current, (neighbour, flow))
+                # pop edge from messy
+                messy.pop_edge(current, neighbour)
 
         # create clean graph with no edges
         clean = graphs.WeightedDigraph(messy.nodes())
 
         # build queue, discovered hash map and prev hash maps
         queue, discovered, previous = Path.build_bfs_structs(messy)
+        logging.debug(f"Queue: {queue}\nDiscovered: {discovered}\nPrevious: {previous}")
+
+        logging.debug("starting walk")
 
         Path.BFS(
             graph=messy,
@@ -234,9 +269,8 @@ class Flow:
             discovered=discovered,
             target=None,
             previous=previous,
-            do_to_neighbour=cleanup  # FIXME: function isnt running when passed in, but void is
+            do_to_neighbour=cleanup,
+            neighbours=messy.neighbours,
         )
-
-        print(f'finished bfs')
 
         return clean

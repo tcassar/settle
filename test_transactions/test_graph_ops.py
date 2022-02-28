@@ -48,7 +48,7 @@ class TestPath(TestCase):
 
         for case, g in zip(cases, graph_cases):
             with self.subTest(case):
-                calc_shorted: list[Vertex] = Path.shortest_path(self.g, a, f)
+                calc_shorted: list[Vertex] = Path.shortest_path(self.g, a, f, self.g.neighbours)
                 expected: list[Vertex] = [a, c, e, f]
                 self.assertEqual(expected, calc_shorted)
 
@@ -85,7 +85,12 @@ class TestPath(TestCase):
         self.assertEqual(
             expected,
             Path.BFS(
-                graph=graph, queue=queue, discovered=discovered, target=None, previous=prev
+                graph=graph,
+                queue=queue,
+                discovered=discovered,
+                target=None,
+                previous=prev,
+                neighbours=graph.neighbours
             ),
         )
 
@@ -99,23 +104,24 @@ class TestPath(TestCase):
 
         queue, discovered, previous = Path.build_bfs_structs(graph, a)
 
-        calculated = Path.BFS(graph=graph, queue=queue, discovered=discovered, previous=previous, target=b)
+        calculated = Path.BFS(
+            graph=graph, queue=queue, discovered=discovered, previous=previous, target=b, neighbours=graph.neighbours
+        )
         self.assertEqual(expected, calculated)
 
-
     def test_build_bfs_struct(self):
-        # TODO: Write test because idk where ut went
-        with self.subTest('with initial value'):
-            queue, disc, prev = Path.build_bfs_structs(self.flow_graph, self.vertices[0])
+        with self.subTest("with initial value"):
+            queue, disc, prev = Path.build_bfs_structs(
+                self.flow_graph, self.vertices[0]
+            )
             self.assertEqual(queue, BFSQueue(self.vertices[0]))
 
-        with self.subTest('with initial value'):
+        with self.subTest("with initial value"):
             queue, disc, prev = Path.build_bfs_structs(self.flow_graph)
             self.assertEqual(queue, BFSQueue())
 
 
 class TestFlow(TestCase):
-
     def setUp(self) -> None:
         labels = ["a", "b", "c", "d", "e", "f"]
         self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
@@ -129,11 +135,8 @@ class TestFlow(TestCase):
         self.flow_graph.add_edge(d, (f, 10))
         self.flow_graph.add_edge(e, (f, 10), (b, 6))
 
-    def test_graph_maxflow(self):
-        """Tests that bfs works when we are passing in an argument"""
-        print(Flow.simplify_debt(self.flow_graph))
-
     def test_edmonds_karp(self):
+        """Max flow test between nodes"""
         a, b, c, d, e, f = self.vertices
 
         expected = 20
@@ -142,20 +145,47 @@ class TestFlow(TestCase):
         self.assertEqual(expected, calculated)
 
     def test_settle(self):
-        people = ["Bob", "Charlie", "Dan", "Emma", "Fred", "George"]
-        vertices: list[Vertex] = []
-        # Generate vertices
-        for ID, name in enumerate(people):
-            vertices.append(Vertex(ID, name))
+        """Ensures that we are settling properly
 
-        b, c, d, e, f, g = vertices
+        Initial (9 edges, $210 changing hands)
+            A ->
+            B -> C, 40
+            C -> D, 20
+            D -> E, 50
+            F -> (E, 10), (D, 10), (C, 30), (B, 10)
+            G -> (B, 30), (D, 10)
 
-        # represent debts in graph form
-        debt_graph = FlowGraph(vertices)
-        debt_graph.add_edge(b, (c, 40))
-        debt_graph.add_edge(c, (d, 20))
-        debt_graph.add_edge(d, (e, 50))
-        debt_graph.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-        debt_graph.add_edge(g, (b, 30), (d, 10))
+        Cleaned (6 edges, $150 changing hands)
+            A ->
+            B -> C, 10
+            C ->
+            D -> E, 40
+            F -> (E, 20), (C, 40)
+            G -> (B, 10), (D, 30)
+        """
 
-        print(Flow.simplify_debt(debt_graph))
+        # gen vertices
+        people: list[Vertex] = []
+        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
+            people.append(Vertex(ID, label=person))
+        b, c, d, e, f, g = people
+
+        # build flow graph of transactions
+        messy = FlowGraph(people)
+        messy.add_edge(b, (c, 40))
+        messy.add_edge(c, (d, 20))
+        messy.add_edge(d, (e, 50))
+        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+        messy.add_edge(g, (b, 30), (d, 10))
+
+        # build expected clean graph
+        ex_clean = WeightedDigraph(people)
+        ex_clean.add_edge(b, (c, 10))
+        ex_clean.add_edge(d, (e, 40))
+        ex_clean.add_edge(f, (e, 20), (c, 40))
+        ex_clean.add_edge(g, (b, 10), (d, 30))
+
+        # clean graph
+        got_clean: WeightedDigraph = Flow.simplify_debt(messy)
+
+        print(f'expected:\n{ex_clean}\nreceived:\n{got_clean}')

@@ -191,7 +191,13 @@ class GenericDigraph:
 
     def neighbours(self, node: Vertex) -> list[Edge]:
         self.sanitize(node)
-        return self.graph[node]
+        return self[node]
+
+    def connected(self, node: Vertex) -> bool:
+        """Returns true if node has connections to graph"""
+        forwards = self[node]
+        backwards = self._backwards_graph[node]
+        return True if forwards or backwards else False
 
 
 class Digraph(GenericDigraph):
@@ -253,8 +259,9 @@ class FlowGraph(WeightedDigraph):
         self.graph[t].remove(edge)
         return super().pop_edge(s, t)
 
-    def neighbours(self, node: Vertex) -> list[Edge]:
-        """Only returns valid neighbours for bfs search (i.e. residual edges included, only where capacity > 0"""
+    def flow_neighbours(self, node: Vertex) -> list[Edge]:
+        """Only returns valid neighbours for maxflow (i.e. residual edges included, only where capacity > 0"""
+        # TODO: max flow neighbours != BFS neighbours
         filtered: list[FlowEdge] = []
         # FlowEdge can be treated as Edge, Edge cannot be treated as flow edge (*)
         unfiltered: list[FlowEdge] = self[node]  # type: ignore

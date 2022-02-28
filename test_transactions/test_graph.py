@@ -118,10 +118,10 @@ class TestFlowGraph(TestCase):
 
     def test_neighbours(self):
         u, v, w = self.vertices
-        pre_flow = self.graph.neighbours(u)
+        pre_flow = self.graph.flow_neighbours(u)
         # send 3 units from u -> v; hope is that v no longer appears as a neighbour
         self.graph.push_flow([u, v], 1)
-        post_flow = self.graph.neighbours(u)
+        post_flow = self.graph.flow_neighbours(u)
 
         # expected neighbours
         self.assertEqual(set(self.graph.nodes_from_edges(pre_flow)), {v, w})
