@@ -58,6 +58,9 @@ class Edge:
 class WeightedEdge(Edge):
     weight: int
 
+    def __str__(self):
+        return f"{self.node} [{self.weight}]"
+
 
 @dataclass
 class FlowEdge(Edge):

@@ -5,7 +5,7 @@ from transactions.graph import *
 from transactions.graph_ops import *
 
 
-class TestGraphOps(TestCase):
+class TestPath(TestCase):
     """Tests searching for BFS"""
 
     def setUp(self):
@@ -71,7 +71,7 @@ class TestGraphOps(TestCase):
     def test_recursive_bfs(self):
         """Check that BFS is finding paths along graph correctly"""
         graph = self.flow_graph
-        a, b, c, d, e, f = list(graph.graph.keys())
+        a, b, c, d, e, f = graph.nodes()
 
         expected: prev_map = {a: None, b: a, c: a, d: b, e: c, f: e}
 
@@ -84,13 +84,54 @@ class TestGraphOps(TestCase):
 
         self.assertEqual(
             expected,
-            Path._recursive_BFS(
-                graph=graph, queue=queue, discovered=discovered, prev=prev, target=f
+            Path.BFS(
+                graph=graph, queue=queue, discovered=discovered, target=None, previous=prev
             ),
         )
 
-    def test_stepwise_bfs(self):
-        ...
+    def test_find_target(self):
+        graph = self.flow_graph
+        a, b, c, *_ = graph.nodes()
+
+        expected = {node: None for node in graph.nodes()}
+        expected[b] = a
+        expected[c] = a
+
+        queue, discovered, previous = Path.build_bfs_structs(graph, a)
+
+        calculated = Path.BFS(graph=graph, queue=queue, discovered=discovered, previous=previous, target=b)
+        self.assertEqual(expected, calculated)
+
+
+    def test_build_bfs_struct(self):
+        # TODO: Write test because idk where ut went
+        with self.subTest('with initial value'):
+            queue, disc, prev = Path.build_bfs_structs(self.flow_graph, self.vertices[0])
+            self.assertEqual(queue, BFSQueue(self.vertices[0]))
+
+        with self.subTest('with initial value'):
+            queue, disc, prev = Path.build_bfs_structs(self.flow_graph)
+            self.assertEqual(queue, BFSQueue())
+
+
+class TestFlow(TestCase):
+
+    def setUp(self) -> None:
+        labels = ["a", "b", "c", "d", "e", "f"]
+        self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
+        a, b, c, d, e, f = self.vertices
+
+        # set up weighted_graph and flow graphs
+        self.flow_graph = FlowGraph(self.vertices)
+        self.flow_graph.add_edge(a, (b, 10), (c, 10))
+        self.flow_graph.add_edge(b, (d, 25))
+        self.flow_graph.add_edge(c, (e, 25))
+        self.flow_graph.add_edge(d, (f, 10))
+        self.flow_graph.add_edge(e, (f, 10), (b, 6))
+
+    def test_graph_maxflow(self):
+        """Tests that bfs works when we are passing in an argument"""
+        print(Flow.simplify_debt(self.flow_graph))
 
     def test_edmonds_karp(self):
         a, b, c, d, e, f = self.vertices
@@ -100,23 +141,21 @@ class TestGraphOps(TestCase):
 
         self.assertEqual(expected, calculated)
 
-    #
-    # def test_settle(self):
-    #     people = ["Bob", "Charlie", "Dan", "Emma", "Fred", "George"]
-    #     vertices: list[Vertex] = []
-    #     # Generate vertices
-    #     for ID, name in enumerate(people):
-    #         vertices.append(Vertex(ID, name))
-    #
-    #     b, c, d, e, f, g = vertices
-    #
-    #     # represent debts in graph form
-    #     debt_graph = FlowGraph(vertices)
-    #     debt_graph.add_edge(b, (c, 40))
-    #     debt_graph.add_edge(c, (d, 20))
-    #     debt_graph.add_edge(d, (e, 50))
-    #     debt_graph.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-    #     debt_graph.add_edge(g, (b, 30), (d, 10))
-    #
-    #
-    #     simplified = Flow.simplify_debt(debt_graph)
+    def test_settle(self):
+        people = ["Bob", "Charlie", "Dan", "Emma", "Fred", "George"]
+        vertices: list[Vertex] = []
+        # Generate vertices
+        for ID, name in enumerate(people):
+            vertices.append(Vertex(ID, name))
+
+        b, c, d, e, f, g = vertices
+
+        # represent debts in graph form
+        debt_graph = FlowGraph(vertices)
+        debt_graph.add_edge(b, (c, 40))
+        debt_graph.add_edge(c, (d, 20))
+        debt_graph.add_edge(d, (e, 50))
+        debt_graph.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+        debt_graph.add_edge(g, (b, 30), (d, 10))
+
+        print(Flow.simplify_debt(debt_graph))

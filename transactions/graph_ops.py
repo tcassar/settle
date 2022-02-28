@@ -65,7 +65,9 @@ class Path:
     """Shortest path code: returns list[Vertex], hops along a path"""
 
     @staticmethod
-    def build_bfs_structs(graph: graphs.GenericDigraph, src: None | graphs.Vertex = None) -> tuple[BFSQueue, disc_map, prev_map]:
+    def build_bfs_structs(
+        graph: graphs.GenericDigraph, src: None | graphs.Vertex = None
+    ) -> tuple[BFSQueue, disc_map, prev_map]:
         """Helper function to initialise prev_map, disc_map and bfs queue;
         if source is passed then queue initialised with src"""
         queue = BFSQueue()
@@ -74,6 +76,9 @@ class Path:
 
         if src:
             queue.enqueue(src)
+        else:
+            # get 'first' item from graph
+            queue.enqueue(next(iter(graph.graph)))
 
         return queue, disc, prev
 
@@ -92,8 +97,8 @@ class Path:
         queue, discovered, prev = Path.build_bfs_structs(graph, source)
 
         # recursive call
-        previous = Path._recursive_BFS(
-            graph=graph, queue=queue, discovered=discovered, target=sink, prev=prev
+        previous = Path.BFS(
+            graph=graph, queue=queue, discovered=discovered, target=sink, previous=prev
         )
         # print(str_map(previous))
 
@@ -113,23 +118,25 @@ class Path:
         return path
 
     @staticmethod
-    def _recursive_BFS(
+    def BFS(
         *,
         graph: graphs.GenericDigraph,
         queue: BFSQueue,
         discovered: disc_map,
-        target: graphs.Vertex,
-        prev: prev_map,
-        do_to_neighbour: Callable = void,  # type
+        target: graphs.Vertex | None,
+        previous: prev_map,
+        do_to_neighbour: Callable = void,
     ) -> prev_map:
-        """BFS Search as part of finding the shortest path through unweighted graph. Returns 'previous' list so that
-        path can be rebuilt. Can pass in a function `do` to do to all nodes"""
+        """BFS Search as part of finding the shortest path through unweighted graph from src -> target.
+        Target = None => walk through entire graph, terminate at empty queue
+        Returns 'previous' list so that path can be rebuilt.
+        Can pass in a function `do_to_neighbour` to do to all nodes during the BFS"""
 
         # breakpoint: f"q: {queue}\n discovered: {str_map(discovered)}\nprev: {str_map(prev)}"
 
         # will only happen if no path to node
         if queue.is_empty():
-            return prev
+            return previous
 
         else:
             # discover next node in queue
@@ -138,7 +145,7 @@ class Path:
 
             # if discovered target node return prev
             if current == target:
-                return prev
+                return previous
 
             else:
                 # otherwise, continue on
@@ -146,17 +153,19 @@ class Path:
                 # do passed in function to neighbouring nodes
                 for neighbour in graph.neighbours(current):
                     if not discovered[neighbour.node]:
-                        prev[neighbour.node] = current
+                        previous[neighbour.node] = current
                         queue.enqueue(neighbour.node)
-                        do_to_neighbour(current, neighbour.node)
+
+                    do_to_neighbour(current, neighbour.node)
 
                 # recursive call on new state
-                return Path._recursive_BFS(
+                return Path.BFS(
                     graph=graph,
                     queue=queue,
                     discovered=discovered,
                     target=target,
-                    prev=prev,
+                    previous=previous,
+                    do_to_neighbour=do_to_neighbour
                 )
 
 
@@ -195,8 +204,39 @@ class Flow:
         graph.push_flow(residual_path, bottleneck * -1)
 
     @staticmethod
-    def simplify_debt(messy: graphs.FlowGraph) -> graphs.FlowGraph:
+    def simplify_debt(messy: graphs.FlowGraph) -> graphs.WeightedDigraph:
         """One round of graph simplification; done by walking through graph w/ BFS,
         applying maxflow to every neighbour in graph"""
 
+        def get_max(src: graphs.Vertex, sink: graphs.Vertex) -> int:
+            """Helper to improve readability. Gets max flow between src and sink"""
+            return Flow.edmonds_karp(messy, src, sink)
 
+        def cleanup(current: graphs.Vertex, neighbour: graphs.Vertex) -> None:
+            """To be passed into bfs
+            calculates max flow from current -> neighbour, adds edge to clean with that weight"""
+            # print(f'currently at {current}')
+
+            flow = get_max(current, neighbour)
+            # print(f'{flow} from {current} -> {neighbour}')
+            if flow:
+                clean.add_edge(current, (neighbour, flow))
+
+        # create clean graph with no edges
+        clean = graphs.WeightedDigraph(messy.nodes())
+
+        # build queue, discovered hash map and prev hash maps
+        queue, discovered, previous = Path.build_bfs_structs(messy)
+
+        Path.BFS(
+            graph=messy,
+            queue=queue,
+            discovered=discovered,
+            target=None,
+            previous=previous,
+            do_to_neighbour=cleanup  # FIXME: function isnt running when passed in, but void is
+        )
+
+        print(f'finished bfs')
+
+        return clean
