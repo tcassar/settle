@@ -7,12 +7,8 @@
         "id": "24e25603884a3e6d",
         "type": "leaf",
         "state": {
-          "type": "markdown",
-          "state": {
-            "file": "README.md",
-            "mode": "source",
-            "source": false
-          }
+          "type": "empty",
+          "state": {}
         }
       }
     ],
@@ -69,7 +65,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -89,14 +84,14 @@
   },
   "active": "24e25603884a3e6d",
   "lastOpenFiles": [
-    "README.md",
     "README.pdf",
+    "README.md",
+    "images/residual edge.png",
+    "images/residual edge 1.png",
     "images/pre settle simple.png",
     "images/evenfy_ui.png",
     "images/basic_settle.png",
     "images/splitwise_ui.png",
-    "images/residual edge.png",
-    "images/residual edge 1.png",
     "images/abc_debt 1.png",
     "images/abc_debt.png"
   ]
