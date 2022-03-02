@@ -1,8 +1,8 @@
 # coding=utf-8
 from unittest import TestCase
 
-from transactions.graph import *
-from transactions.graph_ops import *
+from settling.graph import *
+from settling.graph_ops import *
 
 
 class TestPath(TestCase):

@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from transactions.graph import *
+from settling.graph import *
 
 
 class TestDigraph(TestCase):

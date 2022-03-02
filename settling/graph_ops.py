@@ -1,8 +1,8 @@
 # coding=utf-8
 import random
 
-import transactions.graph as graphs
-from transactions.graph import FlowGraph
+import settling.graph as graphs
+from settling.graph import FlowGraph
 
 import copy
 from dataclasses import dataclass
