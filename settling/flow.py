@@ -1,6 +1,5 @@
 # coding=utf-8
 import copy
-import logging
 
 import settling.graph_objects
 import settling.specialised_graph
@@ -25,14 +24,12 @@ class Flow:
             # augment path
             Flow.augment_path(graph, aug_path, bottleneck)
 
-        # logging.debug(f"{max_flow} units from {source} -> {sink}")
         return max_flow
 
     @staticmethod
     def find_aug_path(
         graph: FlowGraph, u: settling.graph_objects.Vertex, v: settling.graph_objects.Vertex
     ) -> list[settling.graph_objects.Vertex]:
-        # logging.debug(f"Found augmenting path from {u} -> {v}")
         return Path.shortest_path(graph, u, v, graph.flow_neighbours)
 
     @staticmethod
@@ -43,7 +40,6 @@ class Flow:
 
         graph.push_flow(path, bottleneck)
         graph.push_flow(residual_path, bottleneck * -1)
-        # logging.debug(f"Augmented path {path} by {bottleneck}")
 
     @staticmethod
     def simplify_debt(messy):
@@ -65,7 +61,6 @@ class Flow:
                 cleanup(src, edge.node)
 
         return clean
-
 
     @staticmethod
     def di_to_flow(digraph: WeightedDigraph) -> FlowGraph:
