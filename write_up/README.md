@@ -168,7 +168,7 @@ The augmenting path is a path of edges in the residual graph, where each edge ha
 **Residual Graph** and **Residual Edges**
 The residual graph is the combination of the flow graph , and residual edges. For each original edge from $u$ -> $v$ , with capacity $c$, there exists a residual edge from $v$ -> $u$, with capacity $-c$ 
 
-![[residual edge 1.png]]
+![[residual edge 1.png|400]]
 
 Residual edges are valid edges to consider when looking for an augmenting path, given that they have unused capacity (the above example's residual edge has an unused capacity c, as $0 - -c = c$)
 

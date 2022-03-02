@@ -2,7 +2,8 @@
 from unittest import TestCase
 
 from settling.graph import *
-from settling.graph_ops import *
+from settling.path import *
+from settling.flow import Flow
 
 
 class TestPath(TestCase):
@@ -179,8 +180,9 @@ class TestFlow(TestCase):
         ex_clean.add_edge(f, (e, 20), (c, 40))
         ex_clean.add_edge(g, (b, 10), (d, 30))
 
+
         # clean graph
         got_clean: WeightedDigraph = Flow.simplify_debt(messy)
 
-        print(f'expected:\n{ex_clean}\nreceived:\n{got_clean}')
+
 
