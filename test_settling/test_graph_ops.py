@@ -206,41 +206,54 @@ class TestFlow(TestCase):
 
 
 
-    # def test_settle(self):
-    #     """Ensures that we are settling properly
-    #
-    #     Initial (9 edges, $210 changing hands)
-    #         A ->
-    #         B -> C, 40
-    #         C -> D, 20
-    #         D -> E, 50
-    #         F -> (E, 10), (D, 10), (C, 30), (B, 10)
-    #         G -> (B, 30), (D, 10)
-    #
-    #     Multiple valid clean orders depending on starting node, as graph changes as we operate on it
-    #     """
-    #
-    #     # gen vertices
-    #     people: list[Vertex] = []
-    #     for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
-    #         people.append(Vertex(ID, label=person))
-    #     b, c, d, e, f, g = people
-    #
-    #     # build flow graph of transactions
-    #     messy = FlowGraph(people)
-    #     messy.add_edge(b, (c, 40))
-    #     messy.add_edge(c, (d, 20))
-    #     messy.add_edge(d, (e, 50))
-    #     messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-    #     messy.add_edge(g, (b, 30), (d, 10))
-    #
-    #     # build expected clean graph
-    #     ex_clean = WeightedDigraph(people)
-    #     ex_clean.add_edge(b, (c, 10))
-    #     ex_clean.add_edge(d, (e, 40))
-    #     ex_clean.add_edge(f, (e, 20), (c, 40))
-    #     ex_clean.add_edge(g, (b, 10), (d, 30))
-    #
-    #
-    #     # clean graph
-    #     got_clean: WeightedDigraph = Flow.simplify_debt(messy)
+    def test_settle(self):
+        """Ensures that we are settling properly
+
+        Initial (9 edges, $210 changing hands)
+            A ->
+            B -> C, 40
+            C -> D, 20
+            D -> E, 50
+            E ->
+            F -> (E, 10), (D, 10), (C, 30), (B, 10)
+            G -> (B, 30), (D, 10)
+
+        Should settle to
+
+            A ->
+            B -> C, 40
+            C -> D, 20
+            D -> E, 50
+            E ->
+            F -> (E, 10), (C, 30)
+            G -> B, 30
+
+
+        Multiple valid clean orders depending on starting node, as graph changes as we operate on it
+        """
+
+        # gen vertices
+        people: list[Vertex] = []
+        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
+            people.append(Vertex(ID, label=person))
+        b, c, d, e, f, g = people
+
+        # build flow graph of transactions
+        messy = FlowGraph(people)
+        messy.add_edge(b, (c, 40))
+        messy.add_edge(c, (d, 20))
+        messy.add_edge(d, (e, 50))
+        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+        messy.add_edge(g, (b, 30), (d, 10))
+
+        # build expected clean graph
+        ex_clean = WeightedDigraph(people)
+        ex_clean.add_edge(b, (c, 40))
+        ex_clean.add_edge(c, (d, 20))
+        ex_clean.add_edge(d, (e, 50))
+        ex_clean.add_edge(f, (e, 10), (c, 30))
+        ex_clean.add_edge(g, (b, 30))
+
+        self.assertEqual(
+            ex_clean, Flow.simplify_debt(messy)
+        )
