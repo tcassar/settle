@@ -1,7 +1,7 @@
 # coding=utf-8
 import random
 
-import settling.graph as graphs
+import settling.base_graph as graphs
 
 from dataclasses import dataclass
 import logging
@@ -11,26 +11,28 @@ from typing import Callable
 
 
 # initialise logger
+import settling.graph_objects
+
 logging.basicConfig(stream=sys.stdout, encoding="utf-8", level=logging.DEBUG)
 
 
 # typing
-disc_map = dict[graphs.Vertex, graphs.Vertex | bool]
+disc_map = dict[settling.graph_objects.Vertex, settling.graph_objects.Vertex | bool]
 """disc_map used to track which nodes have been discovered; {node: discovered?}"""
 
 
-prev_map = dict[graphs.Vertex, graphs.Vertex | None]
+prev_map = dict[settling.graph_objects.Vertex, settling.graph_objects.Vertex | None]
 """prev_map used to track a path through a graph; stored as {node: comes_from_node}. 
 If node has no links (i.e. is start node), value is None"""
 
 
 class SearchError(Exception):
-    def __init__(self, text, node: graphs.Vertex):
+    def __init__(self, text, node: settling.graph_objects.Vertex):
         super(SearchError, self).__init__(text, node)
         self.node = node
 
 
-def void(current: graphs.Vertex, neighbour: graphs.Vertex) -> None:
+def void(current: settling.graph_objects.Vertex, neighbour: settling.graph_objects.Vertex) -> None:
     """Placeholder for a plain bfs; allows adding functionality such as a maxflow along each edge during a BFS"""
     pass
 
@@ -45,8 +47,8 @@ def str_map(generic_map: disc_map | prev_map) -> str:
 
 @dataclass(init=False)
 class BFSQueue:
-    def __init__(self, *args: graphs.Vertex):
-        self.data: OrderedSet[graphs.Vertex] = OrderedSet(args)
+    def __init__(self, *args: settling.graph_objects.Vertex):
+        self.data: OrderedSet[settling.graph_objects.Vertex] = OrderedSet(args)
 
     def __str__(self):
         str_ = ""
@@ -54,7 +56,7 @@ class BFSQueue:
             str_ += str(datum).upper()
         return str_
 
-    def enqueue(self, *args: graphs.Vertex):
+    def enqueue(self, *args: settling.graph_objects.Vertex):
         for v in args:
             graphs.GenericDigraph.sanitize(v)
             self.data.append(v)
@@ -73,7 +75,7 @@ class Path:
 
     @staticmethod
     def build_bfs_structs(
-        graph: graphs.GenericDigraph, src: None | graphs.Vertex = None
+        graph: graphs.GenericDigraph, src: None | settling.graph_objects.Vertex = None
     ) -> tuple[BFSQueue, disc_map, prev_map]:
         """Helper function to initialise prev_map, disc_map and bfs queue;
         if source is passed then queue initialised with src"""
@@ -97,10 +99,10 @@ class Path:
     @staticmethod
     def shortest_path(
         graph: graphs.GenericDigraph,
-        source: graphs.Vertex,
-        sink: graphs.Vertex,
+        source: settling.graph_objects.Vertex,
+        sink: settling.graph_objects.Vertex,
         neighbours: Callable,
-    ) -> list[graphs.Vertex]:
+    ) -> list[settling.graph_objects.Vertex]:
         """
         Uses a recursive implementation of BFS to find path between nodes
         Accepts graph, source node, sink node, returns list of nodes, which is the path from src to sink
@@ -122,9 +124,9 @@ class Path:
         return Path._build_path(previous, sink)
 
     @staticmethod
-    def _build_path(previous: prev_map, sink: graphs.Vertex) -> list[graphs.Vertex]:
+    def _build_path(previous: prev_map, sink: settling.graph_objects.Vertex) -> list[settling.graph_objects.Vertex]:
         """Given a mapping of previous nodes, reconstructs a path to sink"""
-        path: list[graphs.Vertex] = [sink]
+        path: list[settling.graph_objects.Vertex] = [sink]
 
         while current := previous[path[0]]:
             path.insert(0, current)
@@ -141,7 +143,7 @@ class Path:
         graph: graphs.GenericDigraph,
         queue: BFSQueue,
         discovered: disc_map,
-        target: graphs.Vertex | None,
+        target: settling.graph_objects.Vertex | None,
         previous: prev_map,
         neighbours: Callable,
         do_to_neighbour: Callable = void,

@@ -1,8 +1,10 @@
 import copy
 import logging
 
-from settling import graph as graphs
-from settling.graph import FlowGraph
+import settling.graph_objects
+import settling.specialised_graph
+from settling import base_graph as graphs
+from settling.specialised_graph import FlowGraph
 from settling.path import Path
 
 
@@ -11,7 +13,7 @@ class Flow:
 
     @staticmethod
     def edmonds_karp(
-        graph: FlowGraph, source: graphs.Vertex, sink: graphs.Vertex
+        graph: FlowGraph, source: settling.graph_objects.Vertex, sink: settling.graph_objects.Vertex
     ) -> int:
         max_flow = 0
 
@@ -28,13 +30,13 @@ class Flow:
 
     @staticmethod
     def find_aug_path(
-        graph: FlowGraph, u: graphs.Vertex, v: graphs.Vertex
-    ) -> list[graphs.Vertex]:
+        graph: FlowGraph, u: settling.graph_objects.Vertex, v: settling.graph_objects.Vertex
+    ) -> list[settling.graph_objects.Vertex]:
         logging.debug(f"Found augmenting path from {u} -> {v}")
         return Path.shortest_path(graph, u, v, graph.flow_neighbours)
 
     @staticmethod
-    def augment_path(graph: FlowGraph, path: list[graphs.Vertex], bottleneck: int):
+    def augment_path(graph: FlowGraph, path: list[settling.graph_objects.Vertex], bottleneck: int):
         """Push flow down path, push flow up residual paths"""
         residual_path = copy.deepcopy(path)
         residual_path.reverse()
@@ -44,7 +46,7 @@ class Flow:
         logging.debug(f"Augmented path {path} by {bottleneck}")
 
     @staticmethod
-    def simplify_debt(messy: graphs.FlowGraph) -> graphs.WeightedDigraph:
+    def simplify_debt(messy: settling.specialised_graph.FlowGraph) -> settling.specialised_graph.WeightedDigraph:
         """One round of graph simplification; done by walking through graph w/ BFS,
         applying maxflow to every neighbour in graph"""
 
@@ -52,11 +54,11 @@ class Flow:
 
         logging.debug(f"cleaning {messy}")
 
-        def get_max(src: graphs.Vertex, sink: graphs.Vertex) -> int:
+        def get_max(src: settling.graph_objects.Vertex, sink: settling.graph_objects.Vertex) -> int:
             """Helper to improve readability. Gets max flow between src and sink"""
             return Flow.edmonds_karp(messy, src, sink)
 
-        def cleanup(current: graphs.Vertex, neighbour: graphs.Vertex) -> None:
+        def cleanup(current: settling.graph_objects.Vertex, neighbour: settling.graph_objects.Vertex) -> None:
             """To be passed into bfs
             calculates max flow from current -> neighbour, adds edge to clean with that weight"""
 
@@ -67,7 +69,7 @@ class Flow:
                 messy.pop_edge(current, neighbour)
 
         # create clean graph with no edges
-        clean = graphs.WeightedDigraph(messy.nodes())
+        clean = settling.specialised_graph.WeightedDigraph(messy.nodes())
 
         # build queue, discovered hash map and prev hash maps
         queue, discovered, previous = Path.build_bfs_structs(messy)

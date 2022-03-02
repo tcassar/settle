@@ -2,7 +2,9 @@
 
 from unittest import TestCase
 
-from settling.graph import *
+from settling.base_graph import *
+from settling.graph_objects import Vertex, Edge
+from settling.specialised_graph import WeightedDigraph, FlowGraph
 
 
 class TestDigraph(TestCase):
@@ -73,6 +75,11 @@ class TestDigraph(TestCase):
 
     def test_nodes(self):
         self.assertEqual(self.vertices, self.graph.nodes())
+
+    def test_get_edges(self):
+        """Checks that we get all edges"""
+        u, v, w = self.vertices
+        edges_in_test = []
 
 
 class TestWeightedDigraph(TestCase):

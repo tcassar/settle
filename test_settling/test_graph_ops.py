@@ -1,9 +1,13 @@
 # coding=utf-8
 from unittest import TestCase
 
-from settling.graph import *
+from settling.base_graph import *
+from settling.graph_objects import Vertex
 from settling.path import *
 from settling.flow import Flow
+from settling.specialised_graph import WeightedDigraph, FlowGraph
+
+logging.basicConfig(stream=sys.stderr)
 
 
 class TestPath(TestCase):
@@ -49,7 +53,9 @@ class TestPath(TestCase):
 
         for case, g in zip(cases, graph_cases):
             with self.subTest(case):
-                calc_shorted: list[Vertex] = Path.shortest_path(self.g, a, f, self.g.neighbours)
+                calc_shorted: list[Vertex] = Path.shortest_path(
+                    self.g, a, f, self.g.neighbours
+                )
                 expected: list[Vertex] = [a, c, e, f]
                 self.assertEqual(expected, calc_shorted)
 
@@ -91,7 +97,7 @@ class TestPath(TestCase):
                 discovered=discovered,
                 target=None,
                 previous=prev,
-                neighbours=graph.neighbours
+                neighbours=graph.neighbours,
             ),
         )
 
@@ -106,7 +112,12 @@ class TestPath(TestCase):
         queue, discovered, previous = Path.build_bfs_structs(graph, a)
 
         calculated = Path.BFS(
-            graph=graph, queue=queue, discovered=discovered, previous=previous, target=b, neighbours=graph.neighbours
+            graph=graph,
+            queue=queue,
+            discovered=discovered,
+            previous=previous,
+            target=b,
+            neighbours=graph.neighbours,
         )
         self.assertEqual(expected, calculated)
 
@@ -120,6 +131,44 @@ class TestPath(TestCase):
         with self.subTest("with initial value"):
             queue, disc, prev = Path.build_bfs_structs(self.flow_graph)
             self.assertEqual(queue, BFSQueue())
+
+    def test_edges_hit(self):
+        """Make sure that every edge is being considered"""
+        # do a bfs, adding 1 to a count every time we touch an edge
+        # do this for all possible start positions
+
+        # FIXME: instead of walking through graph to do all edges, write a get_edges method, iterate through that list
+
+        @dataclass
+        class Counter:
+            n: int = 0
+
+            def count(self):
+                self.n += 1
+
+        def count_edge(current: Vertex, neighbour: Vertex) -> None:
+            """Counts an edge"""
+            counter.count()
+            logging.debug(f'edge from {current} to {neighbour}, count = {counter.n}')
+
+        for graph in [self.g, self.weighted_graph, self.flow_graph]:
+            for start in self.vertices:
+                counter = Counter()
+                queue, discovered, previous = Path.build_bfs_structs(graph, start)
+                Path.BFS(
+                    graph=graph,
+                    queue=queue,
+                    discovered=discovered,
+                    target=None,
+                    previous=previous,
+                    neighbours=graph.neighbours,
+                    do_to_neighbour=count_edge,
+                )
+
+                with self.subTest(f'graph: {graph}, starting at {start}'):
+                    self.assertEqual(counter.n, 7)
+
+
 
 
 class TestFlow(TestCase):
@@ -145,44 +194,41 @@ class TestFlow(TestCase):
 
         self.assertEqual(expected, calculated)
 
-    def test_settle(self):
-        """Ensures that we are settling properly
-
-        Initial (9 edges, $210 changing hands)
-            A ->
-            B -> C, 40
-            C -> D, 20
-            D -> E, 50
-            F -> (E, 10), (D, 10), (C, 30), (B, 10)
-            G -> (B, 30), (D, 10)
-
-        Multiple valid clean orders depending on starting node, as graph changes as we operate on it
-        """
-
-        # gen vertices
-        people: list[Vertex] = []
-        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
-            people.append(Vertex(ID, label=person))
-        b, c, d, e, f, g = people
-
-        # build flow graph of transactions
-        messy = FlowGraph(people)
-        messy.add_edge(b, (c, 40))
-        messy.add_edge(c, (d, 20))
-        messy.add_edge(d, (e, 50))
-        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-        messy.add_edge(g, (b, 30), (d, 10))
-
-        # build expected clean graph
-        ex_clean = WeightedDigraph(people)
-        ex_clean.add_edge(b, (c, 10))
-        ex_clean.add_edge(d, (e, 40))
-        ex_clean.add_edge(f, (e, 20), (c, 40))
-        ex_clean.add_edge(g, (b, 10), (d, 30))
-
-
-        # clean graph
-        got_clean: WeightedDigraph = Flow.simplify_debt(messy)
-
-
-
+    # def test_settle(self):
+    #     """Ensures that we are settling properly
+    #
+    #     Initial (9 edges, $210 changing hands)
+    #         A ->
+    #         B -> C, 40
+    #         C -> D, 20
+    #         D -> E, 50
+    #         F -> (E, 10), (D, 10), (C, 30), (B, 10)
+    #         G -> (B, 30), (D, 10)
+    #
+    #     Multiple valid clean orders depending on starting node, as graph changes as we operate on it
+    #     """
+    #
+    #     # gen vertices
+    #     people: list[Vertex] = []
+    #     for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
+    #         people.append(Vertex(ID, label=person))
+    #     b, c, d, e, f, g = people
+    #
+    #     # build flow graph of transactions
+    #     messy = FlowGraph(people)
+    #     messy.add_edge(b, (c, 40))
+    #     messy.add_edge(c, (d, 20))
+    #     messy.add_edge(d, (e, 50))
+    #     messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+    #     messy.add_edge(g, (b, 30), (d, 10))
+    #
+    #     # build expected clean graph
+    #     ex_clean = WeightedDigraph(people)
+    #     ex_clean.add_edge(b, (c, 10))
+    #     ex_clean.add_edge(d, (e, 40))
+    #     ex_clean.add_edge(f, (e, 20), (c, 40))
+    #     ex_clean.add_edge(g, (b, 10), (d, 30))
+    #
+    #
+    #     # clean graph
+    #     got_clean: WeightedDigraph = Flow.simplify_debt(messy)
