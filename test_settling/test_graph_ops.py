@@ -155,13 +155,7 @@ class TestFlow(TestCase):
             F -> (E, 10), (D, 10), (C, 30), (B, 10)
             G -> (B, 30), (D, 10)
 
-        Cleaned (6 edges, $150 changing hands)
-            A ->
-            B -> C, 10
-            C ->
-            D -> E, 40
-            F -> (E, 20), (C, 40)
-            G -> (B, 10), (D, 30)
+        Multiple valid clean orders depending on starting node, as graph changes as we operate on it
         """
 
         # gen vertices
@@ -189,3 +183,4 @@ class TestFlow(TestCase):
         got_clean: WeightedDigraph = Flow.simplify_debt(messy)
 
         print(f'expected:\n{ex_clean}\nreceived:\n{got_clean}')
+

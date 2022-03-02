@@ -227,7 +227,7 @@ class FlowGraph(WeightedDigraph):
     Can have max flow found
     Uses Max Flow edges
 
-    Assumes no two way edges: may be problematic
+    For write up, talk about improving with a round of cycle detection
     """
 
     @staticmethod

@@ -4,11 +4,15 @@
     "type": "split",
     "children": [
       {
-        "id": "d7b2861796a40602",
+        "id": "24e25603884a3e6d",
         "type": "leaf",
         "state": {
-          "type": "empty",
-          "state": {}
+          "type": "markdown",
+          "state": {
+            "file": "README.md",
+            "mode": "source",
+            "source": false
+          }
         }
       }
     ],
@@ -65,6 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -82,8 +87,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "d7b2861796a40602",
+  "active": "24e25603884a3e6d",
   "lastOpenFiles": [
-    "README.md"
+    "README.md",
+    "README.pdf",
+    "images/pre settle simple.png",
+    "images/evenfy_ui.png",
+    "images/basic_settle.png",
+    "images/splitwise_ui.png",
+    "images/residual edge.png",
+    "images/residual edge 1.png",
+    "images/abc_debt 1.png",
+    "images/abc_debt.png"
   ]
 }
