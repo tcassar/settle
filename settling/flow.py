@@ -1,10 +1,10 @@
+# coding=utf-8
 import copy
 import logging
 
 import settling.graph_objects
 import settling.specialised_graph
-from settling import base_graph as graphs
-from settling.specialised_graph import FlowGraph
+from settling.specialised_graph import FlowGraph, WeightedDigraph
 from settling.path import Path
 
 
@@ -88,3 +88,15 @@ class Flow:
         )
 
         return clean
+
+    @staticmethod
+    def di_to_flow(digraph: WeightedDigraph) -> FlowGraph:
+        """Converts a weighted digraph to a flow graph with 0 flow along each edge"""
+
+        flow = FlowGraph(digraph.nodes())
+
+        for src, edge_list in digraph.graph.items():
+            for edge in edge_list:
+                flow.add_edge(src, (edge.node, edge.weight))  # type: ignore
+
+        return flow

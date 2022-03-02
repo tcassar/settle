@@ -149,7 +149,7 @@ class TestPath(TestCase):
         def count_edge(current: Vertex, neighbour: Vertex) -> None:
             """Counts an edge"""
             counter.count()
-            logging.debug(f'edge from {current} to {neighbour}, count = {counter.n}')
+            logging.debug(f"edge from {current} to {neighbour}, count = {counter.n}")
 
         for graph in [self.g, self.weighted_graph, self.flow_graph]:
             for start in self.vertices:
@@ -165,10 +165,8 @@ class TestPath(TestCase):
                     do_to_neighbour=count_edge,
                 )
 
-                with self.subTest(f'graph: {graph}, starting at {start}'):
+                with self.subTest(f"graph: {graph}, starting at {start}"):
                     self.assertEqual(counter.n, 7)
-
-
 
 
 class TestFlow(TestCase):
@@ -193,6 +191,20 @@ class TestFlow(TestCase):
         calculated = Flow.edmonds_karp(self.flow_graph, a, f)
 
         self.assertEqual(expected, calculated)
+
+    def test_di_to_flow(self):
+        digraph = WeightedDigraph([Vertex(n) for n in range(4)])
+        flow = FlowGraph(digraph.nodes())
+        a, b, c, d = digraph.nodes()
+
+        for graph in [digraph, flow]:
+            graph.add_edge(a, (b, 5), (c, 10), (d, 15))
+            graph.add_edge(b, (c, 5))
+            graph.add_edge(c, (d, 10))
+
+        self.assertEqual(flow.graph, Flow.di_to_flow(digraph).graph)
+
+
 
     # def test_settle(self):
     #     """Ensures that we are settling properly

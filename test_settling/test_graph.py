@@ -76,11 +76,6 @@ class TestDigraph(TestCase):
     def test_nodes(self):
         self.assertEqual(self.vertices, self.graph.nodes())
 
-    def test_get_edges(self):
-        """Checks that we get all edges"""
-        u, v, w = self.vertices
-        edges_in_test = []
-
 
 class TestWeightedDigraph(TestCase):
     def setUp(self) -> None:

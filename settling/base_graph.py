@@ -137,9 +137,6 @@ class GenericDigraph:
         backwards = self._backwards_graph[node]
         return True if forwards or backwards else False
 
-    def get_edges(self):
-        ...
-
 
 class Digraph(GenericDigraph):
     def add_edge(self, s: Vertex, *args: Vertex) -> None:
