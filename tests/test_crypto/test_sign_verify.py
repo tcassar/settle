@@ -3,8 +3,9 @@
 """
 Testing sign / verify through RSA working as expected
 """
-from transactions.transaction import Signable
-from crypto import keys, rsa
+from src.transactions.transaction import Signable
+from src.crypto import keys
+from src.crypto import rsa
 
 import os
 from unittest import TestCase
@@ -25,7 +26,7 @@ class TestTransaction(Signable):
 
 
 def setUpModule():
-    os.chdir("/home/tcassar/projects/settle/")
+    os.chdir("/home/tcassar/projects/settle/src")
 
 
 class TestRSA(TestCase):

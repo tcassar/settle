@@ -4,7 +4,7 @@
 Unit tests for key handling
 """
 
-from crypto import keys
+from src.crypto import keys
 from unittest import TestCase
 import os
 
@@ -15,7 +15,8 @@ class TestRSAKeyLoading(TestCase):
     def setUp(self) -> None:
         """Initialise loaders fresh between tests"""
         self.loader = keys.RSAKeyLoader()
-        os.chdir("/home/tcassar/projects/settle/")
+        os.chdir("/home/tcassar/projects/settle/src")
+        print(os.system('pwd'))
         self.key_path = "./crypto/sample_keys/private-key.pem"
 
     def test_file_loading(self):

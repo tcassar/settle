@@ -1,6 +1,6 @@
 # coding=utf-8
-from settling.base_graph import GenericDigraph, Digraph, GraphError, Default
-from settling.graph_objects import Vertex, WeightedEdge, Edge, FlowEdge
+from src.simplify.base_graph import GenericDigraph, Digraph, GraphError, Default
+from src.simplify.graph_objects import Vertex, WeightedEdge, Edge, FlowEdge
 
 
 class WeightedDigraph(GenericDigraph):

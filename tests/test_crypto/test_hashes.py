@@ -1,7 +1,7 @@
 # coding=utf-8
 import sys
 
-from crypto import hashes
+from src.crypto import hashes
 import hashlib
 from unittest import TestCase
 

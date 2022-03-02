@@ -1,13 +1,12 @@
 # coding=utf-8
+from dataclasses import dataclass
 from unittest import TestCase
 
-from settling.base_graph import *
-from settling.graph_objects import Vertex
-from settling.path import *
-from settling.flow import Flow
-from settling.specialised_graph import WeightedDigraph, FlowGraph
-
-logging.basicConfig(stream=sys.stderr)
+from src.simplify.graph_objects import Vertex
+from src.simplify.flow import Flow
+from src.simplify.path import Path, prev_map, disc_map, BFSQueue
+from src.simplify.base_graph import Digraph
+from src.simplify.specialised_graph import WeightedDigraph, FlowGraph
 
 
 class TestPath(TestCase):
@@ -149,7 +148,6 @@ class TestPath(TestCase):
         def count_edge(current: Vertex, neighbour: Vertex) -> None:
             """Counts an edge"""
             counter.count()
-            logging.debug(f"edge from {current} to {neighbour}, count = {counter.n}")
 
         for graph in [self.g, self.weighted_graph, self.flow_graph]:
             for start in self.vertices:
@@ -205,6 +203,33 @@ class TestFlow(TestCase):
         self.assertEqual(flow.graph, Flow.di_to_flow(digraph).graph)
 
 
+class TestSettling(TestCase):
+
+    def setUp(self) -> None:
+        # gen vertices
+        people: list[Vertex] = []
+        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
+            people.append(Vertex(ID, label=person))
+        b, c, d, e, f, g = people
+
+        # build flow graph of transactions
+        messy = FlowGraph(people)
+        messy.add_edge(b, (c, 40))
+        messy.add_edge(c, (d, 20))
+        messy.add_edge(d, (e, 50))
+        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+        messy.add_edge(g, (b, 30), (d, 10))
+
+        # build expected clean graph
+        ex_clean = WeightedDigraph(people)
+        ex_clean.add_edge(b, (c, 40))
+        ex_clean.add_edge(c, (d, 20))
+        ex_clean.add_edge(d, (e, 50))
+        ex_clean.add_edge(f, (e, 10), (c, 30))
+        ex_clean.add_edge(g, (b, 30))
+
+        self.messy = messy
+        self.precleaned = ex_clean
 
     def test_settle(self):
         """Ensures that we are settling properly
@@ -232,28 +257,4 @@ class TestFlow(TestCase):
         Multiple valid clean orders depending on starting node, as graph changes as we operate on it
         """
 
-        # gen vertices
-        people: list[Vertex] = []
-        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
-            people.append(Vertex(ID, label=person))
-        b, c, d, e, f, g = people
-
-        # build flow graph of transactions
-        messy = FlowGraph(people)
-        messy.add_edge(b, (c, 40))
-        messy.add_edge(c, (d, 20))
-        messy.add_edge(d, (e, 50))
-        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-        messy.add_edge(g, (b, 30), (d, 10))
-
-        # build expected clean graph
-        ex_clean = WeightedDigraph(people)
-        ex_clean.add_edge(b, (c, 40))
-        ex_clean.add_edge(c, (d, 20))
-        ex_clean.add_edge(d, (e, 50))
-        ex_clean.add_edge(f, (e, 10), (c, 30))
-        ex_clean.add_edge(g, (b, 30))
-
-        self.assertEqual(
-            ex_clean, Flow.simplify_debt(messy)
-        )
+        self.assertEqual(self.precleaned, Flow.simplify_debt(self.messy))

@@ -1,11 +1,10 @@
 # coding=utf-8
 """Interface to all RSA encrypt / decrypt functions"""
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import os.path
 import re
 import subprocess
+from dataclasses import dataclass
 
 
 class RSAKeyError(Exception):

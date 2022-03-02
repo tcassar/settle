@@ -1,10 +1,9 @@
 # coding=utf-8
 import copy
 
-import settling.graph_objects
-import settling.specialised_graph
-from settling.specialised_graph import FlowGraph, WeightedDigraph
-from settling.path import Path
+import src.simplify.graph_objects as graph_objects
+from src.simplify.path import Path
+from src.simplify.specialised_graph import FlowGraph, WeightedDigraph
 
 
 class Flow:
@@ -12,7 +11,9 @@ class Flow:
 
     @staticmethod
     def edmonds_karp(
-        graph: FlowGraph, source: settling.graph_objects.Vertex, sink: settling.graph_objects.Vertex
+        graph: FlowGraph,
+        source: graph_objects.Vertex,
+        sink: graph_objects.Vertex,
     ) -> int:
         max_flow = 0
 
@@ -28,12 +29,16 @@ class Flow:
 
     @staticmethod
     def find_aug_path(
-        graph: FlowGraph, u: settling.graph_objects.Vertex, v: settling.graph_objects.Vertex
-    ) -> list[settling.graph_objects.Vertex]:
+        graph: FlowGraph,
+        u: graph_objects.Vertex,
+        v: graph_objects.Vertex,
+    ) -> list[graph_objects.Vertex]:
         return Path.shortest_path(graph, u, v, graph.flow_neighbours)
 
     @staticmethod
-    def augment_path(graph: FlowGraph, path: list[settling.graph_objects.Vertex], bottleneck: int):
+    def augment_path(
+        graph: FlowGraph, path: list[graph_objects.Vertex], bottleneck: int
+    ):
         """Push flow down path, push flow up residual paths"""
         residual_path = copy.deepcopy(path)
         residual_path.reverse()
@@ -43,7 +48,10 @@ class Flow:
 
     @staticmethod
     def simplify_debt(messy):
-        def cleanup(current: settling.graph_objects.Vertex, neighbour: settling.graph_objects.Vertex) -> None:
+        def cleanup(
+            current: graph_objects.Vertex,
+            neighbour: graph_objects.Vertex,
+        ) -> None:
             """To be passed into bfs
             calculates max flow from current -> neighbour, adds edge to clean with that weight"""
 
@@ -54,7 +62,7 @@ class Flow:
                 messy.pop_edge(current, neighbour)
 
         # create clean graph with no edges
-        clean = settling.specialised_graph.WeightedDigraph(messy.nodes())
+        clean = WeightedDigraph(messy.nodes())
 
         for src, edge_list in messy.graph.items():
             for edge in edge_list:

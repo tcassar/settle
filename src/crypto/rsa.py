@@ -4,17 +4,16 @@ RSA Sign/Verify classes
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
-from crypto import keys, hashes
-
+import sys
 from abc import ABC
 from dataclasses import dataclass
-import sys
+from typing import TYPE_CHECKING
 
+from src.crypto import keys, hashes
 
 if TYPE_CHECKING:
-    from transactions.transaction import Signable
+    from src.transactions.transaction import Signable
 
 
 class DecryptionError(Exception):

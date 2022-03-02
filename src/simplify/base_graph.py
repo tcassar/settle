@@ -4,7 +4,8 @@
 Set up graph object to be used in condensing debt settling
 """
 import copy
-from settling.graph_objects import Vertex, Edge
+
+from src.simplify.graph_objects import Vertex, Edge
 
 """
 
@@ -144,5 +145,3 @@ class Digraph(GenericDigraph):
         for target in args:
             self.graph[s].append(Edge(target))
             self._backwards_graph[target].append(Edge(s))
-
-

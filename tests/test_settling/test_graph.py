@@ -2,9 +2,9 @@
 
 from unittest import TestCase
 
-from settling.base_graph import *
-from settling.graph_objects import Vertex, Edge
-from settling.specialised_graph import WeightedDigraph, FlowGraph
+from src.simplify.graph_objects import Vertex, Edge
+from src.simplify.base_graph import Digraph, GraphError
+from src.simplify.specialised_graph import WeightedDigraph, FlowGraph
 
 
 class TestDigraph(TestCase):

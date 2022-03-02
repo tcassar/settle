@@ -3,8 +3,6 @@ import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-import crypto.rsa
-
 
 class Signable(ABC):
     """Base class for objects that can be signed"""
@@ -13,25 +11,20 @@ class Signable(ABC):
     def add_sig(self, sig: bytes):
         ...
 
-    @abstractmethod
-    def __hash__(self):
-        ...
+
 
 
 @dataclass
-class User:
-    """for users from db"""
+class Transaction(Signable):
 
-
-@dataclass
-class NewTransaction(Signable):
-
-    src: User
-    dest: User
+    src: int
+    dest: int
     amount: int
     ID = 0
     msg: str = ""
     time = datetime.datetime.now()
 
     def __hash__(self):
-        hash(f'{self.src, self.dest, self.amount, self.ID, self.msg, self.time}')
+        hash(f"{self.src, self.dest, self.amount, self.ID, self.msg, self.time}")
+
+    def add_sig(self, sig: bytes): ...
