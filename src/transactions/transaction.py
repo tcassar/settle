@@ -12,8 +12,6 @@ class Signable(ABC):
         ...
 
 
-
-
 @dataclass
 class Transaction(Signable):
 
@@ -27,4 +25,5 @@ class Transaction(Signable):
     def __hash__(self):
         hash(f"{self.src, self.dest, self.amount, self.ID, self.msg, self.time}")
 
-    def add_sig(self, sig: bytes): ...
+    def add_sig(self, sig: bytes):
+        ...

@@ -9,7 +9,7 @@ from ordered_set import OrderedSet
 
 # initialise logger
 import src.simplify.graph_objects
-from src import simplify as graphs
+from src.simplify import base_graph as graphs
 
 logging.basicConfig(stream=sys.stdout, encoding="utf-8", level=logging.DEBUG)
 

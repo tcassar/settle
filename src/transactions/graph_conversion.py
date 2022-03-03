@@ -1,7 +1,10 @@
 # coding=utf-8
-from dataclasses import dataclass
 
 from src.transactions.transaction import Transaction
+import src.simplify.specialised_graph as graphs
+from src.simplify.graph_objects import *
+
+from dataclasses import dataclass
 
 
 class ConversionError(Exception):
@@ -28,5 +31,11 @@ class TransactionConversion:
 
         return people
 
-    def _gen_digraph(self): ...
+    def _gen_digraph(self):
 
+        # build list of vertices
+        def id_to_vertex(id: int) -> Vertex:
+            return Vertex(ID=id)
+
+        digraph = graphs.WeightedDigraph(list(map(id_to_vertex, self._gen_people())))
+        print(digraph)

@@ -1,5 +1,6 @@
 # coding=utf-8
 import copy
+from random import shuffle
 
 import src.simplify.graph_objects as graph_objects
 from src.simplify.path import Path
@@ -75,8 +76,7 @@ class Flow:
         """Converts a weighted digraph to a flow graph with 0 flow along each edge"""
 
         flow = FlowGraph(digraph.nodes())
-
-        for src, edge_list in digraph.graph.items():
+        for src, edge_list in digraph.graph.keys():
             for edge in edge_list:
                 flow.add_edge(src, (edge.node, edge.weight))  # type: ignore
 

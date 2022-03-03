@@ -202,6 +202,8 @@ class TestFlow(TestCase):
 
         self.assertEqual(flow.graph, Flow.di_to_flow(digraph).graph)
 
+# FIXME: Fix settling
+
 
 class TestSettling(TestCase):
 
@@ -217,7 +219,7 @@ class TestSettling(TestCase):
         messy.add_edge(b, (c, 40))
         messy.add_edge(c, (d, 20))
         messy.add_edge(d, (e, 50))
-        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+        messy.add_edge(f, (e, 10), (d, 10), (c, 30))
         messy.add_edge(g, (b, 30), (d, 10))
 
         # build expected clean graph
@@ -257,4 +259,19 @@ class TestSettling(TestCase):
         Multiple valid clean orders depending on starting node, as graph changes as we operate on it
         """
 
-        self.assertEqual(self.precleaned, Flow.simplify_debt(self.messy))
+        # self.assertEqual(self.precleaned, Flow.simplify_debt(self.messy))
+        self.assertTrue(False)
+
+    def test_paid(self):
+        """Checks that everyone is paid enough"""
+        def owed(graph: WeightedDigraph):
+            return {node: graph.weights_in(node) for node in graph.nodes()}
+
+        # get initial weights in of everyone
+        initial = owed(self.messy)
+        print(initial)
+        cleaned = Flow.simplify_debt(self.messy)
+        print(owed(cleaned))
+
+        self.assertTrue(False)
+

@@ -13,6 +13,14 @@ class WeightedDigraph(GenericDigraph):
             self.graph[source].append(WeightedEdge(node, weight))
             self._backwards_graph[node].append(WeightedEdge(source, weight * -1))
 
+    def weights_in(self, node: Vertex) -> int:
+        """Returns sum of weights into node"""
+        weight_in = 0
+        for edge in self._backwards_graph[node]:
+            weight_in += edge.weight  # type: ignore
+
+        return weight_in * -1
+
 
 class FlowGraph(WeightedDigraph):
     """
@@ -89,3 +97,10 @@ class FlowGraph(WeightedDigraph):
             bottleneck = 0
 
         return bottleneck  # type: ignore
+
+    def weights_in(self, node: Vertex) -> int:
+        weight_in = 0
+        for edge in self._backwards_graph[node]:
+            weight_in += edge.capacity  # type: ignore
+
+        return weight_in * -1

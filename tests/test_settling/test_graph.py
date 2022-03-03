@@ -94,6 +94,9 @@ class TestWeightedDigraph(TestCase):
         self.graph.add_edge(w, (v, 4))
         self.assertTrue(self.graph.is_edge(w, v))
 
+    def test_weighst_in(self):
+        self.assertEqual(self.graph.weights_in(self.vertices[2]), 5)
+
 
 class TestFlowGraph(TestCase):
     def setUp(self) -> None:
@@ -136,3 +139,6 @@ class TestFlowGraph(TestCase):
         u, v, w = self.vertices
 
         self.assertEqual(1, self.graph.bottleneck([u, v, w]))
+
+    def test_weights_in(self):
+        self.assertEqual(self.graph.weights_in(self.vertices[2]), 5)
