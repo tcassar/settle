@@ -49,7 +49,7 @@ class WeightedEdge(Edge):
 class FlowEdge(Edge):
     capacity: int = 0
     flow: int = 0
-    residual: bool = not capacity  # class as residual edge if capacity is 0
+    residual: bool = False  # class as residual edge if capacity is 0
 
     def __str__(self):
         return f"{self.node} [{self.flow}/{self.capacity}]"

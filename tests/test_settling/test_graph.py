@@ -141,5 +141,8 @@ class TestFlowGraph(TestCase):
         u, v, w = self.vertices
         self.assertEqual(1, self.graph.bottleneck([u, v, w]))
 
-    def test_weights_in(self):
-        self.assertEqual(self.graph.flow_through(self.vertices[2]), 5)
+    def test_flow_through(self):
+        # no flow down new graph thus 0 for each case
+        for node, flow in zip(self.vertices, [0, 0, 0]):
+            with self.subTest(node):
+                self.assertEqual(self.graph.flow_through(node), flow)

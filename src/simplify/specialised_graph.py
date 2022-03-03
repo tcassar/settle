@@ -17,13 +17,11 @@ class WeightedDigraph(GenericDigraph):
         """Returns sum of weights into node"""
         flow = 0
         edge: WeightedEdge
-        for edge in self._backwards_graph[node]:  # type: ignore
-            print(f'flow {edge.weight} into [{node}]')
-            flow += edge.weight
 
-        for edge in self.graph[node]:  # type: ignore
-            print(f'flow {edge.weight} out of [{node}]')
-            flow += edge.weight
+        for graph in [self.graph, self._backwards_graph]:
+            for edge in graph[node]:  # type: ignore
+                # print(f'flow {edge.weight} into [{node}]')
+                flow += edge.weight
 
         # return -ve, as backwards edges have -ve value and forwards have +ve
         return flow * -1
@@ -56,7 +54,7 @@ class FlowGraph(WeightedDigraph):
             self._backwards_graph[node].append(FlowEdge(source, capacity * -1))
 
             # add residual edges
-            self.graph[node].append(FlowEdge(source, 0))
+            self.graph[node].append(FlowEdge(source, 0, residual=True))
 
     def pop_edge(self, s: Vertex, t: Vertex) -> Edge:
         # pop residual edge as well
@@ -106,8 +104,17 @@ class FlowGraph(WeightedDigraph):
         return bottleneck  # type: ignore
 
     def flow_through(self, node: Vertex) -> int:
-        weight_in = 0
-        for edge in self._backwards_graph[node]:
-            weight_in += edge.capacity  # type: ignore
+        flow = 0
+        edge: FlowEdge
 
-        return weight_in * -1
+        for graph in [self.graph, self._backwards_graph]:
+            for edge in graph[node]:  # type: ignore
+                if edge.residual:
+                    # dont include residual edges
+                    continue
+                else:
+                    print('ADDING', edge, edge.capacity, edge.flow)
+                    flow += edge.flow
+
+        return flow
+
