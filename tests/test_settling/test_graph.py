@@ -112,7 +112,8 @@ class TestFlowGraph(TestCase):
         self.graph.add_edge(v, (w, 3))
 
     def test_add_edge(self):
-        print(self.graph)
+        u, v, w = self.vertices
+        self.assertFalse(self.graph.is_edge(w, u))
 
     def test_pop_edge(self):
         u, v, w = self.vertices

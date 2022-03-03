@@ -79,12 +79,17 @@ class TestSettling(TestCase):
     def test_paid(self):
         """Checks that everyone is paid enough"""
 
-        def owed(graph: WeightedDigraph):
-            return {node: graph.flow_through(node) for node in graph.nodes()}
+        def gets(graph: FlowGraph) -> dict[Vertex, int]:
+            """Flow through a node"""
+            return {node: graph.flow_through(node)[0] for node in graph.nodes()}
+
+        def should_get(graph: FlowGraph):
+            """Max capacity through a node"""
+            return {node: graph.flow_through(node)[1] for node in graph.nodes()}
 
         # get initial weights in of everyone
-        initial = owed(self.messy)
-        cleaned = owed(Flow.simplify_debt(self.messy))
+        initial = should_get(self.messy)
+        cleaned = gets(Flow.simplify_debt(self.messy))
 
-        self.assertEqual(initial, cleaned)
         print(initial, cleaned, sep="\n")
+        self.assertEqual(initial, cleaned)

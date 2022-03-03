@@ -72,7 +72,7 @@ class Flow:
     #     return clean
 
     @staticmethod
-    def simplify_debt(messy: FlowGraph) -> WeightedDigraph:
+    def simplify_debt(messy: FlowGraph) -> FlowGraph:
         """Simplified debt
         1) Maxflow for all edges in graph
         2) Convert residual graph to digraph (edges with unused capacity)"""
@@ -84,7 +84,6 @@ class Flow:
             # messy.pop_edge(current, neighbour)
             return Flow.edmonds_karp(messy, current, neighbour)
 
-
         # search with no target (thus hitting all edges) with bfs, maxflowing each
         Path.BFS(
             target=None,
@@ -95,7 +94,5 @@ class Flow:
             neighbours=messy.neighbours,
             do_to_neighbour=max_flow,
         )
-
-        print(messy)
 
         return messy

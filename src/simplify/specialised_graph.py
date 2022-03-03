@@ -1,4 +1,6 @@
 # coding=utf-8
+from typing import Tuple
+
 from src.simplify.base_graph import GenericDigraph, Digraph, GraphError, Default
 from src.simplify.graph_objects import Vertex, WeightedEdge, Edge, FlowEdge
 
@@ -103,8 +105,10 @@ class FlowGraph(WeightedDigraph):
 
         return bottleneck  # type: ignore
 
-    def flow_through(self, node: Vertex) -> int:
+    def flow_through(self, node: Vertex) -> tuple[int, int]:
+        """Returns current flow through node, and max capacity through node"""
         flow = 0
+        max = 0
         edge: FlowEdge
 
         for graph in [self.graph, self._backwards_graph]:
@@ -113,8 +117,17 @@ class FlowGraph(WeightedDigraph):
                     # dont include residual edges
                     continue
                 else:
-                    print('ADDING', edge, edge.capacity, edge.flow)
+                    # print('ADDING', edge, edge.capacity, edge.flow)
                     flow += edge.flow
+                    max += edge.capacity
 
-        return flow
+        return flow, max
+
+    def is_edge(self, s: Vertex, t: Vertex) -> bool:
+        try:
+            edge = self.edge_from_nodes(t, self[s])
+        except GraphError:
+            return False
+
+        return False if edge.residual else True
 
