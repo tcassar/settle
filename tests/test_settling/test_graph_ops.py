@@ -256,7 +256,7 @@ class TestSettling(TestCase):
         """Checks that everyone is paid enough"""
 
         def owed(graph: WeightedDigraph):
-            return {node: graph.weights_in(node) for node in graph.nodes()}
+            return {node: graph.flow_through(node) for node in graph.nodes()}
 
         # get initial weights in of everyone
         initial = owed(self.messy)
