@@ -1,10 +1,10 @@
 # coding=utf-8
-import copy
-from random import shuffle
 
 import src.simplify.graph_objects as graph_objects
 from src.simplify.path import Path
 from src.simplify.specialised_graph import FlowGraph, WeightedDigraph
+
+import copy
 
 
 class Flow:

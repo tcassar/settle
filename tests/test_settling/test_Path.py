@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from unittest import TestCase
 
 from src.simplify.graph_objects import Vertex
-from src.simplify.flow import Flow
 from src.simplify.path import Path, prev_map, disc_map, BFSQueue
 from src.simplify.base_graph import Digraph
 from src.simplify.specialised_graph import WeightedDigraph, FlowGraph
@@ -167,100 +166,4 @@ class TestPath(TestCase):
                     self.assertEqual(counter.n, 7)
 
 
-class TestFlow(TestCase):
-    def setUp(self) -> None:
-        labels = ["a", "b", "c", "d", "e", "f"]
-        self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
-        a, b, c, d, e, f = self.vertices
 
-        # set up weighted_graph and flow graphs
-        self.flow_graph = FlowGraph(self.vertices)
-        self.flow_graph.add_edge(a, (b, 10), (c, 10))
-        self.flow_graph.add_edge(b, (d, 25))
-        self.flow_graph.add_edge(c, (e, 25))
-        self.flow_graph.add_edge(d, (f, 10))
-        self.flow_graph.add_edge(e, (f, 10), (b, 6))
-
-    def test_edmonds_karp(self):
-        """Max flow test between nodes"""
-        a, b, c, d, e, f = self.vertices
-
-        expected = 20
-        calculated = Flow.edmonds_karp(self.flow_graph, a, f)
-
-        self.assertEqual(expected, calculated)
-
-    def test_di_to_flow(self):
-        digraph = WeightedDigraph([Vertex(n) for n in range(4)])
-        flow = FlowGraph(digraph.nodes())
-        a, b, c, d = digraph.nodes()
-
-        for graph in [digraph, flow]:
-            graph.add_edge(a, (b, 5), (c, 10), (d, 15))
-            graph.add_edge(b, (c, 5))
-            graph.add_edge(c, (d, 10))
-
-        self.assertEqual(flow.graph, Flow.di_to_flow(digraph).graph)
-
-
-# FIXME: Fix settling
-
-
-class TestSettling(TestCase):
-    def setUp(self) -> None:
-        # gen vertices
-        people: list[Vertex] = []
-        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
-            people.append(Vertex(ID, label=person))
-        b, c, d, e, f, g = people
-
-        # build flow graph of transactions
-        messy = FlowGraph(people)
-        messy.add_edge(b, (c, 40))
-        messy.add_edge(c, (d, 20))
-        messy.add_edge(d, (e, 50))
-        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-        messy.add_edge(g, (b, 30), (d, 10))
-
-        self.messy = messy
-
-    def test_settle(self):
-        """Ensures that we are settling properly
-
-        Initial (9 edges, $210 changing hands)
-            A ->
-            B -> C, 40
-            C -> D, 20
-            D -> E, 50
-            E ->
-            F -> (E, 10), (D, 10), (C, 30), (B, 10)
-            G -> (B, 30), (D, 10)
-
-        Should settle to
-
-            A ->
-            B -> C, 40
-            C -> D, 20
-            D -> E, 50
-            E ->
-            F -> (E, 10), (C, 30)
-            G -> B, 30
-
-
-        Multiple valid clean orders depending on starting node, as graph changes as we operate on it
-        """
-
-        self.assertTrue(False)
-
-    def test_paid(self):
-        """Checks that everyone is paid enough"""
-
-        def owed(graph: WeightedDigraph):
-            return {node: graph.flow_through(node) for node in graph.nodes()}
-
-        # get initial weights in of everyone
-        initial = owed(self.messy)
-        cleaned = owed(Flow.simplify_debt(self.messy))
-
-        self.assertEqual(initial, cleaned)
-        print(initial, cleaned, sep="\n")
