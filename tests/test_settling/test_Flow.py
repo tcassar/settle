@@ -91,5 +91,13 @@ class TestSettling(TestCase):
         initial = should_get(self.messy)
         cleaned = gets(Flow.simplify_debt(self.messy))
 
+        delta_i = sum(initial.values())
+        delta_c = sum(cleaned.values())
+        print(delta_i, delta_c)
+
         print(initial, cleaned, sep="\n")
-        self.assertEqual(initial, cleaned)
+        with self.subTest('Initial net flow'):
+            self.assertEqual(0, delta_i)
+
+        with self.subTest('Closed system'):
+            self.assertEqual(0, delta_c)
