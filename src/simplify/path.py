@@ -168,7 +168,8 @@ class Path:
 
             # check we haven't been fed a standalone node (i.e. no forward or backwards links)
             if not graph.connected(current):
-                raise SearchError("Cannot traverse a non connected node", current)
+                if not queue:
+                    raise SearchError("Cannot traverse a non connected node", current)
 
             # if discovered target node return prev
             if current == target:

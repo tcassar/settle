@@ -47,37 +47,55 @@ class Flow:
         graph.push_flow(path, bottleneck)
         graph.push_flow(residual_path, bottleneck * -1)
 
+    # @staticmethod
+    # def simplify_debt(messy):
+    #     def cleanup(
+    #         current: graph_objects.Vertex,
+    #         neighbour: graph_objects.Vertex,
+    #     ) -> None:
+    #         """To be passed into bfs
+    #         calculates max flow from current -> neighbour, adds edge to clean with that weight"""
+    #
+    #         if flow := Flow.edmonds_karp(messy, current, neighbour):
+    #             # add max flow edge to clean graph
+    #             clean.add_edge(current, (neighbour, flow))
+    #             # pop edge from messy
+    #             messy.pop_edge(current, neighbour)
+    #
+    #     # create clean graph with no edges
+    #     clean = WeightedDigraph(messy.nodes())
+    #
+    #     for src, edge_list in messy.graph.items():
+    #         for edge in edge_list:
+    #             cleanup(src, edge.node)
+    #
+    #     return clean
+
     @staticmethod
-    def simplify_debt(messy):
-        def cleanup(
-            current: graph_objects.Vertex,
-            neighbour: graph_objects.Vertex,
-        ) -> None:
-            """To be passed into bfs
-            calculates max flow from current -> neighbour, adds edge to clean with that weight"""
+    def simplify_debt(messy: FlowGraph) -> WeightedDigraph:
+        """Simplified debt
+        1) Maxflow for all edges in graph
+        2) Convert residual graph to digraph (edges with unused capacity)"""
 
-            if flow := Flow.edmonds_karp(messy, current, neighbour):
-                # add max flow edge to clean graph
-                clean.add_edge(current, (neighbour, flow))
-                # pop edge from messy
-                messy.pop_edge(current, neighbour)
+        # initialise infrastructure for search through graph
+        queue, discovered, previous = Path.build_bfs_structs(messy)
 
-        # create clean graph with no edges
-        clean = WeightedDigraph(messy.nodes())
+        def max_flow(current: graph_objects.Vertex, neighbour: graph_objects.Vertex):
+            # messy.pop_edge(current, neighbour)
+            return Flow.edmonds_karp(messy, current, neighbour)
 
-        for src, edge_list in messy.graph.items():
-            for edge in edge_list:
-                cleanup(src, edge.node)
 
-        return clean
+        # search with no target (thus hitting all edges) with bfs, maxflowing each
+        Path.BFS(
+            target=None,
+            graph=messy,
+            queue=queue,
+            discovered=discovered,
+            previous=previous,
+            neighbours=messy.neighbours,
+            do_to_neighbour=max_flow,
+        )
 
-    @staticmethod
-    def di_to_flow(digraph: WeightedDigraph) -> FlowGraph:
-        """Converts a weighted digraph to a flow graph with 0 flow along each edge"""
+        print(messy)
 
-        flow = FlowGraph(digraph.nodes())
-        for src, edge_list in digraph.graph.keys():
-            for edge in edge_list:
-                flow.add_edge(src, (edge.node, edge.weight))  # type: ignore
-
-        return flow
+        return messy
