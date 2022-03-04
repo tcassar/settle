@@ -15,11 +15,15 @@ logging.basicConfig(stream=sys.stdout, encoding="utf-8", level=logging.DEBUG)
 
 
 # typing
-disc_map = dict[src.simplify.graph_objects.Vertex, src.simplify.graph_objects.Vertex | bool]
+disc_map = dict[
+    src.simplify.graph_objects.Vertex, src.simplify.graph_objects.Vertex | bool
+]
 """disc_map used to track which nodes have been discovered; {node: discovered?}"""
 
 
-prev_map = dict[src.simplify.graph_objects.Vertex, src.simplify.graph_objects.Vertex | None]
+prev_map = dict[
+    src.simplify.graph_objects.Vertex, src.simplify.graph_objects.Vertex | None
+]
 """prev_map used to track a path through a graph; stored as {node: comes_from_node}. 
 If node has no links (i.e. is start node), value is None"""
 
@@ -31,7 +35,8 @@ class SearchError(Exception):
 
 
 def void(
-    current: src.simplify.graph_objects.Vertex, neighbour: src.simplify.graph_objects.Vertex
+    current: src.simplify.graph_objects.Vertex,
+    neighbour: src.simplify.graph_objects.Vertex,
 ) -> None:
     """Placeholder for a plain bfs; allows adding functionality such as a maxflow along each edge during a BFS"""
     pass
@@ -75,7 +80,8 @@ class Path:
 
     @staticmethod
     def build_bfs_structs(
-        graph: graphs.GenericDigraph, src: None | src.simplify.graph_objects.Vertex = None
+        graph: graphs.GenericDigraph,
+        src: None | src.simplify.graph_objects.Vertex = None,
     ) -> tuple[BFSQueue, disc_map, prev_map]:
         """Helper function to initialise prev_map, disc_map and bfs queue;
         if source is passed then queue initialised with src"""
@@ -87,9 +93,10 @@ class Path:
             queue.enqueue(src)
         else:
             # get 'first' item from graph
-            n = len(graph.graph)
-            start = list(graph.graph.keys())[random.randint(0, n - 1)]
-            queue.enqueue(start)
+            # n = len(graph.graph)
+            # start = list(graph.graph.keys())[random.randint(0, n - 1)]
+            # queue.enqueue(start)
+            start = next(iter(graph.graph))
             logging.debug(f"starting from {start}")
 
             # queue.enqueue(next(iter(graph.graph)))

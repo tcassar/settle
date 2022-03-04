@@ -164,6 +164,3 @@ class TestPath(TestCase):
 
                 with self.subTest(f"graph: {graph}, starting at {start}"):
                     self.assertEqual(counter.n, 7)
-
-
-

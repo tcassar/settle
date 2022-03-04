@@ -16,7 +16,9 @@ class WeightedDigraph(GenericDigraph):
             self._backwards_graph[node].append(WeightedEdge(source, weight * -1))
 
     def flow_through(self, node: Vertex) -> int:
-        """Returns sum of weights into node"""
+        """Returns sum of weights out of node
+        +ve => net flow out of node
+        -ve => net flow into node"""
         flow = 0
         edge: WeightedEdge
 
@@ -26,7 +28,11 @@ class WeightedDigraph(GenericDigraph):
                 flow += edge.weight
 
         # return -ve, as backwards edges have -ve value and forwards have +ve
-        return flow * -1
+        return flow
+
+    def net_debts(self) -> dict[Vertex, int]:
+        """Returns a map of everyone with net money owed (-ve if they need to pay)"""
+        return {node: self.flow_through(node) for node in self.nodes()}
 
 
 class FlowGraph(WeightedDigraph):
@@ -105,23 +111,24 @@ class FlowGraph(WeightedDigraph):
 
         return bottleneck  # type: ignore
 
-    def flow_through(self, node: Vertex) -> tuple[int, int]:
-        """Returns current flow through node, and max capacity through node"""
+    def flow_through(self, node: Vertex) -> int:
+        """Returns current flow through node
+        +ve direction out of node => give us net money one owes to group
+        """
         flow = 0
-        max = 0
         edge: FlowEdge
 
-        for graph in [self.graph, self._backwards_graph]:
+        for graph, name in zip([self.graph, self._backwards_graph], ['forward', 'backwards']):
+            print(name)
             for edge in graph[node]:  # type: ignore
                 if edge.residual:
                     # dont include residual edges
                     continue
                 else:
-                    # print('ADDING', edge, edge.capacity, edge.flow)
+                    print(f'{node} -> {edge.node} [label="{edge.flow}/{edge.capacity}"]')
                     flow += edge.flow
-                    max += edge.capacity
 
-        return flow, max
+        return flow
 
     def is_edge(self, s: Vertex, t: Vertex) -> bool:
         try:
@@ -130,4 +137,3 @@ class FlowGraph(WeightedDigraph):
             return False
 
         return False if edge.residual else True
-

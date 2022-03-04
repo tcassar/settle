@@ -6,14 +6,15 @@ from unittest import TestCase
 
 
 class TestTransactionConversion(TestCase):
-
     def setUp(self) -> None:
 
         # load transactions from file
         raw_trans = []
-        with open('/home/tcassar/projects/settle/tests/test_transactions/transactions.csv') as f:
+        with open(
+            "/home/tcassar/projects/settle/tests/test_transactions/transactions.csv"
+        ) as f:
             for line in f:
-                transaction = line.strip().split(',')
+                transaction = line.strip().split(",")
                 raw_trans.append(transaction)
 
         # build into transaction objects
@@ -33,4 +34,3 @@ class TestTransactionConversion(TestCase):
 
     def test_build_transactions(self):
         """check that we correctly construct a list of transactions from a graph"""
-

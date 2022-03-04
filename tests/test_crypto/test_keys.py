@@ -16,7 +16,7 @@ class TestRSAKeyLoading(TestCase):
         """Initialise loaders fresh between tests"""
         self.loader = keys.RSAKeyLoader()
         os.chdir("/home/tcassar/projects/settle/src")
-        print(os.system('pwd'))
+        print(os.system("pwd"))
         self.key_path = "./crypto/sample_keys/private-key.pem"
 
     def test_file_loading(self):

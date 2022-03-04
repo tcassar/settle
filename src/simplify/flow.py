@@ -7,6 +7,10 @@ from src.simplify.specialised_graph import FlowGraph, WeightedDigraph
 import copy
 
 
+class SettleError(Exception):
+    ...
+
+
 class Flow:
     """Namespace for all flow operations"""
 
@@ -72,19 +76,25 @@ class Flow:
     #     return clean
 
     @staticmethod
-    def simplify_debt(messy: FlowGraph) -> FlowGraph:
+    def simplify_debt(messy: FlowGraph) -> WeightedDigraph:
         """Simplified debt
         1) Maxflow for all edges in graph
         2) Convert residual graph to digraph (edges with unused capacity)"""
 
-        # initialise infrastructure for search through graph
+        # FIXME: make consistent
+        #       Make start on B if all else fails => best graph
+
+        clean = WeightedDigraph(messy.nodes())
+
+        def show_max(src: graph_objects.Vertex, sink: graph_objects.Vertex):
+            flow = Flow.edmonds_karp(messy, src, sink)
+            if flow and not messy.edge_from_nodes(sink, messy[src]).residual:
+                print(f"{src} -> {sink} [label={flow}];")
+                clean.add_edge(src, (sink, flow))
+
+        print(clean)
+
         queue, discovered, previous = Path.build_bfs_structs(messy)
-
-        def max_flow(current: graph_objects.Vertex, neighbour: graph_objects.Vertex):
-            # messy.pop_edge(current, neighbour)
-            return Flow.edmonds_karp(messy, current, neighbour)
-
-        # search with no target (thus hitting all edges) with bfs, maxflowing each
         Path.BFS(
             target=None,
             graph=messy,
@@ -92,7 +102,12 @@ class Flow:
             discovered=discovered,
             previous=previous,
             neighbours=messy.neighbours,
-            do_to_neighbour=max_flow,
+            do_to_neighbour=show_max,
         )
 
-        return messy
+        # check that no money has left system
+        net_flow = sum([clean.flow_through(clean_node) for clean_node in clean.nodes()])
+        if net_flow:
+            raise SettleError(f"Net flow != 0, but {net_flow}")
+
+        return clean

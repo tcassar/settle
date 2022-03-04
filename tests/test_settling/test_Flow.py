@@ -1,8 +1,8 @@
 # coding=utf-8
 from unittest import TestCase
 
-from src.simplify.flow import Flow
-from src.simplify.graph_objects import Vertex
+from src.simplify.flow import Flow, Path
+from src.simplify.graph_objects import Vertex, FlowEdge
 from src.simplify.specialised_graph import FlowGraph, WeightedDigraph
 
 
@@ -29,6 +29,10 @@ class TestFlow(TestCase):
 
         self.assertEqual(expected, calculated)
 
+    def test_flow_through(self):
+        ...
+
+
 
 class TestSettling(TestCase):
     def setUp(self) -> None:
@@ -40,13 +44,17 @@ class TestSettling(TestCase):
 
         # build flow graph of transactions
         messy = FlowGraph(people)
-        messy.add_edge(b, (c, 40))
-        messy.add_edge(c, (d, 20))
-        messy.add_edge(d, (e, 50))
-        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
-        messy.add_edge(g, (b, 30), (d, 10))
+        messy_as_digraph = WeightedDigraph(messy.nodes())
+
+        for graph in [messy, messy_as_digraph]:
+            graph.add_edge(b, (c, 40))
+            graph.add_edge(c, (d, 20))
+            graph.add_edge(d, (e, 50))
+            graph.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+            graph.add_edge(g, (b, 30), (d, 10))
 
         self.messy = messy
+        self.messy_as_digraph = messy_as_digraph
 
     def test_settle(self):
         """Ensures that we are settling properly
@@ -60,44 +68,46 @@ class TestSettling(TestCase):
             F -> (E, 10), (D, 10), (C, 30), (B, 10)
             G -> (B, 30), (D, 10)
 
-        Should settle to
-
-            A ->
-            B -> C, 40
-            C -> D, 20
-            D -> E, 50
-            E ->
-            F -> (E, 10), (C, 30)
-            G -> B, 30
+        A net owes 0 to group
+        B net (40 - 30 - 10) = 0
+        C net (-20 - 30) = -50
+        D net (50 - 10 - 10) = + 10
+        E net (0 - 10 - 50) = -60
+        F net (10 + 10 + 30 + 10) = +60
+        G net = (30 + 10) = 40
 
 
-        Multiple valid clean orders depending on starting node, as graph changes as we operate on it
         """
+        Flow.simplify_debt(self.messy)
 
-        self.assertTrue(False)
+    def test_netflow(self):
+        g = FlowGraph([Vertex(0), Vertex(1)])
+        # manually give flow
+        g.graph[Vertex(0)] = [FlowEdge(Vertex(1), 10)]
 
-    def test_paid(self):
+    def test_net_debts(self):
         """Checks that everyone is paid enough"""
+        b, c, d, e, f, g = self.messy.nodes()
 
-        def gets(graph: FlowGraph) -> dict[Vertex, int]:
-            """Flow through a node"""
-            return {node: graph.flow_through(node)[0] for node in graph.nodes()}
+        # get initial weights in of everyone, compare to calculated values in weighted digraph
+        di_debt = self.messy_as_digraph.net_debts()
+        expected_debt = {b: 0, c: -50, d: 10, e: -60, f: 60, g: 40}
 
-        def should_get(graph: FlowGraph):
-            """Max capacity through a node"""
-            return {node: graph.flow_through(node)[1] for node in graph.nodes()}
+        # check for flow graph;
 
-        # get initial weights in of everyone
-        initial = should_get(self.messy)
-        cleaned = gets(Flow.simplify_debt(self.messy))
+        edge: FlowEdge
+        # send edge capacity down each edge
+        for node, adj_list in self.messy.graph.items():
+            for edge in adj_list:
+                self.messy.push_flow([node, edge.node], edge.capacity)
+                self.messy.push_flow([edge.node, node], )
 
-        delta_i = sum(initial.values())
-        delta_c = sum(cleaned.values())
-        print(delta_i, delta_c)
+        flow_debt = self.messy.net_debts()
 
-        print(initial, cleaned, sep="\n")
-        with self.subTest('Initial net flow'):
-            self.assertEqual(0, delta_i)
+        for debt, label in zip([flow_debt], ['flow']):
+            # for debt, label in zip([di_debt, flow_debt], ['di', 'flow']):
+            with self.subTest(label):
+                # FIXME: flow graph not counting backwards edges
+                self.assertEqual(expected_debt, debt)
 
-        with self.subTest('Closed system'):
-            self.assertEqual(0, delta_c)
+
