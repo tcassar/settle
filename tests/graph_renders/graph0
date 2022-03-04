@@ -6,4 +6,5 @@ c -> b [label="  0/0  ", color=red]
 c -> d [label="  0/10  "]
 d -> c [label="  0/0  ", color=red]
 d -> a [label="  0/10  "]
+e
  }

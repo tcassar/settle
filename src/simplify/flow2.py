@@ -101,7 +101,8 @@ class FlowGraph(GenericDigraph):
         edges are valid iff they have unused capacity"""
 
         # build list of edges from adj list with unused capacity
-        filtered_edges = [edge for edge in self[node] if edge.unused_capacity()]
+        return [edge for edge in self[node] if edge.unused_capacity()]
+
 
 
 class Simplify:
@@ -110,10 +111,11 @@ class Simplify:
         ...
 
     @staticmethod
-    def augmenting_path(graph: FlowGraph, src: Vertex, sink: Vertex) -> list[FlowEdge]:
+    def augmenting_path(graph: FlowGraph, src: Vertex, sink: Vertex) -> list[Vertex]:
         # set up a bfs
         queue, discovered, previous = path.Path.build_bfs_structs(graph, src)
-        aug_path = path.Path.shortest_path(
+
+        return path.Path.shortest_path(
             graph, src, sink, neighbours=graph.flow_neighbours
         )
 

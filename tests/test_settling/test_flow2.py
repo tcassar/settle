@@ -95,9 +95,11 @@ class TestFlowGraph(TestCase):
         graph.add_edge(c, d, 10)
         graph.add_edge(d, a, 10)
 
-        # TODO: Augment flow
-
         graph.to_dot()
+
+        Simplify.augment_flow(graph, [a, b, c, d], 2)
+        c_flow_neighbours = graph.flow_neighbours(c)
+        self.assertEqual([b, d], GenericDigraph.nodes_from_edges(c_flow_neighbours))
 
 
 class TestSimplify(TestCase):
@@ -127,6 +129,10 @@ class TestSimplify(TestCase):
         edges = Simplify.nodes_to_path(self.graph, [a, b, c, d])
 
         self.assertEqual(edges, [FlowEdge(b, 10), FlowEdge(c, 2), FlowEdge(d, 10)])
+
+    def test_augmenting_path(self):
+        a, b, c, d, *_ = self.graph.nodes()
+        Simplify.augmenting_path(self.graph, a, d)
 
     def test_augment_flow(self):
         a, b, c, d, *_ = self.graph.nodes()

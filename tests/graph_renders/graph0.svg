@@ -89,5 +89,11 @@
 <polygon fill="black" stroke="black" points="83.42,-25.1 92.83,-20.24 82.44,-18.16 83.42,-25.1"/>
 <text text-anchor="middle" x="45" y="-57.8" font-family="Times,serif" font-size="14.00"> &#160;0/10 &#160;</text>
 </g>
+<!-- e -->
+<g id="node5" class="node">
+<title>e</title>
+<ellipse fill="none" stroke="black" cx="192" cy="-279" rx="27" ry="18"/>
+<text text-anchor="middle" x="192" y="-275.3" font-family="Times,serif" font-size="14.00">e</text>
+</g>
 </g>
 </svg>
