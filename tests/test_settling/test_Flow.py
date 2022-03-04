@@ -55,7 +55,7 @@ class TestSettling(TestCase):
         self.messy = messy
         self.messy_as_digraph = messy_as_digraph
 
-    def test_settle(self):
+    def test_temp(self):
         """Ensures that we are settling properly
 
         Initial (9 edges, $210 changing hands)
@@ -78,11 +78,6 @@ class TestSettling(TestCase):
 
         """
         Flow.simplify_debt(self.messy)
-
-    def test_netflow(self):
-        g = FlowGraph([Vertex(0), Vertex(1)])
-        # manually give flow
-        g.graph[Vertex(0)] = [FlowEdge(Vertex(1), 10)]
 
     def test_net_debts(self):
         """Checks that everyone is paid enough"""
@@ -108,4 +103,8 @@ class TestSettling(TestCase):
                 # FIXME: flow graph not counting backwards edges
                 self.assertEqual(expected_debt, debt)
 
+        print(expected_debt)
+        print(flow_debt)
+
+        print(self.messy.to_dot())
 

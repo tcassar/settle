@@ -56,6 +56,15 @@ class GenericDigraph:
     def __eq__(self, other):
         return self.graph == other
 
+    def to_dot(self):
+        """prints dot representation of graph"""
+        out = ""
+        for src, adj_list in self.graph.items():
+            for edge in adj_list:
+                out += f"{str(src)} -> {str(edge.node)} {edge.to_dot()}\n"
+
+        return out
+
     def nodes(self) -> list[Vertex]:
         """Returns nodes in the graph"""
         return list(self.graph.keys())

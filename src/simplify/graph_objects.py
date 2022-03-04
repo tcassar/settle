@@ -36,6 +36,10 @@ class Edge:
     def __str__(self):
         return str(self.node)
 
+    def to_dot(self):
+        """str repr for dot"""
+        return ''
+
 
 @dataclass
 class WeightedEdge(Edge):
@@ -43,6 +47,9 @@ class WeightedEdge(Edge):
 
     def __str__(self):
         return f"{self.node} [{self.weight}], "
+
+    def to_dot(self):
+        return f'[label={self.weight}'
 
 
 @dataclass
@@ -63,3 +70,7 @@ class FlowEdge(Edge):
                 f"Cannot send {flow} units down path of capacity {self.capacity}"
             )
         self.flow += flow
+
+    def to_dot(self):
+        base = f'[label="{self.flow}/{self.capacity}"]'
+        return base[:-1] + ', color=red]' if self.residual else base
