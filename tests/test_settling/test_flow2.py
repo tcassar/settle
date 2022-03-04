@@ -116,9 +116,7 @@ class TestSimplify(TestCase):
         graph = self.graph
         a, b, c, d, *_ = graph.nodes()
 
-        aug_path = [
-            a, b, c, d
-        ]
+        aug_path = [a, b, c, d]
 
         graph.to_dot()
 
@@ -142,10 +140,8 @@ class TestSimplify(TestCase):
         for _ in range(2):
             # one for normal one for residual
             for src, dest in zip(node_path, node_path[1:]):
-                with self.subTest(f'{src} -> {dest}'):
+                with self.subTest(f"{src} -> {dest}"):
                     self.assertEqual(flow, self.graph.get_edge(src, dest).flow)
             # change path to be residual, flow changes accordingly
             node_path.reverse()
             flow *= -1
-
-

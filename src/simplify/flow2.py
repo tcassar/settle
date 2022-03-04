@@ -105,7 +105,6 @@ class FlowGraph(GenericDigraph):
 
 
 class Simplify:
-
     @staticmethod
     def edmonds_karp(graph: FlowGraph) -> int:
         ...
@@ -114,7 +113,9 @@ class Simplify:
     def augmenting_path(graph: FlowGraph, src: Vertex, sink: Vertex) -> list[FlowEdge]:
         # set up a bfs
         queue, discovered, previous = path.Path.build_bfs_structs(graph, src)
-        aug_path = path.Path.shortest_path(graph, src, sink, neighbours=graph.flow_neighbours)
+        aug_path = path.Path.shortest_path(
+            graph, src, sink, neighbours=graph.flow_neighbours
+        )
 
     @staticmethod
     def bottleneck(graph: FlowGraph, node_path: list[Vertex]) -> int:
