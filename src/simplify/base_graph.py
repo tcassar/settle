@@ -4,12 +4,9 @@
 Set up graph object to be used in condensing debt settling
 """
 import copy
+import graphviz
 
 from src.simplify.graph_objects import Vertex, Edge
-
-"""
-
-"""
 
 
 class GraphError(Exception):
@@ -56,14 +53,18 @@ class GenericDigraph:
     def __eq__(self, other):
         return self.graph == other
 
-    def to_dot(self):
+    def to_dot(self, n: int = 0):
         """prints dot representation of graph"""
-        out = ""
+        dot_source = ""
         for src, adj_list in self.graph.items():
             for edge in adj_list:
-                out += f"{str(src)} -> {str(edge.node)} {edge.to_dot()}\n"
+                dot_source += f"{str(src)} -> {str(edge.node)} {edge.to_dot()}\n"
+            if not adj_list:
+                dot_source += f"{src}\n"
 
-        return out
+        dot = graphviz.Source(f"digraph {{ {dot_source} }}")
+        dot.format = "svg"
+        dot.render(f"./graph_renders/graph{n}")
 
     def nodes(self) -> list[Vertex]:
         """Returns nodes in the graph"""
@@ -71,7 +72,8 @@ class GenericDigraph:
 
     @staticmethod
     def edge_from_nodes(node: Vertex, list_: list[Edge]) -> Edge:
-        """Checks if node is in a list of edges, will return relevant edge if found"""
+        """Checks if node is in a list of edges, will return relevant edge if found
+        usage:"""
         for edge in list_:
             if edge.node == node:
                 return edge

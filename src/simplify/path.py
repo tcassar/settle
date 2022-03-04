@@ -159,8 +159,10 @@ class Path:
         """BFS Search as part of finding the shortest path through unweighted graph from src -> target.
         Target = None => walk through entire graph, terminate at empty queue
         Returns 'previous' list so that path can be rebuilt.
-        Can pass in a function `do_to_neighbour` to do to all nodes during the BFS"""
+        Can pass in a function `do_to_neighbour` to do to all nodes during the BFS
 
+        neighbour function need to return edge
+        """
         # breakpoint: f"q: {queue}\n discovered: {str_map(discovered)}\nprev: {str_map(prev)}"
 
         # will only happen if no path to node

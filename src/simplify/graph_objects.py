@@ -61,6 +61,10 @@ class FlowEdge(Edge):
     def __str__(self):
         return f"{self.node} [{self.flow}/{self.capacity}], " if not self.residual else ''
 
+    def to_dot(self):
+        base = f'[label="{self.flow}/{self.capacity}"]'
+        return base[:-1] + ', color=red]' if self.residual else base
+
     def unused_capacity(self) -> int:
         return self.capacity - self.flow
 
@@ -71,6 +75,4 @@ class FlowEdge(Edge):
             )
         self.flow += flow
 
-    def to_dot(self):
-        base = f'[label="{self.flow}/{self.capacity}"]'
-        return base[:-1] + ', color=red]' if self.residual else base
+

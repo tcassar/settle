@@ -62,6 +62,14 @@ class FlowGraph(WeightedDigraph):
     def edge_from_nodes(node: Vertex, list_: list[Edge]) -> FlowEdge:
         return Digraph.edge_from_nodes(node, list_)  # type: ignore
 
+    def is_edge(self, s: Vertex, t: Vertex) -> int:
+        try:
+            edge: FlowEdge
+            edge = self.edge_from_nodes(t, self.graph[s])  # type: ignore
+            return edge.flow
+        except GraphError:
+            return 0
+
     def add_edge(self, source: Vertex, *edges: tuple[Vertex, int]) -> None:
         # sanitize source
         self.sanitize(source)
@@ -137,11 +145,3 @@ class FlowGraph(WeightedDigraph):
                 flow += edge.flow
 
         return flow
-
-    def is_edge(self, s: Vertex, t: Vertex) -> int:
-        try:
-            edge: FlowEdge
-            edge = self.edge_from_nodes(t, self.graph[s])  # type: ignore
-            return edge.flow
-        except GraphError:
-            return 0
