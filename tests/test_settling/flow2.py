@@ -14,7 +14,7 @@ class TestFlowEdge(TestCase):
 
     def test_unused_capacity(self):
         """builds two edges, residual and non-residual
-        non-residual has capacity 5 """
+        non-residual has capacity 5"""
 
         for edge, cap in zip(self.edges, [3, 5]):
             with self.subTest(edge):
@@ -30,6 +30,38 @@ class TestFlowEdge(TestCase):
                 self.assertEqual(exp, edge.unused_capacity())
 
         # try to push excess amount of flow down an edge
-        with self.subTest('exceed capacity'), self.assertRaises(FlowEdgeError):
+        with self.subTest("exceed capacity"), self.assertRaises(FlowEdgeError):
             self.edges[1].push_flow(2)
 
+
+class TestFlowGraph(TestCase):
+
+    def setUp(self) -> None:
+        # make some nodes for a graph
+        self.nodes = [Vertex(n, label=chr(n + 97)) for n in range(5)]
+        a, b, c, d, e = self.nodes
+        self.graph = FlowGraph(self.nodes)
+
+    def test_is_edge(self):
+        a, b, c, d, e = self.nodes
+
+        with self.subTest('no edge'):
+            self.assertFalse(self.graph.is_edge(a, b))
+
+        with self.subTest('edge'):
+            self.graph.add_edge(a, b, 4)
+            self.assertTrue(self.graph.is_edge(a, b))
+
+    def test_add_edge(self):
+        a, b, c, d, e = self.nodes
+        # check there aren't edges
+        with self.subTest('negative test'):
+            self.assertFalse(self.graph.is_edge(a, b))
+            self.assertFalse(self.graph.is_edge(b, a, residual=True))
+
+        self.graph.add_edge(a, b, 5)
+
+        with self.subTest('added'):
+            self.assertTrue(self.graph.is_edge(a, b))
+            self.assertTrue(self.graph.is_edge(b, a, residual=True))
+            self.assertFalse(self.graph.is_edge(b, a))

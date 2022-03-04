@@ -32,7 +32,7 @@ class TestDigraph(TestCase):
             self.assertTrue(self.graph.sanitize(*self.vertices))
 
             with self.assertRaises(GraphError):
-                self.graph.edge_from_nodes(self.vertices[2], [Edge(self.vertices[0])])
+                self.graph.get_edge(self.vertices[2], [Edge(self.vertices[0])])
 
     def test_is_edge(self):
         u, v, w = self.vertices
@@ -58,7 +58,7 @@ class TestDigraph(TestCase):
         print(self.graph)
         self.assertFalse(self.graph.is_node(u))
         with self.assertRaises(GraphError):
-            self.graph.edge_from_nodes(u, self.graph[v])
+            self.graph.get_edge(u, self.graph[v])
 
     def test_pop_edge(self):
         u, v, w = self.vertices
