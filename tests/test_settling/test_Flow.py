@@ -33,7 +33,6 @@ class TestFlow(TestCase):
         ...
 
 
-
 class TestSettling(TestCase):
     def setUp(self) -> None:
         # gen vertices
@@ -100,12 +99,11 @@ class TestSettling(TestCase):
         for node, adj_list in self.messy.graph.items():
             for edge in adj_list:
                 self.messy.push_flow([node, edge.node], edge.capacity)
-                self.messy.push_flow([edge.node, node], )
 
         flow_debt = self.messy.net_debts()
 
-        for debt, label in zip([flow_debt], ['flow']):
-            # for debt, label in zip([di_debt, flow_debt], ['di', 'flow']):
+        # for debt, label in zip([flow_debt], ['flow']):
+        for debt, label in zip([di_debt, flow_debt], ['di', 'flow']):
             with self.subTest(label):
                 # FIXME: flow graph not counting backwards edges
                 self.assertEqual(expected_debt, debt)
