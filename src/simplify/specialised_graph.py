@@ -7,13 +7,18 @@ from src.simplify.graph_objects import Vertex, WeightedEdge, Edge, FlowEdge
 
 class WeightedDigraph(GenericDigraph):
     def add_edge(self, source: Vertex, *edges: tuple[Vertex, int]) -> None:
+
         # sanitize source
         self.sanitize(source)
-
         for node, weight in edges:
-            self.sanitize(node)
-            self.graph[source].append(WeightedEdge(node, weight))
-            self._backwards_graph[node].append(WeightedEdge(source, weight * -1))
+            if self.is_edge(source, node):
+                existing: WeightedEdge
+                existing = self.edge_from_nodes(node, self[source])  # type: ignore
+                existing.weight += weight
+            else:
+                self.sanitize(node)
+                self.graph[source].append(WeightedEdge(node, weight))
+                self._backwards_graph[node].append(WeightedEdge(source, weight * -1))
 
     def flow_through(self, node: Vertex) -> int:
         """Returns sum of weights out of node
@@ -33,6 +38,14 @@ class WeightedDigraph(GenericDigraph):
     def net_debts(self) -> dict[Vertex, int]:
         """Returns a map of everyone with net money owed (-ve if they need to pay)"""
         return {node: self.flow_through(node) for node in self.nodes()}
+
+    def is_edge(self, s: Vertex, t: Vertex) -> int:
+        try:
+            edge: WeightedEdge
+            edge = self.edge_from_nodes(t, self.graph[s])  # type: ignore
+            return edge.weight
+        except GraphError:
+            return 0
 
 
 class FlowGraph(WeightedDigraph):
@@ -118,22 +131,26 @@ class FlowGraph(WeightedDigraph):
         flow = 0
         edge: FlowEdge
 
-        for graph, name in zip([self.graph, self._backwards_graph], ['forward', 'backwards']):
+        for graph, name in zip(
+            [self.graph, self._backwards_graph], ["forward", "backwards"]
+        ):
             print(name)
             for edge in graph[node]:  # type: ignore
                 if edge.residual:
                     # dont include residual edges
                     continue
                 else:
-                    print(f'{node} -> {edge.node} [label="{edge.flow}/{edge.capacity}"]')
+                    print(
+                        f'{node} -> {edge.node} [label="{edge.flow}/{edge.capacity}"]'
+                    )
                     flow += edge.flow
 
         return flow
 
-    def is_edge(self, s: Vertex, t: Vertex) -> bool:
+    def is_edge(self, s: Vertex, t: Vertex) -> int:
         try:
-            edge = self.edge_from_nodes(t, self[s])
+            edge: FlowEdge
+            edge = self.edge_from_nodes(t, self.graph[s])  # type: ignore
+            return edge.flow
         except GraphError:
-            return False
-
-        return False if edge.residual else True
+            return 0

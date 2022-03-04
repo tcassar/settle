@@ -67,7 +67,7 @@ class TestDigraph(TestCase):
         self.assertFalse(self.graph.is_edge(u, v))
 
     def test_add_edge(self):
-        u, v, w = self.vertices
+        u, v, w = self.graph.nodes()
         self.assertFalse(self.graph.is_edge(w, v))
         self.graph.add_edge(w, v)
 
@@ -93,6 +93,12 @@ class TestWeightedDigraph(TestCase):
         self.assertFalse(self.graph.is_edge(w, v))
         self.graph.add_edge(w, (v, 4))
         self.assertTrue(self.graph.is_edge(w, v))
+
+    def test_add_existing_edge(self):
+        u, v, w = self.graph.nodes()
+        self.assertEqual(self.graph.is_edge(v, w), 3)
+        self.graph.add_edge(v, (w, 2))
+        self.assertEqual(self.graph.is_edge(v, w), 5)
 
     def test_flow_through(self):
         for node, flow in zip(self.vertices, [-3, -2, 5]):

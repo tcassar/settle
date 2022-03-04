@@ -91,7 +91,7 @@ class GenericDigraph:
 
         return True
 
-    def is_node(self, v: Vertex):
+    def is_node(self, v: Vertex) -> bool:
         return v in self.graph
 
     def add_node(self, v: Vertex) -> None:
@@ -111,12 +111,13 @@ class GenericDigraph:
 
         return {v: self.graph.pop(v)}
 
-    def is_edge(self, s: Vertex, t: Vertex) -> bool:
-        """Checks for an edge between nodes (directional: s->t !=> t->s"""
+    def is_edge(self, s: Vertex, t: Vertex) -> int:
+        """Checks for an edge between nodes (directional: s->t !=> t->s)"""
         try:
-            return not not self.edge_from_nodes(t, self.graph[s])
+            self.edge_from_nodes(t, self.graph[s])
+            return 1
         except GraphError:
-            return False
+            return 0
 
     def pop_edge(self, s: Vertex, t: Vertex) -> Edge:
         self.sanitize(s, t)
