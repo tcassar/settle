@@ -52,15 +52,20 @@ class TestFlowGraph(TestCase):
             self.graph.add_edge(a, b, 4)
             self.assertTrue(self.graph.is_edge(a, b))
 
+    def test_get_edge(self):
+        a, b, c, d, e = self.graph.nodes()
+        self.graph.add_edge(a, b, 5)
+        self.assertEqual(FlowEdge(b, 5), self.graph.get_edge(a, b))
+
     def test_add_edge(self):
         a, b, c, d, e = self.nodes
         # check there aren't edges
         with self.subTest('negative test'):
             self.assertFalse(self.graph.is_edge(a, b))
             self.assertFalse(self.graph.is_edge(b, a, residual=True))
-
+        self.graph.to_dot()
         self.graph.add_edge(a, b, 5)
-
+        self.graph.to_dot()
         with self.subTest('added'):
             self.assertTrue(self.graph.is_edge(a, b))
             self.assertTrue(self.graph.is_edge(b, a, residual=True))
@@ -75,9 +80,26 @@ class TestFlowGraph(TestCase):
             self.assertTrue(self.graph.is_edge(a, b))
             self.assertTrue(self.graph.is_edge(b, a, residual=True))
 
-        self.graph.remove_edge(a, b)
+        self.graph.pop_edge(a, b)
 
         with self.subTest('removed edge'):
             self.assertFalse(self.graph.is_edge(a, b))
         with self.subTest('removed residual'):
             self.assertFalse(self.graph.is_edge(b, a, residual=True))
+
+
+class TestSimplify(TestCase):
+
+    def test_bottleneck(self):
+        # build a chain with an obvious bottleneck on normal graphs
+        graph = FlowGraph([Vertex(n, label=chr(n + 97)) for n in range(4)])
+        a, b, c, d, *_ = graph.nodes()
+        graph.add_edge(a, b, 10)
+        graph.add_edge(b, c, 2)
+        graph.add_edge(c, d, 10)
+
+        aug_path = [graph.get_edge(a, b),
+                    graph.get_edge(b, c),
+                    graph.get_edge(c, d)]
+
+        self.assertEqual(2, Simplify.bottleneck(graph, aug_path))
