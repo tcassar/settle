@@ -42,7 +42,7 @@ class WeightedEdge(Edge):
     weight: int
 
     def __str__(self):
-        return f"{self.node} [{self.weight}]"
+        return f"{self.node} [{self.weight}], "
 
 
 @dataclass
@@ -52,7 +52,7 @@ class FlowEdge(Edge):
     residual: bool = False  # class as residual edge if capacity is 0
 
     def __str__(self):
-        return f"{self.node} [{self.flow}/{self.capacity}]"
+        return f"{self.node} [{self.flow}/{self.capacity}], " if not self.residual else ''
 
     def unused_capacity(self) -> int:
         return self.capacity - self.flow

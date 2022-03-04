@@ -42,7 +42,7 @@ class GenericDigraph:
         for node, adj_list in self.graph.items():
             pretty_nodes = ""
             for edge in adj_list:
-                pretty_nodes += f"{str(edge).upper()}, "
+                pretty_nodes += f"{str(edge).upper()}"
             out += f"{str(node).upper()} -> {pretty_nodes}\n"
 
         return out

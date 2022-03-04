@@ -2,6 +2,7 @@
 
 from unittest import TestCase
 
+from simplify.flow import Flow
 from src.simplify.graph_objects import Vertex, Edge
 from src.simplify.base_graph import Digraph, GraphError
 from src.simplify.specialised_graph import WeightedDigraph, FlowGraph
@@ -101,7 +102,7 @@ class TestWeightedDigraph(TestCase):
         self.assertEqual(self.graph.is_edge(v, w), 5)
 
     def test_flow_through(self):
-        for node, flow in zip(self.vertices, [-3, -2, 5]):
+        for node, flow in zip(self.vertices, [3, 2, -5]):
             with self.subTest(node):
                 self.assertEqual(self.graph.flow_through(node), flow)
 
@@ -153,3 +154,13 @@ class TestFlowGraph(TestCase):
         for node, flow in zip(self.vertices, [0, 0, 0]):
             with self.subTest(node):
                 self.assertEqual(self.graph.flow_through(node), flow)
+
+        # push flow through every edge
+        for node, adj_list in self.graph.graph.items():
+            for edge in adj_list:
+                Flow.augment_path(self.graph, [node, edge.node], edge.capacity)
+
+        print(self.graph)
+
+        for node in self.graph.nodes():
+            print(f'node: {self.graph.flow_through(node)}')

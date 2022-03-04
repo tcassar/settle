@@ -29,7 +29,6 @@ class WeightedDigraph(GenericDigraph):
 
         for graph in [self.graph, self._backwards_graph]:
             for edge in graph[node]:  # type: ignore
-                # print(f'flow {edge.weight} into [{node}]')
                 flow += edge.weight
 
         # return -ve, as backwards edges have -ve value and forwards have +ve
@@ -134,16 +133,8 @@ class FlowGraph(WeightedDigraph):
         for graph, name in zip(
             [self.graph, self._backwards_graph], ["forward", "backwards"]
         ):
-            print(name)
             for edge in graph[node]:  # type: ignore
-                if edge.residual:
-                    # dont include residual edges
-                    continue
-                else:
-                    print(
-                        f'{node} -> {edge.node} [label="{edge.flow}/{edge.capacity}"]'
-                    )
-                    flow += edge.flow
+                flow += edge.flow
 
         return flow
 
