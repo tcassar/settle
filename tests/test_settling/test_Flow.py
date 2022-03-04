@@ -55,7 +55,7 @@ class TestSettling(TestCase):
         self.messy = messy
         self.messy_as_digraph = messy_as_digraph
 
-    def test_temp(self):
+    def test_simplify(self):
         """Ensures that we are settling properly
 
         Initial (9 edges, $210 changing hands)
@@ -77,7 +77,7 @@ class TestSettling(TestCase):
 
 
         """
-        Flow.simplify_debt(self.messy)
+        Flow.simplify_debt(self.messy).to_dot()
 
     def test_net_debts(self):
         """Checks that everyone is paid enough"""
@@ -94,17 +94,12 @@ class TestSettling(TestCase):
         for node, adj_list in self.messy.graph.items():
             for edge in adj_list:
                 self.messy.push_flow([node, edge.node], edge.capacity)
-
+        print(self.messy.to_dot())
         flow_debt = self.messy.net_debts()
 
         # for debt, label in zip([flow_debt], ['flow']):
         for debt, label in zip([di_debt, flow_debt], ['di', 'flow']):
             with self.subTest(label):
-                # FIXME: flow graph not counting backwards edges
                 self.assertEqual(expected_debt, debt)
 
-        print(expected_debt)
-        print(flow_debt)
-
-        print(self.messy.to_dot())
-
+        print(expected_debt, flow_debt, sep='\n')

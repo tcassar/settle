@@ -89,12 +89,10 @@ class Flow:
         def show_max(src: graph_objects.Vertex, sink: graph_objects.Vertex):
             flow = Flow.edmonds_karp(messy, src, sink)
             if flow and not messy.edge_from_nodes(sink, messy[src]).residual:
-                print(f"{src} -> {sink} [label={flow}];")
                 clean.add_edge(src, (sink, flow))
 
-        print(clean)
-
         queue, discovered, previous = Path.build_bfs_structs(messy)
+
         Path.BFS(
             target=None,
             graph=messy,

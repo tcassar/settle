@@ -135,8 +135,6 @@ class TestPath(TestCase):
         # do a bfs, adding 1 to a count every time we touch an edge
         # do this for all possible start positions
 
-        # FIXME: instead of walking through graph to do all edges, write a get_edges method, iterate through that list
-
         @dataclass
         class Counter:
             n: int = 0

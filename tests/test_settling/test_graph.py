@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from simplify.flow import Flow
+from src.simplify.flow import Flow
 from src.simplify.graph_objects import Vertex, Edge
 from src.simplify.base_graph import Digraph, GraphError
 from src.simplify.specialised_graph import WeightedDigraph, FlowGraph
@@ -160,7 +160,7 @@ class TestFlowGraph(TestCase):
             for edge in adj_list:
                 Flow.augment_path(self.graph, [node, edge.node], edge.capacity)
 
-        print(self.graph)
+        print(self.graph.to_dot())
 
         for node in self.graph.nodes():
             print(f'node: {self.graph.flow_through(node)}')

@@ -145,7 +145,6 @@ class Path:
 
         return path
 
-    # FIXME: Operating on both forwards and backwards nodes
     @staticmethod
     def BFS(
         *,
