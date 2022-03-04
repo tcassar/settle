@@ -65,3 +65,19 @@ class TestFlowGraph(TestCase):
             self.assertTrue(self.graph.is_edge(a, b))
             self.assertTrue(self.graph.is_edge(b, a, residual=True))
             self.assertFalse(self.graph.is_edge(b, a))
+
+    def test_remove_edge(self):
+        a, b, c, d, e = self.nodes
+
+        self.graph.add_edge(a, b, 5)
+
+        with self.subTest('negative'):
+            self.assertTrue(self.graph.is_edge(a, b))
+            self.assertTrue(self.graph.is_edge(b, a, residual=True))
+
+        self.graph.remove_edge(a, b)
+
+        with self.subTest('removed edge'):
+            self.assertFalse(self.graph.is_edge(a, b))
+        with self.subTest('removed residual'):
+            self.assertFalse(self.graph.is_edge(b, a, residual=True))
