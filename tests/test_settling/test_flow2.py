@@ -102,4 +102,8 @@ class TestSimplify(TestCase):
                     graph.get_edge(b, c),
                     graph.get_edge(c, d)]
 
+        graph.to_dot()
+
         self.assertEqual(2, Simplify.bottleneck(graph, aug_path))
+
+

@@ -130,35 +130,3 @@ class TestPath(TestCase):
             queue, disc, prev = Path.build_bfs_structs(self.flow_graph)
             self.assertEqual(queue, BFSQueue())
 
-    def test_edges_hit(self):
-        """Make sure that every edge is being considered"""
-        # do a bfs, adding 1 to a count every time we touch an edge
-        # do this for all possible start positions
-
-        @dataclass
-        class Counter:
-            n: int = 0
-
-            def count(self):
-                self.n += 1
-
-        def count_edge(current: Vertex, neighbour: Vertex) -> None:
-            """Counts an edge"""
-            counter.count()
-
-        for graph in [self.g, self.weighted_graph, self.flow_graph]:
-            for start in self.vertices:
-                counter = Counter()
-                queue, discovered, previous = Path.build_bfs_structs(graph, start)
-                Path.BFS(
-                    graph=graph,
-                    queue=queue,
-                    discovered=discovered,
-                    target=None,
-                    previous=previous,
-                    neighbours=graph.neighbours,
-                    do_to_neighbour=count_edge,
-                )
-
-                with self.subTest(f"graph: {graph}, starting at {start}"):
-                    self.assertEqual(counter.n, 7)
