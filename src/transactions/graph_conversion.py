@@ -1,10 +1,11 @@
 # coding=utf-8
 
-from src.transactions.transaction import Transaction
-import src.simplify.specialised_graph as graphs
-from src.simplify.graph_objects import *
-
 from dataclasses import dataclass
+
+import src.simplify.specialised_graph as graphs
+
+from src.simplify.graph_objects import *
+from src.transactions.transaction import Transaction
 
 
 class ConversionError(Exception):

@@ -1,7 +1,7 @@
 # coding=utf-8
 from unittest import TestCase
 
-from src.simplify.flow2 import *
+from src.simplify.flow import *
 from src.simplify.graph_objects import Vertex
 
 
@@ -59,7 +59,6 @@ class TestFlowGraph(TestCase):
     def setUp(self) -> None:
         # make some nodes for a graph
         self.nodes = [Vertex(n, label=chr(n + 97)) for n in range(5)]
-        a, b, c, d, e = self.nodes
         self.graph = FlowGraph(self.nodes)
 
     def test_is_edge(self):
@@ -145,7 +144,7 @@ class TestFlowGraph(TestCase):
 
         MaxFlow.augment_flow(graph, [a, b, c, d], 2)
         c_flow_neighbours = graph.flow_neighbours(c)
-        self.assertEqual([b, d], GenericDigraph.nodes_from_edges(c_flow_neighbours))
+        self.assertEqual([d, b], GenericDigraph.nodes_from_edges(c_flow_neighbours))
 
     def test_bool(self):
         # empty
@@ -226,7 +225,6 @@ class TestMaxFlow(TestCase):
         tg.add_edge(h, (t, 15), (i, 5))
         tg.add_edge(i, (t, 10))
 
-        injection = "subgraph {a, b, c}\nsubgraph {d, e, f}\nsubgraph {g, h, i}"
         tg.to_dot(preinject="rankdir=RL;")
 
         max_flow = MaxFlow.edmonds_karp(tg, s, t)

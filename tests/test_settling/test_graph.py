@@ -2,10 +2,10 @@
 
 from unittest import TestCase
 
-from src.simplify.flow import Flow
-from src.simplify.graph_objects import Vertex, Edge
-from src.simplify.base_graph import Digraph, GraphError
-from src.simplify.specialised_graph import WeightedDigraph, FlowGraph
+from src.simplify.graph_objects import Edge
+from src.simplify.base_graph import Digraph
+from src.simplify.weighted_digraph import WeightedDigraph
+from src.simplify.flow import *
 
 
 class TestDigraph(TestCase):
@@ -107,60 +107,3 @@ class TestWeightedDigraph(TestCase):
                 self.assertEqual(self.graph.flow_through(node), flow)
 
 
-class TestFlowGraph(TestCase):
-    def setUp(self) -> None:
-        """Build basic graph"""
-        labels = ["u", "v", "w"]
-        self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
-
-        self.graph = FlowGraph(self.vertices)
-        u, v, w = self.vertices
-        self.graph.add_edge(u, (v, 1), (w, 2))
-        self.graph.add_edge(v, (w, 3))
-
-    def test_add_edge(self):
-        u, v, w = self.vertices
-        self.assertFalse(self.graph.is_edge(w, u))
-
-    def test_pop_edge(self):
-        u, v, w = self.vertices
-        self.graph.pop_edge(u, v)
-
-        # check normal graph
-        self.assertFalse(self.graph.is_edge(u, v))
-        # check residual graph
-        self.assertFalse(self.graph.is_edge(v, u))
-
-    def test_neighbours(self):
-        u, v, w = self.vertices
-        pre_flow = self.graph.flow_neighbours(u)
-        # send 3 units from u -> v; hope is that v no longer appears as a neighbour
-        self.graph.push_flow([u, v], 1)
-        post_flow = self.graph.flow_neighbours(u)
-
-        # expected neighbours
-        self.assertEqual(set(self.graph.nodes_from_edges(pre_flow)), {v, w})
-
-        # expected neighbours after flow
-        # expected neighbours
-        self.assertEqual(set(self.graph.nodes_from_edges(post_flow)), {w})
-
-    def test_bottleneck(self):
-        u, v, w = self.vertices
-        self.assertEqual(1, self.graph.bottleneck([u, v, w]))
-
-    def test_flow_through(self):
-        # no flow down new graph thus 0 for each case
-        for node, flow in zip(self.vertices, [0, 0, 0]):
-            with self.subTest(node):
-                self.assertEqual(self.graph.flow_through(node), flow)
-
-        # push flow through every edge
-        for node, adj_list in self.graph.graph.items():
-            for edge in adj_list:
-                Flow.augment_path(self.graph, [node, edge.node], edge.capacity)
-
-        print(self.graph.to_dot())
-
-        for node in self.graph.nodes():
-            print(f"node: {self.graph.flow_through(node)}")

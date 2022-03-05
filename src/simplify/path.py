@@ -1,6 +1,5 @@
 # coding=utf-8
 import logging
-import random
 import sys
 from dataclasses import dataclass
 from typing import Callable

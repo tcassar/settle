@@ -14,3 +14,4 @@ platformdirs==2.4.1
 tomli==1.2.3
 typing-extensions==4.0.1
 yarl==1.7.2
+graphviz~=0.19.1
