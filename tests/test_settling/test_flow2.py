@@ -270,7 +270,7 @@ class TestSimplify(TestCase):  # type: ignore
 
         d, t, m = debt.nodes()
 
-        debt.add_edge(d, (m, 5), (t, 10))
+        debt.add_edge(d, (t, 10), (m, 5))
         debt.add_edge(m, (t, 5))
 
         Simplify.simplify_debt(debt)

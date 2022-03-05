@@ -1,7 +1,0 @@
-digraph { tom -> dad [label="  0/0  ", color=red]
-tom -> maia [label="  0/0  ", color=red]
-dad -> maia [label="  0/5  "]
-dad -> tom [label="  0/10  "]
-maia -> dad [label="  0/0  ", color=red]
-maia -> tom [label="  0/5  "]
- }

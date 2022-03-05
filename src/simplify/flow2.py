@@ -180,7 +180,6 @@ class FlowGraph(GenericDigraph):
                     # edge no longer has a place in my graph
                     # delete edge + residual; will condition only ever raised on fwd edges
                     self.pop_edge(node, edge.node)
-                self.to_dot(n=n + 2)
 
 
 class MaxFlow:
@@ -253,24 +252,25 @@ class Simplify:
 
         clean = FlowGraph(debt.nodes())
 
-        n = 0
-        debt.to_dot(n=n)
-        clean.to_dot(n=10)
+        debt.to_dot()
+        clean.to_dot(n=1)
 
         # iterate through edges in graph:
-        edge: FlowEdge  # type: ignore
-        for n, (node, adj_list) in enumerate(debt.graph.items()):
-            for edge in adj_list:
-                if not edge.residual:
-                    n += 1
-                    if flow := MaxFlow.edmonds_karp(debt, node, edge.node):
+        while not not debt:
+            edge: FlowEdge  # type: ignore
+            for (node, adj_list) in debt.graph.items():
+
+                for edge in adj_list:
+                    if not edge.residual:
+                        if flow := MaxFlow.edmonds_karp(debt, node, edge.node):
+                            # fixme: edge adjust not popping d -> m 5/5
+                            clean.add_edge(node, (edge.node, flow))
 
                         debt.adjust_edges()
+                        debt.to_dot()
+                        clean.to_dot(n=1)
 
-                        clean.add_edge(node, (edge.node, flow))
+            debt.to_dot()
+            clean.to_dot(n=1)
 
-                    debt.to_dot(n=n)
-                    clean.to_dot(n=10 + n)
-
-        debt.to_dot(n=n + 1)
-        clean.to_dot(n=10 + n)
+        return clean
