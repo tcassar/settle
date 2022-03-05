@@ -38,7 +38,7 @@ class Edge:
 
     def to_dot(self):
         """str repr for dot"""
-        return ''
+        return ""
 
 
 @dataclass
@@ -49,7 +49,7 @@ class WeightedEdge(Edge):
         return f"{self.node} [{self.weight}], "
 
     def to_dot(self):
-        return f'[label={self.weight}'
+        return f"[label={self.weight}"
 
 
 @dataclass
@@ -59,11 +59,13 @@ class FlowEdge(Edge):
     residual: bool = False  # class as residual edge if capacity is 0
 
     def __str__(self):
-        return f"{self.node} [{self.flow}/{self.capacity}], " if not self.residual else ''
+        return (
+            f"{self.node} [{self.flow}/{self.capacity}], " if not self.residual else ""
+        )
 
     def to_dot(self):
         base = f'[label="{self.flow}/{self.capacity}"]'
-        return base[:-1] + ', color=red]' if self.residual else base
+        return base[:-1] + ", color=red]" if self.residual else base
 
     def unused_capacity(self) -> int:
         return self.capacity - self.flow
@@ -74,5 +76,3 @@ class FlowEdge(Edge):
                 f"Cannot send {flow} units down path of capacity {self.capacity}"
             )
         self.flow += flow
-
-

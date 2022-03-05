@@ -129,4 +129,3 @@ class TestPath(TestCase):
         with self.subTest("with initial value"):
             queue, disc, prev = Path.build_bfs_structs(self.flow_graph)
             self.assertEqual(queue, BFSQueue())
-

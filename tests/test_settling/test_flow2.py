@@ -69,7 +69,16 @@ class TestFlowGraph(TestCase):
             self.assertTrue(self.graph.is_edge(b, a, residual=True))
             self.assertFalse(self.graph.is_edge(b, a))
 
-    def test_remove_edge(self):
+        with self.subTest('Net debt (adding)'):
+            self.assertEqual({Vertex(ID=0, label='a'): 5, Vertex(ID=1, label='b'): -5, Vertex(ID=2, label='c'): 0, Vertex(ID=3, label='d'): 0, Vertex(ID=4, label='e'): 0}, self.graph.net_debt)
+
+        with self.subTest('Net debt (removing)'):
+            self.graph.pop_edge(a, b, update_debt=True)
+            self.assertEqual({Vertex(ID=0, label='a'): 0, Vertex(ID=1, label='b'): 0, Vertex(ID=2, label='c'): 0, Vertex(ID=3, label='d'): 0, Vertex(ID=4, label='e'): 0}, self.graph.net_debt)
+
+
+
+    def test_pop_edge(self):
         a, b, c, d, e = self.nodes
 
         self.graph.add_edge(a, (b, 5))
@@ -96,12 +105,12 @@ class TestFlowGraph(TestCase):
 
         graph.to_dot()
 
-        Simplify.augment_flow(graph, [a, b, c, d], 2)
+        MaxFlow.augment_flow(graph, [a, b, c, d], 2)
         c_flow_neighbours = graph.flow_neighbours(c)
         self.assertEqual([b, d], GenericDigraph.nodes_from_edges(c_flow_neighbours))
 
 
-class TestSimplify(TestCase):
+class TestMaxFlow(TestCase):
     def setUp(self) -> None:
         graph = FlowGraph([Vertex(n, label=chr(n + 97)) for n in range(4)])
         a, b, c, d, *_ = graph.nodes()
@@ -121,22 +130,22 @@ class TestSimplify(TestCase):
 
         graph.to_dot()
 
-        self.assertEqual(2, Simplify.bottleneck(graph, aug_path))
+        self.assertEqual(2, MaxFlow.bottleneck(graph, aug_path))
 
     def test_nodes_to_path(self):
         a, b, c, d, *_ = self.graph.nodes()
-        edges = Simplify.nodes_to_path(self.graph, [a, b, c, d])
+        edges = MaxFlow.nodes_to_path(self.graph, [a, b, c, d])
 
         self.assertEqual(edges, [FlowEdge(b, 10), FlowEdge(c, 2), FlowEdge(d, 10)])
 
     def test_augmenting_path(self):
         a, b, c, d, *_ = self.graph.nodes()
-        Simplify.augmenting_path(self.graph, a, d)
+        MaxFlow.augmenting_path(self.graph, a, d)
 
     def test_augment_flow(self):
         a, b, c, d, *_ = self.graph.nodes()
 
-        Simplify.augment_flow(self.graph, [a, b, c, d], 2)
+        MaxFlow.augment_flow(self.graph, [a, b, c, d], 2)
         self.graph.to_dot()
 
         # check that the edges and residual edges all now have flow 2
@@ -153,8 +162,8 @@ class TestSimplify(TestCase):
 
     def test_edmonds_karp(self):
         # build slightly more involved graph
-        nodes = [Vertex(0, label='src'), Vertex(10, label='sink')]
-        nodes += [Vertex(n, label=chr(n+96)) for n in range(1, 10)]
+        nodes = [Vertex(0, label="src"), Vertex(10, label="sink")]
+        nodes += [Vertex(n, label=chr(n + 96)) for n in range(1, 10)]
         tg = FlowGraph(nodes)
 
         s, t, a, b, c, d, e, f, g, h, i = tg.nodes()
@@ -170,10 +179,10 @@ class TestSimplify(TestCase):
         tg.add_edge(h, (t, 15), (i, 5))
         tg.add_edge(i, (t, 10))
 
-        injection = 'subgraph {a, b, c}\nsubgraph {d, e, f}\nsubgraph {g, h, i}'
-        tg.to_dot(preinject='rankdir=RL;')
+        injection = "subgraph {a, b, c}\nsubgraph {d, e, f}\nsubgraph {g, h, i}"
+        tg.to_dot(preinject="rankdir=RL;")
 
-        max_flow = Simplify.edmonds_karp(tg, s, t)
+        max_flow = MaxFlow.edmonds_karp(tg, s, t)
         self.assertEqual(max_flow, 20)
 
     def test_old_edmonds(self):
@@ -192,6 +201,21 @@ class TestSimplify(TestCase):
         a, b, c, d, e, f = self.vertices
 
         expected = 20
-        calculated = Simplify.edmonds_karp(self.flow_graph, a, f)
+        calculated = MaxFlow.edmonds_karp(self.flow_graph, a, f)
 
         self.assertEqual(expected, calculated)
+
+
+class TestSimplify(TestCase):  # type: ignore
+
+    def setUp(self) -> None:
+        self.graph: FlowGraph = FlowGraph([])
+
+        # use max flow's setup
+        TestMaxFlow.setUp(TestSimplify)  # type: ignore
+
+    def test_simplify_debt(self):
+        Simplify.simplify_debt(self.graph)
+
+    # def test_old_simplify(self):
+    #     Simplify.old_simplify_debt(self.graph)

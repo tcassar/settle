@@ -163,4 +163,4 @@ class TestFlowGraph(TestCase):
         print(self.graph.to_dot())
 
         for node in self.graph.nodes():
-            print(f'node: {self.graph.flow_through(node)}')
+            print(f"node: {self.graph.flow_through(node)}")

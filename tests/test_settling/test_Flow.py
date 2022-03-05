@@ -33,7 +33,7 @@ class TestFlow(TestCase):
         ...
 
     def test_2(self):
-        nodes = [Vertex(0, label='src'), Vertex(10, label='sink')]
+        nodes = [Vertex(0, label="src"), Vertex(10, label="sink")]
         nodes += [Vertex(n, label=chr(n + 96)) for n in range(1, 10)]
         tg = FlowGraph(nodes)
 
@@ -121,8 +121,8 @@ class TestSettling(TestCase):
         flow_debt = self.messy.net_debts()
 
         # for debt, label in zip([flow_debt], ['flow']):
-        for debt, label in zip([di_debt, flow_debt], ['di', 'flow']):
+        for debt, label in zip([di_debt, flow_debt], ["di", "flow"]):
             with self.subTest(label):
                 self.assertEqual(expected_debt, debt)
 
-        print(expected_debt, flow_debt, sep='\n')
+        print(expected_debt, flow_debt, sep="\n")
