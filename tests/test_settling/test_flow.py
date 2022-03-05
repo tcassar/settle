@@ -1,6 +1,7 @@
 # coding=utf-8
 from unittest import TestCase
 
+import simplify.flow
 from src.simplify.flow import *
 from src.simplify.graph_objects import Vertex
 
@@ -321,3 +322,14 @@ class TestSimplify(TestCase):  # type: ignore
         clean.to_dot(n=1)
 
         self.assertEqual(messy.net_debt, clean.net_debt)
+
+    def test_eg_2(self):
+        people = ["dad", "tom", "maia"]
+        debt = FlowGraph([Vertex(ID, person) for ID, person in enumerate(people)])
+        d, t, m = debt.nodes()
+        debt.add_edge(d, (t, 5))
+        debt.add_edge(t, (m, 10))
+
+        debt.to_dot()
+        clean = Simplify.simplify_debt(debt)
+        clean.to_dot(n=1)

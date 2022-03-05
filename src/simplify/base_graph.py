@@ -54,9 +54,9 @@ class GenericDigraph:
     def __eq__(self, other):
         return self.graph == other
 
-    def to_dot(self, *, n: int = 0, preinject=""):
+    def to_dot(self, *, n: int = 0, title="graph"):
         """prints dot representation of graph"""
-        dot_source = preinject
+        dot_source = ''
         for src, adj_list in self.graph.items():
             for edge in adj_list:
                 dot_source += f"{str(src)} -> {str(edge.node)} {edge.to_dot()}\n"
@@ -65,7 +65,7 @@ class GenericDigraph:
 
         dot = graphviz.Source(f"digraph {{ {dot_source} }}")
         dot.format = "svg"
-        dot.render(f"./graph_renders/graph{n}")
+        dot.render(f"./graph_renders/{title}{n}")
 
     def nodes(self) -> list[Vertex]:
         """Returns nodes in the graph"""

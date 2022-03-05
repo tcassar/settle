@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import src.simplify.path as path
 from src.simplify.base_graph import GenericDigraph, GraphError
 from src.simplify.graph_objects import Vertex
+from random import shuffle
 
 """Flow Graph"""
 
@@ -187,6 +188,15 @@ class FlowGraph(GenericDigraph):
                     # delete edge + residual; will condition only ever raised on fwd edges
                     self.pop_edge(node, edge.node)
 
+    def nodes(self):
+        """Returns nodes in order of incoming edges (smallest first)"""
+        def incoming_func(node):
+            return len([edge for edge in self[node] if edge.residual])
+
+        incoming = [(node, incoming_func(node)) for node in self.graph.keys()]
+        incoming.sort(key=lambda row: row[1], reverse=True)
+        return [node for node, _ in incoming]
+
 
 class MaxFlow:
     @staticmethod
@@ -260,6 +270,8 @@ class Simplify:
 
         d_cache = copy.deepcopy(debt)
 
+        # TODO: optimise for starting with nodes with least incoming edges
+
         # iterate through edges in graph:
         while not not debt:
             edge: FlowEdge  # type: ignore
@@ -268,11 +280,11 @@ class Simplify:
                 for edge in adj_list:  # type: ignore
                     if not edge.residual:
                         if flow := MaxFlow.edmonds_karp(debt, node, edge.node):
-                            # fixme: edge adjust not popping d -> m 5/5
                             clean.add_edge(node, (edge.node, flow))
                         debt.adjust_edges()
 
         if clean == d_cache:
-            raise SettleError("No optimisations found")
+            clean.to_dot(n=1)
+            raise SettleError('No optimisations found')
 
         return clean
