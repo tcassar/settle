@@ -22,7 +22,8 @@ class SettleError(Exception):
 class EdgeCapacityZero(Exception):
     ...
 
-@dataclass(init=False)
+
+@dataclass(init=False, repr=False, eq=False)
 class FlowEdge:
     def __init__(self, node: Vertex, capacity: int, flow: int = 0):
         self.node: Vertex = node  # where is edge pointing
@@ -32,8 +33,17 @@ class FlowEdge:
 
     def __str__(self):
         return (
-            f"{self.node} [{self.flow}/{self.capacity}], " if not self.residual else ""
+            f"{self.node} [{self.flow}/{self.capacity}], "
+            if not self.residual
+            else f"R: {self.node} [{self.flow}/{self.capacity}],"
         )
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other):
+        # TODO: write this properly
+        return str(self) == str(other)
 
     def to_dot(self):
         base = f'[label="  {self.flow}/{self.capacity}  "]'
@@ -123,13 +133,22 @@ class FlowGraph(GenericDigraph):
                 self.net_debt[src] += capacity
                 self.net_debt[dest] -= capacity
 
-    def pop_edge(self, src, dest, *, update_debt=False):
+    def pop_edge(self, src: Vertex, dest: Vertex, *, update_debt=False):
         """removes REAL edges, and deletes residual counterpart"""
+
         # normal
         fwd_edge = self.edge_from_nodes(dest, self[src])
         self[src].remove(fwd_edge)
         # residual
-        self[dest].remove(self.edge_from_nodes(src, self[dest]))
+        res = self.edge_from_nodes(src, self[dest])
+        if res.node == src:
+            # assert self[dest][0] == self[dest][1]
+            self[dest].remove(res)
+
+        else:
+            raise ValueError(
+                f"Tried to pop residual edge; intended {dest} -> {src}, got {dest} -> {res.node}"
+            )
 
         if update_debt:
             # handle net_debt;
@@ -147,9 +166,18 @@ class FlowGraph(GenericDigraph):
         """Run edge adjust on each edge, if new capacity = 0 and residual = false,
         delete egde + residual counterpart"""
 
-        for node in self.nodes():
-            for edge in (adj_list := self[node]):
-                ...
+        edge: FlowEdge
+
+        for n, node in enumerate(self.nodes()):
+            for edge in self[node]:
+                try:
+                    edge.adjust_edge()
+                except EdgeCapacityZero:
+                    # edge no longer has a place in my graph
+                    # delete edge + residual; will condition only ever raised on fwd edges
+                    self.pop_edge(node, edge.node)
+                self.to_dot(n=n + 2)
+
 
 class MaxFlow:
     @staticmethod
@@ -230,4 +258,3 @@ class Simplify:
     debt.add_edge(m, (t, 5))
 
     debt.to_dot()
-

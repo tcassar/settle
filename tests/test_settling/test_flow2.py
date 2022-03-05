@@ -33,7 +33,10 @@ class TestFlowEdge(TestCase):
             self.edges[1].push_flow(3)
 
     def test_adjust_edge(self):
-        res, fwd, = self.edges
+        (
+            res,
+            fwd,
+        ) = self.edges
         fwd.push_flow(3)
         res.push_flow(-3)
 
@@ -243,7 +246,7 @@ class TestMaxFlow(TestCase):
 
 class TestSimplify(TestCase):  # type: ignore
     def setUp(self) -> None:
-        self.graph = FlowGraph([Vertex(0, 'd'), Vertex(1, 'm'), Vertex(2, 't')])
+        self.graph = FlowGraph([Vertex(0, "d"), Vertex(1, "m"), Vertex(2, "t")])
         d, m, t = self.graph.nodes()
         self.graph.add_edge(d, (m, 5), (t, 10))
         self.graph.add_edge(m, (t, 5))
@@ -252,6 +255,23 @@ class TestSimplify(TestCase):  # type: ignore
         print(self.graph.net_debt)
         Simplify.simplify_debt(self.graph)
         self.graph.to_dot()
+
+    def test_adjust_edges(self):
+        # saturate d -> m -> t
+        self.graph.to_dot(n=0)
+        d, m, t = self.graph.nodes()
+        MaxFlow.augment_flow(self.graph, [d, m, t], 5)
+        self.graph.to_dot(n=1)
+        self.graph.adjust_edges()
+        self.graph.to_dot(n=4)
+
+        # graph should have no edges in or out of m
+        # t should have a res edge to d, 0/0
+        # d should have a fwd to t, 0/10
+
+        self.assertFalse(self.graph[m])
+        self.assertEqual(self.graph[d], [FlowEdge(t, 10)])
+        self.assertEqual(self.graph[t], [FlowEdge(d, 0)])
 
     # def test_old_simplify(self):
     #     Simplify.old_simplify_debt(self.graph)
