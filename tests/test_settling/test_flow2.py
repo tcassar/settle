@@ -32,6 +32,21 @@ class TestFlowEdge(TestCase):
         with self.subTest("exceed capacity"), self.assertRaises(FlowEdgeError):
             self.edges[1].push_flow(3)
 
+    def test_adjust_edge(self):
+        res, fwd, = self.edges
+        fwd.push_flow(3)
+        res.push_flow(-3)
+
+        new_fwd = FlowEdge(Vertex(0), 2)
+        new_res = FlowEdge(Vertex(0), 0)
+
+        fwd.adjust_edge()
+        res.adjust_edge()
+
+        self.assertEqual(new_fwd, fwd)
+        self.assertEqual(new_res, res)
+
+
 
 class TestFlowGraph(TestCase):
     def setUp(self) -> None:
@@ -69,14 +84,30 @@ class TestFlowGraph(TestCase):
             self.assertTrue(self.graph.is_edge(b, a, residual=True))
             self.assertFalse(self.graph.is_edge(b, a))
 
-        with self.subTest('Net debt (adding)'):
-            self.assertEqual({Vertex(ID=0, label='a'): 5, Vertex(ID=1, label='b'): -5, Vertex(ID=2, label='c'): 0, Vertex(ID=3, label='d'): 0, Vertex(ID=4, label='e'): 0}, self.graph.net_debt)
+        with self.subTest("Net debt (adding)"):
+            self.assertEqual(
+                {
+                    Vertex(ID=0, label="a"): 5,
+                    Vertex(ID=1, label="b"): -5,
+                    Vertex(ID=2, label="c"): 0,
+                    Vertex(ID=3, label="d"): 0,
+                    Vertex(ID=4, label="e"): 0,
+                },
+                self.graph.net_debt,
+            )
 
-        with self.subTest('Net debt (removing)'):
+        with self.subTest("Net debt (removing)"):
             self.graph.pop_edge(a, b, update_debt=True)
-            self.assertEqual({Vertex(ID=0, label='a'): 0, Vertex(ID=1, label='b'): 0, Vertex(ID=2, label='c'): 0, Vertex(ID=3, label='d'): 0, Vertex(ID=4, label='e'): 0}, self.graph.net_debt)
-
-
+            self.assertEqual(
+                {
+                    Vertex(ID=0, label="a"): 0,
+                    Vertex(ID=1, label="b"): 0,
+                    Vertex(ID=2, label="c"): 0,
+                    Vertex(ID=3, label="d"): 0,
+                    Vertex(ID=4, label="e"): 0,
+                },
+                self.graph.net_debt,
+            )
 
     def test_pop_edge(self):
         a, b, c, d, e = self.nodes
@@ -207,15 +238,16 @@ class TestMaxFlow(TestCase):
 
 
 class TestSimplify(TestCase):  # type: ignore
-
     def setUp(self) -> None:
-        self.graph: FlowGraph = FlowGraph([])
-
-        # use max flow's setup
-        TestMaxFlow.setUp(TestSimplify)  # type: ignore
+        self.graph = FlowGraph([Vertex(0, 'd'), Vertex(1, 'm'), Vertex(2, 't')])
+        d, m, t = self.graph.nodes()
+        self.graph.add_edge(d, (m, 5), (t, 10))
+        self.graph.add_edge(m, (t, 5))
 
     def test_simplify_debt(self):
+        print(self.graph.net_debt)
         Simplify.simplify_debt(self.graph)
+        self.graph.to_dot()
 
     # def test_old_simplify(self):
     #     Simplify.old_simplify_debt(self.graph)

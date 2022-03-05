@@ -15,7 +15,8 @@ class FlowEdgeError(Exception):
     ...
 
 
-class SettleError(Exception): ...
+class SettleError(Exception):
+    ...
 
 
 @dataclass(init=False)
@@ -53,9 +54,19 @@ class FlowEdge:
         else:
             self.flow = new
 
+    def adjust_edge(self):
+        """Changes edge values so that capacity = unused_capacity, flow = 0"""
+        if self.residual:
+            # reset residual edge
+            self.flow = 0
+
+        else:
+            # make capacity = to what was unused capacity
+            self.capacity = self.unused_capacity()
+            self.flow = 0
+
 
 class FlowGraph(GenericDigraph):
-
     def __init__(self, vertices: list[Vertex]):
 
         super().__init__(vertices)
@@ -185,10 +196,18 @@ class MaxFlow:
 
 
 class Simplify:
-
     @staticmethod
-    def simplify_debt(graph: FlowGraph): ...
-    people = ['tom', 'dad', 'maia']
+    def simplify_debt(graph: FlowGraph):
+        """
+        TODO: Simplify
+            for edge(u, v) in graph:
+                if new := maxflow(u, v):
+                    clean.add_edge(u, (v, new))
+                    messy.adjust_edges()
+
+        """
+
+    people = ["tom", "dad", "maia"]
     debt = FlowGraph([Vertex(ID, person) for ID, person in enumerate(people)])
 
     t, d, m = debt.nodes()
@@ -198,39 +217,3 @@ class Simplify:
 
     debt.to_dot()
 
-
-
-    # @staticmethod
-    # def old_simplify_debt(messy: FlowGraph) -> WeightedDigraph:
-    #     """Simplified debt
-    #     1) Maxflow for all edges in graph
-    #     2) Convert residual graph to digraph (edges with unused capacity)"""
-    #
-    #     # FIXME: make consistent
-    #     #       Make start on B if all else fails => best graph
-    #
-    #     clean = WeightedDigraph(messy.nodes())
-    #
-    #     def show_max(src: Vertex, sink: Vertex):
-    #         flow = Simplify.edmonds_karp(messy, src, sink)
-    #         if flow and not messy.edge_from_nodes(sink, messy[src]).residual:
-    #             clean.add_edge(src, (sink, flow))
-    #
-    #     queue, discovered, previous = path.Path.build_bfs_structs(messy)
-    #
-    #     path.Path.BFS(
-    #         target=None,
-    #         graph=messy,
-    #         queue=queue,
-    #         discovered=discovered,
-    #         previous=previous,
-    #         neighbours=messy.neighbours,
-    #         do_to_neighbour=show_max,
-    #     )
-    #
-    #     # check that no money has left system
-    #     net_flow = sum([clean.flow_through(clean_node) for clean_node in clean.nodes()])
-    #     if net_flow:
-    #         raise SettleError(f"Net flow != 0, but {net_flow}")
-    #
-    #     messy.to_dot()
