@@ -273,8 +273,11 @@ class TestSimplify(TestCase):  # type: ignore
         debt.add_edge(d, (t, 10), (m, 5))
         debt.add_edge(m, (t, 5))
 
+        debt.to_dot()
+
         clean = Simplify.simplify_debt(debt)
 
+        clean.to_dot(n=1)
         self.assertEqual(debt.net_debt, clean.net_debt)
 
     def test_adjust_edges(self):
@@ -314,5 +317,9 @@ class TestSimplify(TestCase):  # type: ignore
         messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
         messy.add_edge(g, (b, 30), (d, 10))
 
+        messy.to_dot()
+
         clean = Simplify.simplify_debt(messy)
+        clean.to_dot(n=1)
+
         self.assertEqual(messy.net_debt, clean.net_debt)

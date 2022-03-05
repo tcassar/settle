@@ -46,6 +46,9 @@ class FlowEdge:
         # TODO: write this properly
         return str(self) == str(other)
 
+    def __lt__(self, other):
+        return self.capacity < other.capacity
+
     def to_dot(self):
         base = f'[label="  {self.flow}/{self.capacity}  "]'
         return base[:-1] + ", color=red]" if self.residual else base
@@ -136,7 +139,7 @@ class FlowGraph(GenericDigraph):
             # add residual edge
             self[dest].append(FlowEdge(src, 0))
 
-            self[src].sort(key=lambda x: x.capacity)
+            self[src].sort(reverse=True)
 
             if update_debt:
                 # handle net_debt;
@@ -258,7 +261,6 @@ class Simplify:
 
         clean = FlowGraph(debt.nodes())
 
-        debt.to_dot()
         d_cache = copy.deepcopy(debt)
 
         # iterate through edges in graph:
@@ -271,21 +273,10 @@ class Simplify:
                         if flow := MaxFlow.edmonds_karp(debt, node, edge.node):
                             # fixme: edge adjust not popping d -> m 5/5
                             clean.add_edge(node, (edge.node, flow))
-
                         debt.adjust_edges()
-                        # debt.to_dot()
-                        # clean.to_dot(n=1)
-
-            # debt.to_dot()
-            # clean.to_dot(n=1)
-
-        clean.to_dot()
 
         if clean == d_cache:
             raise SettleError('No optimisations found')
-
-        print(d_cache)
-        print(clean)
 
 
         return clean
