@@ -22,7 +22,6 @@ class TestFlowEdge(TestCase):
 
     def test_push_flow(self):
         """Checks that we update flow by required amount"""
-        capacity0 = {edge: edge.unused_capacity() for edge in self.edges}
         # push three units of capacity through each edge
         for edge, exp in zip(self.edges, [0, 2]):
             with self.subTest(edge):
@@ -31,7 +30,7 @@ class TestFlowEdge(TestCase):
 
         # try to push excess amount of flow down an edge
         with self.subTest("exceed capacity"), self.assertRaises(FlowEdgeError):
-            self.edges[1].push_flow(2)
+            self.edges[1].push_flow(3)
 
 
 class TestFlowGraph(TestCase):
@@ -48,12 +47,12 @@ class TestFlowGraph(TestCase):
             self.assertFalse(self.graph.is_edge(a, b))
 
         with self.subTest("edge"):
-            self.graph.add_edge(a, b, 4)
+            self.graph.add_edge(a, (b, 4))
             self.assertTrue(self.graph.is_edge(a, b))
 
     def test_get_edge(self):
         a, b, c, d, e = self.graph.nodes()
-        self.graph.add_edge(a, b, 5)
+        self.graph.add_edge(a, (b, 5))
         self.assertEqual(FlowEdge(b, 5), self.graph.get_edge(a, b))
 
     def test_add_edge(self):
@@ -63,7 +62,7 @@ class TestFlowGraph(TestCase):
             self.assertFalse(self.graph.is_edge(a, b))
             self.assertFalse(self.graph.is_edge(b, a, residual=True))
         self.graph.to_dot()
-        self.graph.add_edge(a, b, 5)
+        self.graph.add_edge(a, (b, 5))
         self.graph.to_dot()
         with self.subTest("added"):
             self.assertTrue(self.graph.is_edge(a, b))
@@ -73,7 +72,7 @@ class TestFlowGraph(TestCase):
     def test_remove_edge(self):
         a, b, c, d, e = self.nodes
 
-        self.graph.add_edge(a, b, 5)
+        self.graph.add_edge(a, (b, 5))
 
         with self.subTest("negative"):
             self.assertTrue(self.graph.is_edge(a, b))
@@ -90,10 +89,10 @@ class TestFlowGraph(TestCase):
         """Checks we get edges that have unused capacity, including residual"""
         graph = self.graph
         a, b, c, d, *_ = graph.nodes()
-        graph.add_edge(a, b, 10)
-        graph.add_edge(b, c, 2)
-        graph.add_edge(c, d, 10)
-        graph.add_edge(d, a, 10)
+        graph.add_edge(a, (b, 10))
+        graph.add_edge(b, (c, 2))
+        graph.add_edge(c, (d, 10))
+        graph.add_edge(d, (a, 10))
 
         graph.to_dot()
 
@@ -106,10 +105,10 @@ class TestSimplify(TestCase):
     def setUp(self) -> None:
         graph = FlowGraph([Vertex(n, label=chr(n + 97)) for n in range(4)])
         a, b, c, d, *_ = graph.nodes()
-        graph.add_edge(a, b, 10)
-        graph.add_edge(b, c, 2)
-        graph.add_edge(c, d, 10)
-        graph.add_edge(d, a, 10)
+        graph.add_edge(a, (b, 10))
+        graph.add_edge(b, (c, 2))
+        graph.add_edge(c, (d, 10))
+        graph.add_edge(d, (a, 10))
 
         self.graph = graph
 
@@ -151,3 +150,48 @@ class TestSimplify(TestCase):
             # change path to be residual, flow changes accordingly
             node_path.reverse()
             flow *= -1
+
+    def test_edmonds_karp(self):
+        # build slightly more involved graph
+        nodes = [Vertex(0, label='src'), Vertex(10, label='sink')]
+        nodes += [Vertex(n, label=chr(n+96)) for n in range(1, 10)]
+        tg = FlowGraph(nodes)
+
+        s, t, a, b, c, d, e, f, g, h, i = tg.nodes()
+
+        tg.add_edge(s, (a, 5), (b, 10), (c, 5))
+        tg.add_edge(a, (d, 10))
+        tg.add_edge(b, (a, 15), (e, 20))
+        tg.add_edge(c, (f, 10))
+        tg.add_edge(d, (e, 25), (g, 10))
+        tg.add_edge(e, (c, 5), (h, 30))
+        tg.add_edge(f, (h, 5), (i, 5))
+        tg.add_edge(g, (t, 5))
+        tg.add_edge(h, (t, 15), (i, 5))
+        tg.add_edge(i, (t, 10))
+
+        injection = 'subgraph {a, b, c}\nsubgraph {d, e, f}\nsubgraph {g, h, i}'
+        tg.to_dot(preinject='rankdir=RL;')
+
+        max_flow = Simplify.edmonds_karp(tg, s, t)
+        self.assertEqual(max_flow, 20)
+
+    def test_old_edmonds(self):
+        labels = ["a", "b", "c", "d", "e", "f"]
+        self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
+        a, b, c, d, e, f = self.vertices
+
+        # set up weighted_graph and flow graphs
+        self.flow_graph = FlowGraph(self.vertices)
+        self.flow_graph.add_edge(a, (b, 10), (c, 10))
+        self.flow_graph.add_edge(b, (d, 25))
+        self.flow_graph.add_edge(c, (e, 25))
+        self.flow_graph.add_edge(d, (f, 10))
+        self.flow_graph.add_edge(e, (f, 10), (b, 6))
+
+        a, b, c, d, e, f = self.vertices
+
+        expected = 20
+        calculated = Simplify.edmonds_karp(self.flow_graph, a, f)
+
+        self.assertEqual(expected, calculated)

@@ -53,9 +53,9 @@ class GenericDigraph:
     def __eq__(self, other):
         return self.graph == other
 
-    def to_dot(self, n: int = 0):
+    def to_dot(self, *, n: int = 0, preinject=''):
         """prints dot representation of graph"""
-        dot_source = ""
+        dot_source = preinject
         for src, adj_list in self.graph.items():
             for edge in adj_list:
                 dot_source += f"{str(src)} -> {str(edge.node)} {edge.to_dot()}\n"

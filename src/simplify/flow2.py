@@ -43,10 +43,13 @@ class FlowEdge:
     def push_flow(self, flow: int):
         """Pushes flow down an edge; raises error if too much"""
         current = self.flow
-        if (new := current + flow) > self.unused_capacity():
+        if (new := flow + current) > self.capacity:
+            print(new, self.unused_capacity())
             # raise error
             raise FlowEdgeError(
-                f"Tried to add {flow} to an edge with {self.unused_capacity()}"
+                f"Tried to add {flow} units of flow"
+                f" to an edge with {self.unused_capacity()} units of flow availible, "
+                f"totalling {new}/{self.capacity} units"
             )
         else:
             self.flow = new
@@ -79,15 +82,16 @@ class FlowGraph(GenericDigraph):
         except GraphError:
             return False
 
-    def add_edge(self, src: Vertex, dest: Vertex, capacity: int):
+    def add_edge(self, src: Vertex, *edges: tuple[Vertex, int]):
         """Add a FlowEdge to graph, and also add a residual edge"""
-        # make sure nodes in graph
-        self.sanitize(src, dest)
+        for dest, capacity in edges:
+            # make sure nodes in graph
+            self.sanitize(src, dest)
 
-        # add normal edge
-        self[src].append(FlowEdge(dest, capacity))
-        # add residual edge
-        self[dest].append(FlowEdge(src, 0))
+            # add normal edge
+            self[src].append(FlowEdge(dest, capacity))
+            # add residual edge
+            self[dest].append(FlowEdge(src, 0))
 
     def pop_edge(self, src, dest):
         """removes REAL edges, and deletes residual counterpart"""
@@ -104,29 +108,39 @@ class FlowGraph(GenericDigraph):
         return [edge for edge in self[node] if edge.unused_capacity()]
 
 
-
 class Simplify:
     @staticmethod
-    def edmonds_karp(graph: FlowGraph) -> int:
-        ...
+    def edmonds_karp(graph: FlowGraph, src: Vertex, sink: Vertex) -> int:
+
+        max_flow = 0
+
+        while aug_path := Simplify.augmenting_path(graph, src, sink):
+            bottleneck = Simplify.bottleneck(graph, aug_path)
+            max_flow += bottleneck
+
+            Simplify.augment_flow(graph, aug_path, bottleneck)
+            graph.to_dot()
+
+        return max_flow
 
     @staticmethod
     def augmenting_path(graph: FlowGraph, src: Vertex, sink: Vertex) -> list[Vertex]:
-        # set up a bfs
-        queue, discovered, previous = path.Path.build_bfs_structs(graph, src)
-
+        """find the shortest path from src -> sink using BFS"""
         return path.Path.shortest_path(
             graph, src, sink, neighbours=graph.flow_neighbours
         )
 
     @staticmethod
     def bottleneck(graph: FlowGraph, node_path: list[Vertex]) -> int:
+        """Returns bottleneck of a path"""
         aug_path = Simplify.nodes_to_path(graph, node_path)
         remaining = [edge.unused_capacity() for edge in aug_path]
         return min(remaining)
 
     @staticmethod
     def augment_flow(graph: FlowGraph, node_path: list[Vertex], flow: int) -> None:
+        """Adds flow to normal edges of path, subtracts from residual
+        deals with pushing to residual and hence subtracting from normal"""
         # normal edges
         aug_path = Simplify.nodes_to_path(graph, node_path)
         for edge in aug_path:

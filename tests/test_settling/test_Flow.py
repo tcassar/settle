@@ -32,6 +32,29 @@ class TestFlow(TestCase):
     def test_flow_through(self):
         ...
 
+    def test_2(self):
+        nodes = [Vertex(0, label='src'), Vertex(10, label='sink')]
+        nodes += [Vertex(n, label=chr(n + 96)) for n in range(1, 10)]
+        tg = FlowGraph(nodes)
+
+        s, t, a, b, c, d, e, f, g, h, i = tg.nodes()
+
+        tg.add_edge(s, (a, 5), (b, 10), (c, 5))
+        tg.add_edge(a, (d, 10))
+        tg.add_edge(b, (a, 15), (e, 20))
+        tg.add_edge(c, (f, 10))
+        tg.add_edge(d, (e, 25), (g, 10))
+        tg.add_edge(e, (c, 5), (h, 30))
+        tg.add_edge(f, (h, 5), (i, 5))
+        tg.add_edge(g, (t, 5))
+        tg.add_edge(h, (t, 15), (i, 5))
+        tg.add_edge(i, (t, 10))
+
+        max_flow = Flow.edmonds_karp(tg, s, t)
+        tg.to_dot()
+
+        self.assertEqual(max_flow, 20)
+
 
 class TestSettling(TestCase):
     def setUp(self) -> None:
