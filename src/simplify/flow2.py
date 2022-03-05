@@ -19,6 +19,9 @@ class SettleError(Exception):
     ...
 
 
+class EdgeCapacityZero(Exception):
+    ...
+
 @dataclass(init=False)
 class FlowEdge:
     def __init__(self, node: Vertex, capacity: int, flow: int = 0):
@@ -61,9 +64,13 @@ class FlowEdge:
             self.flow = 0
 
         else:
-            # make capacity = to what was unused capacity
-            self.capacity = self.unused_capacity()
-            self.flow = 0
+            # make capacity = to what was unused capacity, unless unused capacity 0;
+            # if unused capacity 0, raise EdgeCapacityZero
+            if new := self.unused_capacity():
+                self.capacity = new
+                self.flow = 0
+            else:
+                raise EdgeCapacityZero(self, new)
 
 
 class FlowGraph(GenericDigraph):
@@ -136,6 +143,13 @@ class FlowGraph(GenericDigraph):
         # build list of edges from adj list with unused capacity
         return [edge for edge in self[node] if edge.unused_capacity()]
 
+    def adjust_edges(self):
+        """Run edge adjust on each edge, if new capacity = 0 and residual = false,
+        delete egde + residual counterpart"""
+
+        for node in self.nodes():
+            for edge in (adj_list := self[node]):
+                ...
 
 class MaxFlow:
     @staticmethod

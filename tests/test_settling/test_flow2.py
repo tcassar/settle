@@ -46,6 +46,10 @@ class TestFlowEdge(TestCase):
         self.assertEqual(new_fwd, fwd)
         self.assertEqual(new_res, res)
 
+        # catch EdgeCapacityZero
+        with self.assertRaises(EdgeCapacityZero):
+            fwd.push_flow(2)
+            fwd.adjust_edge()
 
 
 class TestFlowGraph(TestCase):
