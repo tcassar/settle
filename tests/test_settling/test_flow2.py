@@ -273,7 +273,9 @@ class TestSimplify(TestCase):  # type: ignore
         debt.add_edge(d, (t, 10), (m, 5))
         debt.add_edge(m, (t, 5))
 
-        Simplify.simplify_debt(debt)
+        clean = Simplify.simplify_debt(debt)
+
+        self.assertEqual(debt.net_debt, clean.net_debt)
 
     def test_adjust_edges(self):
         # saturate d -> m -> t
@@ -295,5 +297,22 @@ class TestSimplify(TestCase):  # type: ignore
     def test_netflow(self):
         """Checking people owed same before and after"""
 
-    # def test_old_simplify(self):
-    #     Simplify.old_simplify_debt(self.graph)
+    def test_mithun_simplify(self):
+
+        # gen vertices
+        people: list[Vertex] = []
+        for ID, person in enumerate(["b", "c", "d", "e", "f", "g"]):
+            people.append(Vertex(ID, label=person))
+        b, c, d, e, f, g = people
+
+        # build flow graph of transactions
+        messy = FlowGraph(people)
+
+        messy.add_edge(b, (c, 40))
+        messy.add_edge(c, (d, 20))
+        messy.add_edge(d, (e, 50))
+        messy.add_edge(f, (e, 10), (d, 10), (c, 30), (b, 10))
+        messy.add_edge(g, (b, 30), (d, 10))
+
+        clean = Simplify.simplify_debt(messy)
+        self.assertEqual(messy.net_debt, clean.net_debt)

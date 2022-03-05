@@ -1,4 +1,5 @@
 # coding=utf-8
+import copy
 
 from src.simplify.base_graph import GenericDigraph, GraphError
 from src.simplify.graph_objects import Vertex
@@ -95,6 +96,9 @@ class FlowGraph(GenericDigraph):
         """Returns true if not empty"""
         return not ({node: [] for node in self.nodes()} == self.graph)
 
+    def __eq__(self, other):
+        return str(self) == str(other)
+
     @staticmethod
     def edge_from_nodes(node: Vertex, list_: list[FlowEdge]) -> FlowEdge:  # type: ignore
         """gets edge from a list of edges (i.e. an adjacency list) by node;
@@ -131,6 +135,8 @@ class FlowGraph(GenericDigraph):
             self[src].append(FlowEdge(dest, capacity))
             # add residual edge
             self[dest].append(FlowEdge(src, 0))
+
+            self[src].sort(key=lambda x: x.capacity)
 
             if update_debt:
                 # handle net_debt;
@@ -253,24 +259,33 @@ class Simplify:
         clean = FlowGraph(debt.nodes())
 
         debt.to_dot()
-        clean.to_dot(n=1)
+        d_cache = copy.deepcopy(debt)
 
         # iterate through edges in graph:
         while not not debt:
             edge: FlowEdge  # type: ignore
             for (node, adj_list) in debt.graph.items():
 
-                for edge in adj_list:
+                for edge in adj_list:  # type: ignore
                     if not edge.residual:
                         if flow := MaxFlow.edmonds_karp(debt, node, edge.node):
                             # fixme: edge adjust not popping d -> m 5/5
                             clean.add_edge(node, (edge.node, flow))
 
                         debt.adjust_edges()
-                        debt.to_dot()
-                        clean.to_dot(n=1)
+                        # debt.to_dot()
+                        # clean.to_dot(n=1)
 
-            debt.to_dot()
-            clean.to_dot(n=1)
+            # debt.to_dot()
+            # clean.to_dot(n=1)
+
+        clean.to_dot()
+
+        if clean == d_cache:
+            raise SettleError('No optimisations found')
+
+        print(d_cache)
+        print(clean)
+
 
         return clean
