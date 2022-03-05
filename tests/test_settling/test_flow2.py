@@ -147,6 +147,15 @@ class TestFlowGraph(TestCase):
         c_flow_neighbours = graph.flow_neighbours(c)
         self.assertEqual([b, d], GenericDigraph.nodes_from_edges(c_flow_neighbours))
 
+    def test_bool(self):
+        # empty
+        print(self.graph.graph)
+        self.assertFalse(bool(self.graph))
+
+        # with an edge
+        a, b, c, d, e = self.nodes
+        self.graph.add_edge(a, (b, 10))
+
 
 class TestMaxFlow(TestCase):
     def setUp(self) -> None:
@@ -253,8 +262,18 @@ class TestSimplify(TestCase):  # type: ignore
 
     def test_simplify_debt(self):
         print(self.graph.net_debt)
-        Simplify.simplify_debt(self.graph)
-        self.graph.to_dot()
+
+        # fixme: stopping one early
+
+        people = ["dad", "tom", "maia"]
+        debt = FlowGraph([Vertex(ID, person) for ID, person in enumerate(people)])
+
+        d, t, m = debt.nodes()
+
+        debt.add_edge(d, (m, 5), (t, 10))
+        debt.add_edge(m, (t, 5))
+
+        Simplify.simplify_debt(debt)
 
     def test_adjust_edges(self):
         # saturate d -> m -> t
@@ -272,6 +291,9 @@ class TestSimplify(TestCase):  # type: ignore
         self.assertFalse(self.graph[m])
         self.assertEqual(self.graph[d], [FlowEdge(t, 10)])
         self.assertEqual(self.graph[t], [FlowEdge(d, 0)])
+
+    def test_netflow(self):
+        """Checking people owed same before and after"""
 
     # def test_old_simplify(self):
     #     Simplify.old_simplify_debt(self.graph)

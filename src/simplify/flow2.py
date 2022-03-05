@@ -91,6 +91,10 @@ class FlowGraph(GenericDigraph):
         # map to keep track of people's net debts; +ve if owes group, -ve if owed by group
         self.net_debt: dict[Vertex, int] = {node: 0 for node in vertices}
 
+    def __bool__(self):
+        """Returns true if not empty"""
+        return not ({node: [] for node in self.nodes()} == self.graph)
+
     @staticmethod
     def edge_from_nodes(node: Vertex, list_: list[FlowEdge]) -> FlowEdge:  # type: ignore
         """gets edge from a list of edges (i.e. an adjacency list) by node;
@@ -239,22 +243,34 @@ class MaxFlow:
 
 class Simplify:
     @staticmethod
-    def simplify_debt(graph: FlowGraph):
+    def simplify_debt(debt: FlowGraph) -> FlowGraph:
         """
-        TODO: Simplify
-            for edge(u, v) in graph:
-                if new := maxflow(u, v):
-                    clean.add_edge(u, (v, new))
-                    messy.adjust_edges()
-
+        for edge(u, v) in graph:
+            if new := maxflow(u, v):
+                clean.add_edge(u, (v, new))
+                messy.adjust_edges()
         """
 
-    people = ["tom", "dad", "maia"]
-    debt = FlowGraph([Vertex(ID, person) for ID, person in enumerate(people)])
+        clean = FlowGraph(debt.nodes())
 
-    t, d, m = debt.nodes()
+        n = 0
+        debt.to_dot(n=n)
+        clean.to_dot(n=10)
 
-    debt.add_edge(d, (m, 5), (t, 10))
-    debt.add_edge(m, (t, 5))
+        # iterate through edges in graph:
+        edge: FlowEdge  # type: ignore
+        for n, (node, adj_list) in enumerate(debt.graph.items()):
+            for edge in adj_list:
+                if not edge.residual:
+                    n += 1
+                    if flow := MaxFlow.edmonds_karp(debt, node, edge.node):
 
-    debt.to_dot()
+                        debt.adjust_edges()
+
+                        clean.add_edge(node, (edge.node, flow))
+
+                    debt.to_dot(n=n)
+                    clean.to_dot(n=10 + n)
+
+        debt.to_dot(n=n + 1)
+        clean.to_dot(n=10 + n)
