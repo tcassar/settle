@@ -3,12 +3,12 @@
 """
 Testing sign / verify through RSA working as expected
 """
-from src.transactions.transaction import Signable
-from src.crypto import keys
-from src.crypto import rsa
-
 import os
 from unittest import TestCase
+
+from src.crypto import keys
+from src.crypto import rsa
+from src.transactions.transaction import Signable
 
 
 class TestTransaction(Signable):

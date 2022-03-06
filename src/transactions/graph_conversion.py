@@ -1,7 +1,5 @@
 # coding=utf-8
 
-from dataclasses import dataclass
-
 import src.simplify.specialised_graph as graphs
 
 from src.simplify.graph_objects import *

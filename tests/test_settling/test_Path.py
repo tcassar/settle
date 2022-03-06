@@ -1,11 +1,11 @@
 # coding=utf-8
 from unittest import TestCase
 
+from src.simplify.base_graph import Digraph
+from src.simplify.flow import FlowGraph
 from src.simplify.graph_objects import Vertex
 from src.simplify.path import Path, prev_map, disc_map, BFSQueue
-from src.simplify.base_graph import Digraph
 from src.simplify.weighted_digraph import WeightedDigraph
-from src.simplify.flow import FlowGraph
 
 
 class TestPath(TestCase):

@@ -1,7 +1,6 @@
 # coding=utf-8
 from unittest import TestCase
 
-import simplify.flow
 from src.simplify.flow import *
 from src.simplify.graph_objects import Vertex
 

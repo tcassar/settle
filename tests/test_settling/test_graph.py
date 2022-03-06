@@ -2,10 +2,10 @@
 
 from unittest import TestCase
 
-from src.simplify.graph_objects import Edge
 from src.simplify.base_graph import Digraph
-from src.simplify.weighted_digraph import WeightedDigraph
 from src.simplify.flow import *
+from src.simplify.graph_objects import Edge
+from src.simplify.weighted_digraph import WeightedDigraph
 
 
 class TestDigraph(TestCase):

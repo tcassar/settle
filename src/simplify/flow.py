@@ -5,7 +5,6 @@ from dataclasses import dataclass
 import src.simplify.path as path
 from src.simplify.base_graph import GenericDigraph, GraphError
 from src.simplify.graph_objects import Vertex
-from random import shuffle
 
 """Flow Graph"""
 

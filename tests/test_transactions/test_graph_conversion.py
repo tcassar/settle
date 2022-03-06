@@ -1,8 +1,8 @@
 # coding=utf-8
 
-from src.transactions.transaction import Transaction
-
 from unittest import TestCase
+
+from src.transactions.transaction import Transaction
 
 
 class TestTransactionConversion(TestCase):

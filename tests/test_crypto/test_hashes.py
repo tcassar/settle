@@ -1,9 +1,9 @@
 # coding=utf-8
+import hashlib
 import sys
+from unittest import TestCase
 
 from src.crypto import hashes
-import hashlib
-from unittest import TestCase
 
 
 class TestHash(TestCase):

@@ -4,9 +4,10 @@
 Unit tests for key handling
 """
 
-from src.crypto import keys
-from unittest import TestCase
 import os
+from unittest import TestCase
+
+from src.crypto import keys
 
 
 class TestRSAKeyLoading(TestCase):

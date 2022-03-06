@@ -1,7 +1,4 @@
-digraph { d -> t [label="  0/10  "]
-d -> m [label="  5/5  "]
-m -> t [label="  5/5  "]
-m -> d [label="  -5/0  ", color=red]
-t -> d [label="  0/0  ", color=red]
-t -> m [label="  -5/0  ", color=red]
+digraph { dad -> tom [label="  0/15  "]
+tom -> dad [label="  0/0  ", color=red]
+maia
  }
