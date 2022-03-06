@@ -17,6 +17,10 @@ class SettleError(Exception):
     ...
 
 
+class NoOptimisations(Exception):
+    """No optimisations to graph; already in simplest form"""
+
+
 class EdgeCapacityZero(Exception):
     ...
 
@@ -284,6 +288,6 @@ class Simplify:
 
         if clean == d_cache:
             clean.to_dot(n=1)
-            raise SettleError('No optimisations found')
+            raise NoOptimisations
 
         return clean
