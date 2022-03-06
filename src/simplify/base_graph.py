@@ -56,7 +56,7 @@ class GenericDigraph:
 
     def to_dot(self, *, n: int = 0, title="graph"):
         """prints dot representation of graph"""
-        dot_source = ''
+        dot_source = ""
         for src, adj_list in self.graph.items():
             for edge in adj_list:
                 dot_source += f"{str(src)} -> {str(edge.node)} {edge.to_dot()}\n"

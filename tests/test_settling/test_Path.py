@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 from src.simplify.base_graph import Digraph
-from src.simplify.flow import FlowGraph
+from src.simplify.flow_graph import FlowGraph
 from src.simplify.graph_objects import Vertex
 from src.simplify.path import Path, prev_map, disc_map, BFSQueue
 from src.simplify.weighted_digraph import WeightedDigraph

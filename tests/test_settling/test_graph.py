@@ -3,7 +3,7 @@
 from unittest import TestCase
 
 from src.simplify.base_graph import Digraph
-from src.simplify.flow import *
+from src.simplify.flow_graph import *
 from src.simplify.graph_objects import Edge
 from src.simplify.weighted_digraph import WeightedDigraph
 
@@ -22,7 +22,7 @@ class TestDigraph(TestCase):
         self.graph.add_edge(v, w)
 
     def test_init(self):
-        expected = 'U -> VW\nV -> W\nW -> \n'
+        expected = "U -> VW\nV -> W\nW -> \n"
 
         with self.subTest("init"):
             self.assertEqual(expected, str(self.graph))
@@ -105,5 +105,3 @@ class TestWeightedDigraph(TestCase):
         for node, flow in zip(self.vertices, [3, 2, -5]):
             with self.subTest(node):
                 self.assertEqual(self.graph.flow_through(node), flow)
-
-

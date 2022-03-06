@@ -1,7 +1,8 @@
 # coding=utf-8
 from unittest import TestCase
 
-from src.simplify.flow import *
+from src.simplify.flow_algorithms import NoOptimisations, MaxFlow, Simplify
+from src.simplify.flow_graph import *
 from src.simplify.graph_objects import Vertex
 
 
@@ -261,8 +262,6 @@ class TestSimplify(TestCase):  # type: ignore
     def test_simplify_debt(self):
         print(self.graph.net_debt)
 
-        # fixme: stopping one early
-
         people = ["dad", "tom", "maia"]
         debt = FlowGraph([Vertex(ID, person) for ID, person in enumerate(people)])
 
@@ -335,5 +334,4 @@ class TestSimplify(TestCase):  # type: ignore
         with self.assertRaises(NoOptimisations):
             clean = Simplify.simplify_debt(debt)
             clean.to_dot(n=1)
-
 
