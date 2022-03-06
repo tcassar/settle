@@ -226,7 +226,7 @@ class TestMaxFlow(TestCase):
         tg.add_edge(h, (t, 15), (i, 5))
         tg.add_edge(i, (t, 10))
 
-        tg.to_dot(preinject="rankdir=RL;")
+        tg.to_dot()
 
         max_flow = MaxFlow.edmonds_karp(tg, s, t)
         self.assertEqual(max_flow, 20)

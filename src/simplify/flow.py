@@ -187,15 +187,15 @@ class FlowGraph(GenericDigraph):
                     # edge no longer has a place in my graph
                     # delete edge + residual; will condition only ever raised on fwd edges
                     self.pop_edge(node, edge.node)
-
-    def nodes(self):
-        """Returns nodes in order of incoming edges (smallest first)"""
-        def incoming_func(node):
-            return len([edge for edge in self[node] if edge.residual])
-
-        incoming = [(node, incoming_func(node)) for node in self.graph.keys()]
-        incoming.sort(key=lambda row: row[1], reverse=True)
-        return [node for node, _ in incoming]
+    #
+    # def nodes(self):
+    #     """Returns nodes in order of incoming edges (smallest first)"""
+    #     def incoming_func(node):
+    #         return len([edge for edge in self[node] if edge.residual])
+    #
+    #     incoming = [(node, incoming_func(node)) for node in self.graph.keys()]
+    #     incoming.sort(key=lambda row: row[1], reverse=True)
+    #     return [node for node, _ in incoming
 
 
 class MaxFlow:
