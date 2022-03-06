@@ -22,7 +22,7 @@ class TestDigraph(TestCase):
         self.graph.add_edge(v, w)
 
     def test_init(self):
-        expected = "U -> V, W, \nV -> W, \nW -> \n"
+        expected = 'U -> VW\nV -> W\nW -> \n'
 
         with self.subTest("init"):
             self.assertEqual(expected, str(self.graph))
