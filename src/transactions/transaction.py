@@ -5,6 +5,7 @@ Handles transaction object
 """
 
 # coding=utf-8
+import sys
 
 from src.crypto import keys, hashes, rsa
 
@@ -25,8 +26,11 @@ class Signable(ABC):
     """Base class for objects that can be signed; needs a hash implementation, cannot be added into ABC for reasons"""
 
     @abstractmethod
-    def sign(self, sig: bytes, *, origin: str) -> None:
+    def sign(self, key: keys.RSAPrivateKey, *, origin: str) -> None:
         ...
+
+    @abstractmethod
+    def hash(self) -> bytes: ...
 
 
 @dataclass
@@ -39,35 +43,47 @@ class Transaction(Signable):
     time = datetime.datetime.now()
     signatures: dict[int, bytes] = field(default_factory=lambda: {})
 
-    def __hash__(self):
+    def hash(self) -> bytes:
         # standard way to produce hash using SHA256 interface from crypto lib
-        hashes.Hasher(f"{self.src, self.dest, self.amount, self.ID, self.msg, self.time}".encode('utf8')).digest()
+        return hashes.Hasher(f"{self.src, self.dest, self.amount, self.msg, self.time}".encode('utf8', sys.byteorder)).digest().h
 
-    def sign(self, sig: bytes, *, origin: str) -> None:
+    # IMPORTANT: CANNOT USE DUNDER HASH AS PYTHON DOES WEIRD HASH COMPRESSION
+    def __hash__(self):
+        raise NotImplementedError("__hash__ cannot be used, used .hash() method")
+
+    def sign(self, key: keys.RSAPrivateKey, *, origin: str) -> None:
 
         def overwrite_err(where: str) -> None:
             """Helper to raise overwrite error"""
             raise TransactionError(f"Cannot overwrite signature of {where}")
 
-        # initialise sigs dict if doesnt already exist
+        def generate_signature(obj: Transaction) -> bytes:
+            """Helper to generate a signature of the object"""
+            sig = rsa.RSA.sign(obj.hash(), key)
+            print(sig)
+            return sig
+
+        # initialise sigs dict if it doesn't already exist
         if not self.signatures:
             self.signatures = {self.src: b'', self.dest: b''}
 
-        # accept origin as src or dest; append with key of ID to signatures dict
+        # accept origin as src or dest;
+        # check for overwrite, raise error if case
+        # append with key of ID to signatures dict
         if origin == 'src':
             if not self.signatures[self.src]:  # check for overwrites
-                self.signatures[self.src] = sig
+                self.signatures[self.src] = generate_signature(self)
             else:
                 overwrite_err('src')  # handle overwrite err
 
         elif origin == 'dest':
             if not self.signatures[self.dest]:
-                self.signatures[self.dest] = sig
+                self.signatures[self.dest] = generate_signature(self)
             else:
                 overwrite_err('dest')
 
         else:
-            # if parameter wasnt src or dest, raise error
+            # if parameter wasn't src or dest, raise error
             raise ValueError(f'{origin!r} not a valid parameter; use \'src\' or \'dest\'')
 
     def verify_sig(self, public: keys.RSAPublicKey) -> None:

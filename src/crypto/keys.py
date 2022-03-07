@@ -1,6 +1,7 @@
 # coding=utf-8
 """Interface to all RSA encrypt / decrypt functions"""
 
+import os
 import os.path
 import re
 import subprocess
@@ -37,7 +38,7 @@ class RSAKeyLoader:
 
         try:
             if not os.path.exists(path_to_private_key):
-                raise RSAParserError("File not found")
+                raise RSAParserError(f"File not found at current path: \n{os.getcwd()}")
             key = str(
                 subprocess.check_output(
                     f"openssl rsa -noout -text < {path_to_private_key}", shell=True

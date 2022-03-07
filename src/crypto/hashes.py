@@ -61,3 +61,6 @@ class Hasher:
     def digest(self) -> Hash:
         """Digests current hash; digests always returns a Hash object"""
         return Hash(self._hasher.digest())
+
+    def int_digest(self) -> int:
+        return Hash(self._hasher.digest()).int_digest()

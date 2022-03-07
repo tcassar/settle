@@ -63,9 +63,13 @@ class RSA(ABC):
     @staticmethod
     def sign(msg: bytes, key: keys.RSAPrivateKey) -> bytes:
         # check we have a private key
+
+        # extract integer if sign given bytes
+
         RSA.check_private_key(key)
+
         msg = int.from_bytes(msg, sys.byteorder)
-        cipher = pow(msg, key.d, key.n)
+        cipher = pow(msg, key.d, key.n)  # type: ignore
 
         return RSA.int_to_bytes(cipher)
 
@@ -78,51 +82,51 @@ class RSA(ABC):
 
         return RSA.int_to_bytes(de_sig)
 
-
-class RestrictedNotary:
-    """Can only verify with a given public key cannot sign"""
-
-    def __init__(self, key: keys.RSAPublicKey):
-        self.key = key
-
-    def verify_object(self, obj: Signable) -> None:
-        sig = obj.signature
-
-        # make sure object is signed
-        if not sig:
-            raise SigningError("Object has no signature to verify")
-
-        # calculate hash of the object
-        h = hashes.Hasher(str(obj).encode("utf8")).digest().h
-
-        # generate what the int representation of the hash (bytes) should have been
-        h_ = RSA.inv_sig(sig, self.key)
-
-        if h != h_:
-            raise SigningError("Signature for object is invalid")
-
-
-@dataclass
-class Notary(RestrictedNotary):
-    """Simplest interface possible to sign with"""
-
-    key: keys.RSAPrivateKey
-
-    def sign_object(self, obj: Signable) -> Signable:
-        """Will sign an object; returns object, having added a signature"""
-
-        # create byte representation of object
-        msg = str(obj).encode("utf8")
-
-        # hash the msg
-        msg = hashes.Hasher(msg).digest().h
-
-        # get signature of object
-        sig: bytes = RSA.sign(msg, self.key)
-
-        # append signature to object
-        obj.sign(sig)
-
-        # make sure signature is valid
-        self.verify_object(obj)
-        return obj
+#
+# class RestrictedNotary:
+#     """Can only verify with a given public key cannot sign"""
+#
+#     def __init__(self, key: keys.RSAPublicKey):
+#         self.key = key
+#
+#     def verify_object(self, obj: Signable) -> None:
+#         sig = obj.signature
+#
+#         # make sure object is signed
+#         if not sig:
+#             raise SigningError("Object has no signature to verify")
+#
+#         # calculate hash of the object
+#         h = hashes.Hasher(str(obj).encode("utf8")).digest().h
+#
+#         # generate what the int representation of the hash (bytes) should have been
+#         h_ = RSA.inv_sig(sig, self.key)
+#
+#         if h != h_:
+#             raise SigningError("Signature for object is invalid")
+#
+#
+# @dataclass
+# class Notary(RestrictedNotary):
+#     """Simplest interface possible to sign with"""
+#
+#     key: keys.RSAPrivateKey
+#
+#     def sign_object(self, obj: Signable, *, origin: str) -> Signable:
+#         """Will sign an object; returns object, having added a signature"""
+#
+#         # create byte representation of object
+#         msg = str(obj).encode("utf8")
+#
+#         # hash the msg
+#         msg = hashes.Hasher(msg).digest().h
+#
+#         # get signature of object
+#         sig: bytes = RSA.sign(msg, self.key)
+#
+#         # append signature to object
+#         obj.sign(sig, origin=origin)
+#
+#         # make sure signature is valid
+#         self.verify_object(obj)
+#         return obj
