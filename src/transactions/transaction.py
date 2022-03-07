@@ -31,7 +31,6 @@ class Signable(ABC):
 
 @dataclass
 class Transaction(Signable):
-
     src: int
     dest: int
     amount: int
@@ -45,13 +44,31 @@ class Transaction(Signable):
         hashes.Hasher(f"{self.src, self.dest, self.amount, self.ID, self.msg, self.time}".encode('utf8')).digest()
 
     def sign(self, sig: bytes, *, origin: str) -> None:
-        # accept origin as src or dest
-        if origin != 'src' or origin != 'dest':
-            raise ValueError(f'{origin} not a valid parameter; use \'src\' or \'dest\'')
 
-        # should never be able to overwrite a sig
+        def overwrite_err(where: str) -> None:
+            """Helper to raise overwrite error"""
+            raise TransactionError(f"Cannot overwrite signature of {where}")
 
+        # initialise sigs dict if doesnt already exist
+        if not self.signatures:
+            self.signatures = {self.src: b'', self.dest: b''}
 
+        # accept origin as src or dest; append with key of ID to signatures dict
+        if origin == 'src':
+            if not self.signatures[self.src]:  # check for overwrites
+                self.signatures[self.src] = sig
+            else:
+                overwrite_err('src')  # handle overwrite err
+
+        elif origin == 'dest':
+            if not self.signatures[self.dest]:
+                self.signatures[self.dest] = sig
+            else:
+                overwrite_err('dest')
+
+        else:
+            # if parameter wasnt src or dest, raise error
+            raise ValueError(f'{origin!r} not a valid parameter; use \'src\' or \'dest\'')
 
     def verify_sig(self, public: keys.RSAPublicKey) -> None:
         """Raise verification error if invalid sig"""
@@ -84,6 +101,3 @@ class Ledger:
     def _verify_transactions(self):
         """Verifies the keys of all the transactions in the group.
         Raises error if a faulty transaction is found"""
-
-
-
