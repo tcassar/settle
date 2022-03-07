@@ -1,6 +1,17 @@
 # coding=utf-8
 import unittest
 from src.transactions.transaction import *
+from src.crypto import *
+
+
+class TestTransaction(unittest.TestCase):
+    def test_sign(self):
+        """Working on assumption that rsa.Notary is working; tested in settle/tests/test_crypto"""
+        trn = Transaction(0, 0, 0)
+        with self.subTest('catch invalid origin'), self.assertRaises(ValueError):
+            trn.sign(b'123', origin='src')
+            trn.sign(b'123', origin='no')
+
 
 
 class TestLedger(unittest.TestCase):
@@ -15,6 +26,16 @@ class TestLedger(unittest.TestCase):
         with self.subTest("Catch non transaction"), self.assertRaises(LedgerBuildError):
             ledger.append(6)  # type: ignore
 
+    def test_verify_transactions(self):
+        """
+        Make three ledgers:
+            1) Valid transactions
+            2) An unsigned transaction
+            3) An invalid signature
 
-if __name__ == "__main__":
-    unittest.main()
+        Check that first one goes through no issues, and that other two are caught
+        """
+
+
+
+
