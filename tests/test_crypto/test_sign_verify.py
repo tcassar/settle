@@ -18,7 +18,7 @@ class TestTransaction(Signable):
         self.msg = msg
         self.signature: None | bytes = None
 
-    def add_sig(self, sig: bytes):
+    def sign(self, sig: bytes):
         self.signature = sig
 
     def __str__(self):

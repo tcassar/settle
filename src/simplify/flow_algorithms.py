@@ -1,8 +1,10 @@
-import copy
+# coding=utf-8
 
-from simplify import path as path
-from simplify.flow_graph import FlowGraph, FlowEdge
-from simplify.graph_objects import Vertex
+from src.simplify import path as path
+from src.simplify.flow_graph import FlowGraph, FlowEdge
+from src.simplify.graph_objects import Vertex
+
+import copy
 
 
 class SettleError(Exception):
@@ -106,3 +108,4 @@ class Simplify:
             raise SettleError("Settling failed; debt was skewed")
 
         return clean
+    

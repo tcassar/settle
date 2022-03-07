@@ -211,12 +211,13 @@ Having explored various max flow algorithms, the question now becomes how to set
 
 The solution is to walk through the graph, and run a max flow from the current node to each of their neighbours. 
 
-![[big graph settle.png|200]]
+![[big graph settle.svg|300]]
 
 First, a new weighted digraph is generated (with no edges, but all the same nodes) for the cleaned edges.
 
 Starting on node $G$, we would therefore run a max flow from $G \rightarrow B$ . If the max flow from $G \rightarrow B > 0$, then an edge with the weight of the max flow from $G \rightarrow B$ is added to the new weighted digraph. The edge from $G \rightarrow B$ in the flow graph is deleted. This process will happen again from  $G \rightarrow D$. After having explored all neighbours, the BFS continues, until every edge in the graph has been settled. In the above example, a valid settling could look like this ^[Due to the heuristic nature of the model there will likely be multiple valid settled graphs]
-![[big settled.png|200]]
+
+![[big settled.svg|300]]
 
 ---
 Note: **Implications to security**

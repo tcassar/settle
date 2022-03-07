@@ -121,7 +121,7 @@ class Notary(RestrictedNotary):
         sig: bytes = RSA.sign(msg, self.key)
 
         # append signature to object
-        obj.add_sig(sig)
+        obj.sign(sig)
 
         # make sure signature is valid
         self.verify_object(obj)

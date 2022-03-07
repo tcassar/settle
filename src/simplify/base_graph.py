@@ -3,11 +3,11 @@
 """
 Set up graph object to be used in condensing debt settling
 """
-import copy
-
-import graphviz
 
 from src.simplify.graph_objects import Vertex, Edge
+
+import copy
+import graphviz
 
 
 class GraphError(Exception):
