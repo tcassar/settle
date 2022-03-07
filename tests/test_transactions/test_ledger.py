@@ -5,12 +5,19 @@ from src.crypto import *
 
 
 class TestTransaction(unittest.TestCase):
+    
     def test_sign(self):
         """Working on assumption that rsa.Notary is working; tested in settle/tests/test_crypto"""
         trn = Transaction(0, 0, 0)
+
+        trn.sign(b'123', origin='src')
+
         with self.subTest('catch invalid origin'), self.assertRaises(ValueError):
-            trn.sign(b'123', origin='src')
             trn.sign(b'123', origin='no')
+
+        with self.subTest('sig_overwrite'), self.assertRaises(TransactionError):
+            trn.sign(b'123', origin='src')
+
 
 
 
