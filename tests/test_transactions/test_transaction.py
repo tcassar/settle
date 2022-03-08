@@ -9,7 +9,7 @@ class TestTransaction(unittest.TestCase):
         # load keys
         os.chdir("/home/tcassar/projects/settle/src")
         ldr = keys.RSAKeyLoader()
-        ldr.load("./crypto/sample_keys/private-key.pem")
+        ldr.load("./crypto/sample_keys/d_private-key.pem")
         ldr.parse()
 
         self.key = keys.RSAPrivateKey(ldr)

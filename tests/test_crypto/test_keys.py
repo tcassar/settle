@@ -18,7 +18,8 @@ class TestRSAKeyLoading(TestCase):
         self.loader = keys.RSAKeyLoader()
         os.chdir("/home/tcassar/projects/settle/src")
         print(os.system("pwd"))
-        self.key_path = "./crypto/sample_keys/private-key.pem"
+        self.key_path = "./crypto/sample_keys/d_private-key.pem"
+        self.pub_key_path = "./crypto/sample_keys/d_public-key.pe"
 
     def test_file_loading(self):
         """Tests that file is being loaded correctly assuming correct file"""
@@ -83,7 +84,7 @@ class TestRSAKeyLoading(TestCase):
     def test_wrong_format(self):
         """Checks that we can deal with files being the wrong format"""
         with self.assertRaises(keys.RSAParserError):
-            self.loader.load("./crypto/sample_keys/public-key.pe")
+            self.loader.load("./crypto/sample_keys/d_public-key.pe")
 
     def test_unparsed_key(self):
         """Check accessing attributes"""

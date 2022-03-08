@@ -35,7 +35,7 @@ class TestRSA(TestCase):
     def setUp(self) -> None:
         # load keys
         ldr = keys.RSAKeyLoader()
-        ldr.load("./crypto/sample_keys/private-key.pem")
+        ldr.load("./crypto/sample_keys/d_private-key.pem")
         ldr.parse()
 
         # build public and private

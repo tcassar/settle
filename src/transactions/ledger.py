@@ -1,3 +1,4 @@
+# coding=utf-8
 from dataclasses import dataclass, field
 
 from src.transactions.transaction import Transaction, LedgerBuildError
@@ -15,6 +16,10 @@ class Ledger:
     def __bool__(self):
         """False if ledger empty"""
         return not not self.ledger
+
+    def load_ledger(self, path):
+        """atm from csv; will become from db"""
+
 
     def append(self, transaction: Transaction) -> list[Transaction]:
         """Nice syntax for adding transactions to ledger"""
