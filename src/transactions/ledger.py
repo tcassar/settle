@@ -8,41 +8,9 @@ from dataclasses import dataclass, field
 import os
 
 
-class LedgerLoader:
 
-    @staticmethod
-    def load_from_csv(path: str) -> list[list[Transaction]]:
-        """Load from a csv, in transaction format"""
-
-        def field(str_: str) -> int:
-            return header.index(str_)
-
-        def build_trn() -> tuple[str, str, int, int]:
-            return row[field('src')], row[field('dest')], int(row[field('amount')]), int(row[field('ID')])
-
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"File not found at current path: \n{os.getcwd()}")
-
-        transactions: list[list[Transaction]] = []
-
-        with open(path) as csvfile:
-            transaction_reader = csv.reader(csvfile, delimiter=',')
-            for row in transaction_reader:
-                # use header to build index of where things are
-                if row[0] == 'ID':
-                    header: list[str] = row
-                    continue
-
-                # build transaction, keep groups intact
-                try:
-                    transactions[field('group')].append(Transaction(*build_trn()))
-                except IndexError:
-                    # posn at group not made yet
-                    transactions.append([Transaction(*build_trn())])
-
-
-        return transactions
-
+class LedgerBuildError(Exception):
+    """Error building ledger"""
 
 
 @dataclass
@@ -57,6 +25,9 @@ class Ledger:
     def __bool__(self):
         """False if ledger empty"""
         return not not self.ledger
+
+    def __repr__(self):
+        return str(self.ledger)
 
     def append(self, transaction: Transaction) -> list[Transaction]:
         """Nice syntax for adding transactions to ledger"""
@@ -76,5 +47,42 @@ class Ledger:
         Raises error if a faulty transaction is found"""
 
 
-class LedgerBuildError(Exception):
-    """Error building ledger"""
+
+class LedgerLoader:
+
+    @staticmethod
+    def load_from_csv(path: str) -> list[Ledger]:
+        """Load from a csv, in transaction format"""
+
+        def field(str_: str) -> int:
+            return header.index(str_)
+
+        def build_trn() -> tuple[str, str, int, int]:
+            return row[field('src')], row[field('dest')], int(row[field('amount')]), int(row[field('ID')])
+
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"File not found at current path: \n{os.getcwd()}")
+
+        transactions: list[list[Transaction]] = []
+
+        # generate transaction objects, store as list of groups of transactions
+        with open(path) as csvfile:
+            transaction_reader = csv.reader(csvfile, delimiter=',')
+            for row in transaction_reader:
+                # use header to build index of where things are
+                if row[0] == 'ID':
+                    header: list[str] = row
+                    continue
+
+                # build transaction, keep groups intact
+                try:
+                    transactions[field('group')].append(Transaction(*build_trn()))
+                except IndexError:
+                    # make position at group if not made yet (assuming consecutive 0 indexed group numbers
+                    transactions.append([Transaction(*build_trn())])
+
+        ledgers: list[Ledger] = []
+        for group in transactions:
+            ledgers.append(Ledger(group))
+
+        return ledgers
