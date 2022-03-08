@@ -75,7 +75,8 @@ class RSA(ABC):
 
     @staticmethod
     def inv_sig(sig: bytes, key: keys.RSAPublicKey) -> bytes:
-        """Will produce what was originally fed into sign() using public key"""
+        """Will produce what was originally fed into sign() using public key
+        used in verifying; if verified, should generate hash of obj"""
 
         sig = int.from_bytes(sig, sys.byteorder)
         de_sig = pow(sig, key.e, key.n)

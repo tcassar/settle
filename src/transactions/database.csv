@@ -1,0 +1,12 @@
+src,dest,amount,group,n,e
+d,t,5,0,
+d,m,10,0,
+t,m,5,0,
+
+d,t,5,1,
+d,m,10,1,
+t,m,5,1,
+
+d,t,5,2,
+d,m,10,2,
+t,m,5,2,

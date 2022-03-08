@@ -22,6 +22,9 @@ class TransactionError(Exception):
     ...
 
 
+class VerificationError(Exception): ...
+
+
 class Signable(ABC):
     """Base class for objects that can be signed; needs a hash implementation, cannot be added into ABC for reasons"""
 
@@ -63,6 +66,10 @@ class Transaction(Signable):
             print(sig)
             return sig
 
+        # raise error if not given a priv key
+        if (keytype := type(key)) is not keys.RSAPrivateKey:
+            raise TransactionError(f'Was given a {keytype}, not an RSAPrivateKey')
+
         # initialise sigs dict if it doesn't already exist
         if not self.signatures:
             self.signatures = {self.src: b'', self.dest: b''}
@@ -86,8 +93,30 @@ class Transaction(Signable):
             # if parameter wasn't src or dest, raise error
             raise ValueError(f'{origin!r} not a valid parameter; use \'src\' or \'dest\'')
 
-    def verify_sig(self, public: keys.RSAPublicKey) -> None:
+    def verify_sig(self, *, src: keys.RSAPublicKey = None, dest: keys.RSAPublicKey=None) -> None:
         """Raise verification error if invalid sig"""
+
+        # build list of keys to verif
+        passed_keys = [key for key in [src, dest] if type(key) is keys.RSAPrivateKey or type(key) is keys.RSAPublicKey]
+
+        if not passed_keys:
+            raise VerificationError('No valid keys were passed in')
+
+        hash_from_obj: bytes = self.hash()
+
+        # verify src
+        if src:
+            # decrypt src signature
+            src_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.src], src)
+            if src_from_sig != hash_from_obj:
+                raise VerificationError(f'Signature doesn\'t match hash for USER ID: {self.src}')
+
+        # verify dest
+        if dest:
+            # decrypt dest signature
+            dest_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.dest], dest)
+            if dest_from_sig != hash_from_obj:
+                raise VerificationError(f'Signature doesn\'t match hash for USER ID: {self.dest}')
 
 
 @dataclass
