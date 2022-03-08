@@ -13,11 +13,6 @@ import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
-
-class LedgerBuildError(Exception):
-    """Error building ledger"""
-
-
 class TransactionError(Exception):
     ...
 
@@ -43,7 +38,7 @@ class Transaction(Signable):
     src: int
     dest: int
     amount: int
-    ID = 0
+    ID: int = 0
     msg: str = ""
     time = datetime.datetime.now()
     signatures: dict[int, bytes] = field(default_factory=lambda: {})
