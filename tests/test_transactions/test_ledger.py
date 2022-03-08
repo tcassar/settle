@@ -2,7 +2,6 @@
 import os
 import unittest
 from src.transactions.transaction import *
-from src.crypto import *
 
 
 class TestTransaction(unittest.TestCase):
