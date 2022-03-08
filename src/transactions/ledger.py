@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 import os
 
 
-
 class LedgerBuildError(Exception):
     """Error building ledger"""
 
@@ -26,9 +25,6 @@ class Ledger:
         """False if ledger empty"""
         return not not self.ledger
 
-    def __repr__(self):
-        return str(self.ledger)
-
     def append(self, transaction: Transaction) -> list[Transaction]:
         """Nice syntax for adding transactions to ledger"""
         print(type(transaction))
@@ -45,7 +41,6 @@ class Ledger:
     def _verify_transactions(self):
         """Verifies the keys of all the transactions in the group.
         Raises error if a faulty transaction is found"""
-
 
 
 class LedgerLoader:
@@ -76,13 +71,20 @@ class LedgerLoader:
 
                 # build transaction, keep groups intact
                 try:
-                    transactions[field('group')].append(Transaction(*build_trn()))
+                    print(row[field('group')])
+                    transactions[int(row[field('group')])].append(Transaction(*build_trn()))
+                    print('built trn')
                 except IndexError:
                     # make position at group if not made yet (assuming consecutive 0 indexed group numbers
                     transactions.append([Transaction(*build_trn())])
+                    print('built trn at new group')
+
 
         ledgers: list[Ledger] = []
         for group in transactions:
             ledgers.append(Ledger(group))
+            print('new ledger added')
+
+        print((ledgers))
 
         return ledgers
