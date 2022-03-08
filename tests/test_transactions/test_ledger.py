@@ -34,12 +34,12 @@ class TestTransaction(unittest.TestCase):
 
         self.trn.sign(self.key, origin="src")
 
-        with self.subTest("catch invalid origin"), self.assertRaises(ValueError):
+        with (self.subTest("catch invalid origin"), self.assertRaises(ValueError)):
             self.trn.sign(self.key, origin="no")
 
         with self.subTest("invalid key types"), self.assertRaises(TransactionError):
-            self.trn.sign(12, origin='src')
-            self.trn.sign(self.pub_key, origin='dest')
+            self.trn.sign(12, origin="src")
+            self.trn.sign(self.pub_key, origin="dest")
 
         with self.subTest("sig_overwrite"), self.assertRaises(TransactionError):
             self.trn.sign(self.key, origin="src")
@@ -52,24 +52,31 @@ class TestTransaction(unittest.TestCase):
 
     def test_verify(self):
         # check that we are complained at if no valid keys are passed in
-        with self.subTest('catch invalid keys'), self.assertRaises(VerificationError):
+        with self.subTest("catch invalid keys"), self.assertRaises(VerificationError):
             self.trn.verify_sig()
-            self.trn.verify_sig(src='123')  # wrong type  # type: ignore
+            self.trn.verify_sig(src_sig="123")  # wrong type  # type: ignore
 
         # check works with priv and public keys
 
-        with self.subTest('good verif'):
-            self.trn.sign(self.key, origin='src')
-            self.trn.verify_sig(src=self.pub_key)
+        with self.subTest("good verif"):
+            self.trn.sign(self.key, origin="src")
+            self.trn.verify_sig(src_sig=self.pub_key)
 
-        with self.subTest('priv/pub keys'):
-            self.trn.verify_sig(src=self.key)
-            self.trn.verify_sig(src=self.pub_key)
+        with self.subTest("priv/pub keys"):
+            self.trn.verify_sig(src_sig=self.key)
+            self.trn.verify_sig(src_sig=self.pub_key)
 
-        with self.subTest('bad key'), self.assertRaises(VerificationError):
-            # edit pub key
-            self.pub_key.lookup['n'] = 3
-            self.trn.verify_sig(src=self.pub_key)
+        with self.subTest("verify src, dest"):
+            self.trn.verify_sig(src_sig=self.key)
+            self.trn.verify_sig(dest_sig=self.key)
+
+        with self.subTest("verify >1 param"):
+            self.trn.verify_sig(src_sig=self.pub_key, dest_sig=self.pub_key)
+
+        with self.subTest("bad key"), self.assertRaises(VerificationError):
+            # edit pub key, thus should fail
+            self.pub_key.lookup["n"] = 3
+            self.trn.verify_sig(src_sig=self.pub_key)
 
 
 class TestLedger(unittest.TestCase):

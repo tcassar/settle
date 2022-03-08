@@ -22,7 +22,8 @@ class TransactionError(Exception):
     ...
 
 
-class VerificationError(Exception): ...
+class VerificationError(Exception):
+    ...
 
 
 class Signable(ABC):
@@ -33,7 +34,8 @@ class Signable(ABC):
         ...
 
     @abstractmethod
-    def hash(self) -> bytes: ...
+    def hash(self) -> bytes:
+        ...
 
 
 @dataclass
@@ -48,14 +50,21 @@ class Transaction(Signable):
 
     def hash(self) -> bytes:
         # standard way to produce hash using SHA256 interface from crypto lib
-        return hashes.Hasher(f"{self.src, self.dest, self.amount, self.msg, self.time}".encode('utf8', sys.byteorder)).digest().h
+        return (
+            hashes.Hasher(
+                f"{self.src, self.dest, self.amount, self.msg, self.time}".encode(
+                    "utf8", sys.byteorder
+                )
+            )
+            .digest()
+            .h
+        )
 
     # IMPORTANT: CANNOT USE DUNDER HASH AS PYTHON DOES WEIRD HASH COMPRESSION
     def __hash__(self):
         raise NotImplementedError("__hash__ cannot be used, used .hash() method")
 
     def sign(self, key: keys.RSAPrivateKey, *, origin: str) -> None:
-
         def overwrite_err(where: str) -> None:
             """Helper to raise overwrite error"""
             raise TransactionError(f"Cannot overwrite signature of {where}")
@@ -68,61 +77,71 @@ class Transaction(Signable):
 
         # raise error if not given a priv key
         if (keytype := type(key)) is not keys.RSAPrivateKey:
-            raise TransactionError(f'Was given a {keytype}, not an RSAPrivateKey')
+            raise TransactionError(f"Was given a {keytype}, not an RSAPrivateKey")
 
         # initialise sigs dict if it doesn't already exist
         if not self.signatures:
-            self.signatures = {self.src: b'', self.dest: b''}
+            self.signatures = {self.src: b"", self.dest: b""}
 
         # accept origin as src or dest;
         # check for overwrite, raise error if case
         # append with key of ID to signatures dict
-        if origin == 'src':
+        if origin == "src":
             if not self.signatures[self.src]:  # check for overwrites
                 self.signatures[self.src] = generate_signature(self)
             else:
-                overwrite_err('src')  # handle overwrite err
+                overwrite_err("src")  # handle overwrite err
 
-        elif origin == 'dest':
+        elif origin == "dest":
             if not self.signatures[self.dest]:
                 self.signatures[self.dest] = generate_signature(self)
             else:
-                overwrite_err('dest')
+                overwrite_err("dest")
 
         else:
             # if parameter wasn't src or dest, raise error
-            raise ValueError(f'{origin!r} not a valid parameter; use \'src\' or \'dest\'')
+            raise ValueError(f"{origin!r} not a valid parameter; use 'src' or 'dest'")
 
-    def verify_sig(self, *, src: keys.RSAPublicKey = None, dest: keys.RSAPublicKey=None) -> None:
+    def verify_sig(
+        self, *, src_sig: keys.RSAPublicKey = None, dest_sig: keys.RSAPublicKey = None
+    ) -> None:
         """Raise verification error if invalid sig"""
 
         # build list of keys to verif
-        passed_keys = [key for key in [src, dest] if type(key) is keys.RSAPrivateKey or type(key) is keys.RSAPublicKey]
+        passed_keys = [
+            key
+            for key in [src_sig, dest_sig]
+            if type(key) is keys.RSAPrivateKey or type(key) is keys.RSAPublicKey
+        ]
 
         if not passed_keys:
-            raise VerificationError('No valid keys were passed in')
+            raise VerificationError("No valid keys were passed in")
 
         hash_from_obj: bytes = self.hash()
 
         # verify src
-        if src:
+        if src_sig:
             # decrypt src signature
-            src_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.src], src)
+            src_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.src], src_sig)
             if src_from_sig != hash_from_obj:
-                raise VerificationError(f'Signature doesn\'t match hash for USER ID: {self.src}')
+                raise VerificationError(
+                    f"Signature doesn't match hash for USER ID: {self.src}"
+                )
 
         # verify dest
-        if dest:
+        if dest_sig:
             # decrypt dest signature
-            dest_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.dest], dest)
+            dest_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.dest], dest_sig)
             if dest_from_sig != hash_from_obj:
-                raise VerificationError(f'Signature doesn\'t match hash for USER ID: {self.dest}')
+                raise VerificationError(
+                    f"Signature doesn't match hash for USER ID: {self.dest}"
+                )
 
 
 @dataclass
 class Ledger:
     """Multiple transactions contained to one group (assumed from building);
-     built from a stream of transaction objects"""
+    built from a stream of transaction objects"""
 
     # ledger, big list of transactions;
     # TODO: maybe make ledger generator
@@ -137,7 +156,9 @@ class Ledger:
         print(type(transaction))
 
         if type(transaction) is not Transaction:
-            raise LedgerBuildError(f'cannot append type {transaction} to ledger; must be transaction')
+            raise LedgerBuildError(
+                f"cannot append type {transaction} to ledger; must be transaction"
+            )
         else:
             self.ledger.append(transaction)
 
