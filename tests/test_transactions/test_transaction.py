@@ -53,29 +53,29 @@ class TestTransaction(unittest.TestCase):
     def test_verify(self):
         # check that we are complained at if no valid keys are passed in
         with self.subTest("catch invalid keys"), self.assertRaises(VerificationError):
-            self.trn.verify_sig()
-            self.trn.verify_sig(src_sig="123")  # wrong type  # type: ignore
+            self.trn.verify()
+            self.trn.verify()  # wrong type  # type: ignore
 
         # check works with priv and public keys
 
         with self.subTest("good verif"):
             self.trn.sign(self.key, origin="src")
-            self.trn.verify_sig(src_sig=self.pub_key)
+            self.trn.verify()
 
         with self.subTest("priv/pub keys"):
-            self.trn.verify_sig(src_sig=self.key)
-            self.trn.verify_sig(src_sig=self.pub_key)
+            self.trn.verify()
+            self.trn.verify()
 
         with self.subTest("verify src, dest"):
-            self.trn.verify_sig(src_sig=self.key)
-            self.trn.verify_sig(dest_sig=self.key)
+            self.trn.verify()
+            self.trn.verify()
 
         with self.subTest("verify >1 param"):
-            self.trn.verify_sig(src_sig=self.pub_key, dest_sig=self.pub_key)
+            self.trn.verify()
 
         with self.subTest("bad key"), self.assertRaises(VerificationError):
             # edit pub key, thus should fail
             self.pub_key.lookup["n"] = 3
-            self.trn.verify_sig(src_sig=self.pub_key)
+            self.trn.verify()
 
 
