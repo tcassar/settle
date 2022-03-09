@@ -10,7 +10,7 @@ class TestFlowEdge(TestCase):
     """Tests for FlowEdge"""
 
     def setUp(self) -> None:
-        self.edges = [FlowEdge(Vertex(0), 5 * n) for n in range(2)]
+        self.edges = [FlowEdge(Vertex(0), Vertex(1), 5 * n) for n in range(2)]
         self.edges[0].flow = -3  # => unused capacity should be three
 
     def test_unused_capacity(self):
@@ -41,8 +41,8 @@ class TestFlowEdge(TestCase):
         fwd.push_flow(3)
         res.push_flow(-3)
 
-        new_fwd = FlowEdge(Vertex(0), 2)
-        new_res = FlowEdge(Vertex(0), 0)
+        new_fwd = FlowEdge(Vertex(0), Vertex(1), 2)
+        new_res = FlowEdge(Vertex(0), Vertex(1), 0)
 
         fwd.adjust_edge()
         res.adjust_edge()
@@ -75,7 +75,7 @@ class TestFlowGraph(TestCase):
     def test_get_edge(self):
         a, b, c, d, e = self.graph.nodes()
         self.graph.add_edge(a, (b, 5))
-        self.assertEqual(FlowEdge(b, 5), self.graph.get_edge(a, b))
+        self.assertEqual(FlowEdge(a, b, 5), self.graph.get_edge(a, b))
 
     def test_add_edge(self):
         a, b, c, d, e = self.nodes
@@ -183,7 +183,7 @@ class TestMaxFlow(TestCase):
         a, b, c, d, *_ = self.graph.nodes()
         edges = MaxFlow.nodes_to_path(self.graph, [a, b, c, d])
 
-        self.assertEqual(edges, [FlowEdge(b, 10), FlowEdge(c, 2), FlowEdge(d, 10)])
+        self.assertEqual(edges, [FlowEdge(a, b, 10), FlowEdge(b, c, 2), FlowEdge(c, d, 10)])
 
     def test_augmenting_path(self):
         a, b, c, d, *_ = self.graph.nodes()
@@ -291,8 +291,8 @@ class TestSimplify(TestCase):  # type: ignore
         # d should have a fwd to t, 0/10
 
         self.assertFalse(self.graph[m])
-        self.assertEqual(self.graph[d], [FlowEdge(t, 10)])
-        self.assertEqual(self.graph[t], [FlowEdge(d, 0)])
+        self.assertEqual(self.graph[d], [FlowEdge(d, t, 10)])
+        self.assertEqual(self.graph[t], [FlowEdge(t, d, 0)])
 
     def test_netflow(self):
         """Checking people owed same before and after"""
