@@ -5,7 +5,10 @@ import os
 import os.path
 import re
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+
+class RSAKeyLoaderFromNumbers: ...
 
 
 class RSAKeyError(Exception):
@@ -25,7 +28,7 @@ class RSAKeyLoader:
     """Will load a key from a private key file"""
 
     # initialise what we need, don't pass in anything at instantiation
-    lookup: dict[str, int] | None = None
+    lookup: dict[str, int] = field(default_factory=lambda: {})
     key: None | str = None
 
     def load(self, path_to_private_key: str) -> str:
@@ -94,7 +97,7 @@ class RSAKeyLoader:
 
 @dataclass
 class RSAPublicKey:
-    def __init__(self, loader: RSAKeyLoader):
+    def __init__(self, loader: RSAKeyLoader | RSAKeyLoaderFromNumbers):
         self.lookup = loader.lookup
 
     def __getattr__(self, item: str) -> int:
@@ -113,6 +116,18 @@ class RSAPublicKey:
             raise RSAKeyError("Requested attribute not found; have you parsed a key?")
 
 
+@dataclass
+class RSAKeyLoaderFromNumbers:  # type: ignore
+    lookup: dict[str, int] = field(default_factory=lambda: {})
+
+    def load(self, *, n: int, e: int) -> None:
+        self.lookup['n'] = n
+        self.lookup['e'] = e
+
+    def key(self) -> RSAPublicKey:
+        return RSAPublicKey(self)
+
+
 class RSAPrivateKey(RSAPublicKey):
     def __getattr__(self, item: str) -> int:
         """
@@ -128,6 +143,8 @@ class RSAPrivateKey(RSAPublicKey):
         """
         if self._exists(item):
             return self.lookup[item]
+        else:
+            raise AttributeError
 
 
 class TestPubKey(RSAPublicKey):
