@@ -17,7 +17,8 @@ class EdgeCapacityZero(Exception):
 
 @dataclass(init=False, repr=False, eq=False)
 class FlowEdge:
-    def __init__(self, node: Vertex, capacity: int, flow: int = 0):
+    def __init__(self, src: Vertex, node: Vertex, capacity: int, flow: int = 0):
+        self.src: Vertex = src
         self.node: Vertex = node  # where is edge pointing
         self.capacity: int = capacity  # non -ve;
         self.flow: int = flow  # always initialised to 0
@@ -126,9 +127,9 @@ class FlowGraph(GenericDigraph):
             self.sanitize(src, dest)
 
             # add normal edge
-            self[src].append(FlowEdge(dest, capacity))
+            self[src].append(FlowEdge(src, dest, capacity))
             # add residual edge
-            self[dest].append(FlowEdge(src, 0))
+            self[dest].append(FlowEdge(dest, src, 0))
 
             self[src].sort(reverse=True)
 
