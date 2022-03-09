@@ -7,13 +7,12 @@ from __future__ import annotations
 
 import sys
 from abc import ABC
-from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from src.crypto import keys, hashes
+from src.crypto import keys
 
 if TYPE_CHECKING:
-    from src.transactions.transaction import Signable
+    pass
 
 
 class DecryptionError(Exception):

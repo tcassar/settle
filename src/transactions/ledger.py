@@ -1,15 +1,14 @@
 # coding=utf-8
-import datetime
 
-import src.simplify.flow_graph
-from src.transactions.transaction import Transaction, VerificationError
+from src.simplify.flow_algorithms import Simplify
+import src.simplify.flow_graph as flow
 from src.crypto import keys
 from src.simplify.graph_objects import Vertex
-import src.simplify.flow_graph as flow
+from src.transactions.transaction import Transaction
 
 import csv
-from dataclasses import dataclass, field
 import os
+from dataclasses import dataclass, field
 
 
 class LedgerBuildError(Exception):
@@ -30,6 +29,9 @@ class Ledger:
     def __bool__(self):
         """False if ledger empty"""
         return not not self.ledger
+
+    def __eq__(self, other):
+        return self.ledger == other.ledger
 
     def append(self, transaction: Transaction) -> list[Transaction]:
         """Nice syntax for adding transactions to ledger"""
@@ -103,6 +105,18 @@ class Ledger:
 
         return new_trns
 
+    def simplify_ledger(self):
+        # build ledger as a flow graph
+        fg = self._as_flow()
+        fg.to_dot(title='pre_settle')
+        simplified_fg = Simplify.simplify_debt(fg)
+
+        # settle, update ledger
+        simplified_fg.to_dot(title='settled')
+        self.ledger = self._flow_to_transactions(simplified_fg)
+
+
+
 
 class LedgerLoader:
     @staticmethod
@@ -119,11 +133,11 @@ class LedgerLoader:
         ]:
 
             ldr = keys.RSAKeyLoaderFromNumbers()
-            ldr.load(n=int(row[field("src_n")]), e=int(row[field("src_e")]))
+            ldr.load(n=int(row[field("src_n")]), e=int(row[field("src_e")]))  # type: ignore
             src_pub: keys.RSAPublicKey = keys.RSAPublicKey(ldr)
 
             ldr2 = keys.RSAKeyLoaderFromNumbers()
-            ldr2.load(n=int(row[field("dest_n")]), e=int(row[field("dest_e")]))
+            ldr2.load(n=int(row[field("dest_n")]), e=int(row[field("dest_e")]))  # type: ignore
             dest_pub: keys.RSAPublicKey = keys.RSAPublicKey(ldr2)
 
             print(src_pub, dest_pub, "---", sep="\n")

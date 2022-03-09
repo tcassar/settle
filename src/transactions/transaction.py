@@ -4,14 +4,13 @@
 Handles transaction object
 """
 
+import datetime
 # coding=utf-8
 import sys
-
-from src.crypto import keys, hashes, rsa
-
-import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+
+from src.crypto import keys, hashes, rsa
 
 
 class TransactionError(Exception):
