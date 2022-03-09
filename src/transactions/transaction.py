@@ -13,6 +13,7 @@ import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
+
 class TransactionError(Exception):
     ...
 
@@ -38,6 +39,8 @@ class Transaction(Signable):
     src: int
     dest: int
     amount: int
+    src_pub: keys.RSAPublicKey
+    dest_pub: keys.RSAPublicKey
     ID: int = 0
     msg: str = ""
     time = datetime.datetime.now()
@@ -67,7 +70,6 @@ class Transaction(Signable):
         def generate_signature(obj: Transaction) -> bytes:
             """Helper to generate a signature of the object"""
             sig = rsa.RSA.sign(obj.hash(), key)
-            print(sig)
             return sig
 
         # raise error if not given a priv key
@@ -97,43 +99,27 @@ class Transaction(Signable):
             # if parameter wasn't src or dest, raise error
             raise ValueError(f"{origin!r} not a valid parameter; use 'src' or 'dest'")
 
-    def verify_sig(
-        self, *, src_sig: keys.RSAPublicKey = None, dest_sig: keys.RSAPublicKey = None
-    ) -> None:
+    def verify(self) -> None:
         """Raise verification error if invalid sig"""
 
-        # build list of keys to verif
-        passed_keys = [
-            key
-            for key in [src_sig, dest_sig]
-            if type(key) is keys.RSAPrivateKey or type(key) is keys.RSAPublicKey
-        ]
+        # ensure that transaction has its two signatures:
+        try:
+            for sig in [self.src, self.dest]:
+                _ = self.signatures[sig]
+        except KeyError:
+            raise VerificationError(f'Has not been signed by USRID {sig}')
 
-        if not passed_keys:
+        # build list of keys to verif
+        usr_keys = [self.src_pub, self.dest_pub]
+
+        if not usr_keys:
             raise VerificationError("No valid keys were passed in")
 
         hash_from_obj: bytes = self.hash()
 
-        # verify src
-        if src_sig:
-            # decrypt src signature
-            src_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.src], src_sig)
-            if src_from_sig != hash_from_obj:
-                raise VerificationError(
-                    f"Signature doesn't match hash for USER ID: {self.src}"
-                )
-            else:
-                print(f"{self.src} verified")
-
-        # verify dest
-        if dest_sig:
-            # decrypt dest signature
-            dest_from_sig: bytes = rsa.RSA.inv_sig(self.signatures[self.dest], dest_sig)
-            if dest_from_sig != hash_from_obj:
-                raise VerificationError(
-                    f"Signature doesn't match hash for USER ID: {self.dest}"
-                )
-            else:
-                print(f"{self.dest} verified")
+        for key, origin in zip(usr_keys, [self.src, self.dest]):
+            hash_from_sig = rsa.RSA.inv_sig(self.signatures[origin], key)
+            if hash_from_sig != hash_from_obj:
+                raise VerificationError(f'{self.src} sig invalid')
 
 

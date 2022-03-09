@@ -24,14 +24,14 @@ class TestLedger(unittest.TestCase):
 
         # load in raw copies of d, m, t test keys
         ldr = keys.RSAKeyLoader()
-        d_m_t_keys: list[keys.RSAPublicKey] = []
+        self.d_m_t_keys: dict[int, keys.RSAPrivateKey] = {}
 
-        for person in ['d', 'm', 't']:
+        for person, id in zip(['d', 'm', 't'], [4, 13, 20]):
             ldr.load(key_path(person))
             ldr.parse()
-            d_m_t_keys.append(keys.RSAPublicKey(ldr))
+            self.d_m_t_keys[id] = keys.RSAPrivateKey(ldr)
 
-        self.d_pub, self.m_pub, self.t_pub = d_m_t_keys
+        self.d_pub, self.m_pub, self.t_pub = self.d_m_t_keys.values()
 
         self.valid, self.missing_key, self.invalid = LedgerLoader.load_from_csv('./test_transactions/database.csv')
 
@@ -59,6 +59,17 @@ class TestLedger(unittest.TestCase):
 
         Check that first one goes through no issues, and that other two are caught
         """
+
+        with self.subTest('unsigned'), self.assertRaises(VerificationError):
+            self.valid._verify_transactions()
+
+        # sign transactions in ledger; not normal procedure so contrived
+        for trn in self.valid.ledger:
+            trn.sign(self.d_m_t_keys[trn.src], origin='src')
+            trn.sign(self.d_m_t_keys[trn.dest], origin='dest')
+            print('verifying...')
+            trn.verify()
+            print('verified')
 
         with self.subTest('signed'):
             self.valid._verify_transactions()

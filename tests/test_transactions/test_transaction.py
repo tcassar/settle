@@ -15,7 +15,7 @@ class TestTransaction(unittest.TestCase):
         self.key = keys.RSAPrivateKey(ldr)
         self.pub_key = keys.RSAPublicKey(ldr)
 
-        self.trn = Transaction(0, 0, 0)
+        self.trn = Transaction(0, 0, 0, self.pub_key, self.pub_key)
         self.trn.time = 0  # type: ignore
 
     def test_hash(self):

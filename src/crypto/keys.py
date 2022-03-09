@@ -100,6 +100,9 @@ class RSAPublicKey:
     def __init__(self, loader: RSAKeyLoader | RSAKeyLoaderFromNumbers):
         self.lookup = loader.lookup
 
+    def __str__(self):
+        return f'n={self.n},\ne={self.e}\n'
+
     def __getattr__(self, item: str) -> int:
         """Redefine getattr so that will only give n and e"""
         if item == "n" or item == "e":
@@ -134,6 +137,10 @@ class RSAKeyLoaderFromNumbers:  # type: ignore
 
 
 class RSAPrivateKey(RSAPublicKey):
+
+    def __str__(self):
+        return f'n={self.n},\ne={self.e},\nd={self.d}'
+
     def __getattr__(self, item: str) -> int:
         """
         Accepted items:
