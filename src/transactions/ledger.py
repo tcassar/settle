@@ -1,5 +1,7 @@
 # coding=utf-8
+import datetime
 
+import src.simplify.flow_graph
 from src.transactions.transaction import Transaction, VerificationError
 from src.crypto import keys
 from src.simplify.graph_objects import Vertex
@@ -23,6 +25,7 @@ class Ledger:
     # TODO: maybe make ledger generator
     ledger: list[Transaction] = field(default_factory=lambda: [])
     nodes: list[Vertex] = field(default_factory=lambda: [])
+    key_map: dict[int, keys.RSAPublicKey] = field(default_factory=lambda: {})
 
     def __bool__(self):
         """False if ledger empty"""
@@ -37,17 +40,19 @@ class Ledger:
             )
         else:
             self.ledger.append(transaction)
+            self.key_map[transaction.src] = transaction.src_pub
+            self.key_map[transaction.dest] = transaction.dest_pub
 
         return self.ledger
 
-    def _verify_transactions(self):
+    def _verify_transactions(self) -> None:
         """Verifies the keys of all the transactions in the group.
         Raises error if a faulty transaction is found"""
 
         for trn in self.ledger:
             trn.verify()
 
-    def _as_flow(self):
+    def _as_flow(self) -> flow.FlowGraph:
         """Returns ledger as a flow graph"""
         # Extract IDs involved -> nodes
         nodes: set[Vertex] = set()
@@ -61,17 +66,50 @@ class Ledger:
         # build flow graph with nodes
         as_flow = flow.FlowGraph(self.nodes)
 
+        # verify transaction, add to graph
         for trn in self.ledger:
+            trn.verify()
             as_flow.add_edge(Vertex(trn.src), (Vertex(trn.dest), trn.amount))
 
         return as_flow
+
+    def _flow_to_transactions(self, fg: flow.FlowGraph) -> list[Transaction]:
+        """For each edge, make a transaction"""
+
+        new_trns: list[Transaction] = []
+
+        edge: src.simplify.flow_graph.FlowEdge
+
+        # go through every outgoing transaction by person
+        for person, adj_list in fg.graph.items():
+            for edge in adj_list:  # type: ignore
+
+                # don't add residual edges to ledger
+                if edge.residual:
+                    continue
+
+                else:
+                    # generate UNSIGNED transactions
+                    # TODO: let db handle id; keep it initialised to 0
+                    trn = Transaction(
+                        edge.src.ID,
+                        edge.node.ID,
+                        edge.capacity,
+                        self.key_map[edge.src.ID],
+                        self.key_map[edge.node.ID],
+                    )
+
+                    new_trns.append(trn)
+
+        return new_trns
+
 
 class LedgerLoader:
     @staticmethod
     def load_from_csv(path: str) -> list[Ledger]:
         """Load from a csv, in transaction format"""
 
-        print('loading from csv')
+        print("loading from csv")
 
         def field(str_: str) -> int:
             return header.index(str_)
@@ -88,7 +126,7 @@ class LedgerLoader:
             ldr2.load(n=int(row[field("dest_n")]), e=int(row[field("dest_e")]))
             dest_pub: keys.RSAPublicKey = keys.RSAPublicKey(ldr2)
 
-            print(src_pub, dest_pub, "---", sep='\n')
+            print(src_pub, dest_pub, "---", sep="\n")
 
             return (
                 int(row[field("src")]),
@@ -127,6 +165,9 @@ class LedgerLoader:
         ledgers: list[Ledger] = []
 
         for group in transactions:
-            ledgers.append(Ledger(group))
+            ledger = Ledger()
+            for trn in group:
+                ledger.append(trn)
+            ledgers.append(ledger)
 
         return ledgers

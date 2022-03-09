@@ -66,12 +66,7 @@ class TestLedger(unittest.TestCase):
             self.valid._verify_transactions()
 
         # sign transactions in ledger; not normal procedure so contrived
-        for trn in self.valid.ledger:
-            trn.sign(self.d_m_t_keys[trn.src], origin='src')
-            trn.sign(self.d_m_t_keys[trn.dest], origin='dest')
-            print('verifying...')
-            trn.verify()
-            print('verified')
+        self.sign()
 
         with self.subTest('signed'):
             self.valid._verify_transactions()
@@ -84,12 +79,7 @@ class TestLedger(unittest.TestCase):
 
     def test_as_flow(self):
         # sign ledger
-        for trn in self.valid.ledger:
-            trn.sign(self.d_m_t_keys[trn.src], origin='src')
-            trn.sign(self.d_m_t_keys[trn.dest], origin='dest')
-            print('verifying...')
-            trn.verify()
-            print('verified')
+        self.sign()
 
         Vertex = src.simplify.graph_objects.Vertex
 
@@ -98,9 +88,36 @@ class TestLedger(unittest.TestCase):
         exp.add_edge(d, (m, 10), (t, 5))
         exp.add_edge(t, (m, 5))
 
-        self.valid._as_flow()
+        as_flow = self.valid._as_flow()
 
         with self.subTest('nodes'):
             self.assertEqual(exp.nodes(), self.valid.nodes)
 
-        self.assertEqual(exp, self.valid._as_flow())
+        with self.subTest('to flow graph'):
+            self.assertEqual(exp, as_flow)
+
+    def sign(self):
+        for trn in self.valid.ledger:
+            trn.sign(self.d_m_t_keys[trn.src], origin='src')
+            trn.sign(self.d_m_t_keys[trn.dest], origin='dest')
+            print('verifying...')
+            trn.verify()
+            print('verified')
+
+    def test_flow_to_transactions(self):
+        self.maxDiff = None
+        self.sign()
+        as_flow = self.valid._as_flow()
+
+        # remove sigs, ID, for comparison
+        trn: Transaction
+        for trn in self.valid.ledger:
+            trn.ID = 0
+            trn.signatures = {}
+
+        with self.subTest('to transactions'):
+            self.valid.ledger.sort(key=lambda trn: trn.amount)
+            calc: list[Transaction] = self.valid._flow_to_transactions(as_flow)
+            calc.sort(key=lambda trn: trn.amount)
+
+            self.assertEqual(calc, self.valid.ledger)
