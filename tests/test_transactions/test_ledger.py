@@ -2,6 +2,8 @@
 import os
 import unittest
 
+import simplify.flow_graph
+import src.simplify.graph_objects
 from src.transactions.ledger import *
 from src.crypto import keys
 
@@ -79,3 +81,26 @@ class TestLedger(unittest.TestCase):
 
         with self.subTest("invalid key"), self.assertRaises(VerificationError):
             self.invalid._verify_transactions()
+
+    def test_as_flow(self):
+        # sign ledger
+        for trn in self.valid.ledger:
+            trn.sign(self.d_m_t_keys[trn.src], origin='src')
+            trn.sign(self.d_m_t_keys[trn.dest], origin='dest')
+            print('verifying...')
+            trn.verify()
+            print('verified')
+
+        Vertex = src.simplify.graph_objects.Vertex
+
+        exp = simplify.flow_graph.FlowGraph([Vertex(ID=4), Vertex(ID=13), Vertex(ID=20)])
+        d, m, t = exp.nodes()
+        exp.add_edge(d, (m, 10), (t, 5))
+        exp.add_edge(t, (m, 5))
+
+        self.valid._as_flow()
+
+        with self.subTest('nodes'):
+            self.assertEqual(exp.nodes(), self.valid.nodes)
+
+        self.assertEqual(exp, self.valid._as_flow())

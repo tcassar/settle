@@ -2,6 +2,8 @@
 
 from src.transactions.transaction import Transaction, VerificationError
 from src.crypto import keys
+from src.simplify.graph_objects import Vertex
+import src.simplify.flow_graph as flow
 
 import csv
 from dataclasses import dataclass, field
@@ -20,6 +22,7 @@ class Ledger:
     # ledger, big list of transactions;
     # TODO: maybe make ledger generator
     ledger: list[Transaction] = field(default_factory=lambda: [])
+    nodes: list[Vertex] = field(default_factory=lambda: [])
 
     def __bool__(self):
         """False if ledger empty"""
@@ -44,6 +47,24 @@ class Ledger:
         for trn in self.ledger:
             trn.verify()
 
+    def _as_flow(self):
+        """Returns ledger as a flow graph"""
+        # Extract IDs involved -> nodes
+        nodes: set[Vertex] = set()
+        for trn in self.ledger:
+            nodes.add(Vertex(trn.src))
+            nodes.add(Vertex(trn.dest))
+
+        self.nodes = list(nodes)
+        self.nodes.sort(key=lambda node: node.ID)
+
+        # build flow graph with nodes
+        as_flow = flow.FlowGraph(self.nodes)
+
+        for trn in self.ledger:
+            as_flow.add_edge(Vertex(trn.src), (Vertex(trn.dest), trn.amount))
+
+        return as_flow
 
 class LedgerLoader:
     @staticmethod
