@@ -5,8 +5,8 @@ CREATE TABLE groups (
 
 CREATE TABLE keys (
     key_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    key_n INTEGER,
-    key_e INTEGER
+    key_n BLOB,  -- 256bit modulus
+    key_e BLOB   -- 4 bit pub exp
 );
 
 CREATE TABLE group_link (
@@ -48,8 +48,9 @@ CREATE TABLE transactions (
     dest_key INTEGER,
     reference TEXT,
     time_of_creation TEXT,
-    src_sig TEXT,
-    dest_sig TEXT,
+    src_sig BLOB,
+    dest_sig BLOB,
+    settled INTEGER NOT NULL DEFAULT 0,-- 0 or 1
 
     FOREIGN KEY(pair_id) REFERENCES pairs(pair_id),
     FOREIGN KEY(group_id) REFERENCES groups(group_id)
