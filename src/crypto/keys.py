@@ -41,7 +41,7 @@ class RSAKeyLoader:
 
         try:
             if not os.path.exists(path_to_private_key):
-                raise RSAParserError(f"File not found at current path: \n{os.getcwd()}")
+                raise RSAParserError(f"File not found at current path: \n{path_to_private_key}")
             key = str(
                 subprocess.check_output(
                     f"openssl rsa -noout -text < {path_to_private_key}", shell=True
