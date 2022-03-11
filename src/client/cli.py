@@ -8,14 +8,17 @@ import src.crypto.hashes as hasher
 def settle(): ...
 
 
+@click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option('--email', prompt=True)
 @settle.command()
-def login():
-    click.echo('Username: ')
-    email: str = input()
-    # TODO: offload to server
+def login(email, password):
 
-    click.echo('Password: ')
-    passwd: bytes = hasher.Hasher(input().encode(encoding='utf8')).digest().h
-    # TODO: offload to server, wait for OKAY
+    password: bytes = hasher.Hasher(password.encode(encoding='utf8')).digest().h
 
-    click.echo(f'{email}, {passwd!r}')
+    # TODO: offload both to server, wait for OKAY
+
+    click.echo(f'{email}, {password!r}')
+
+
+@settle.command()
+def create_account(): ...
