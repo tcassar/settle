@@ -1,0 +1,3 @@
+[console_scripts]
+login = client.cli:settle
+

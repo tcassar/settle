@@ -1,0 +1,7 @@
+cli.py
+setup.py
+settle.egg-info/PKG-INFO
+settle.egg-info/SOURCES.txt
+settle.egg-info/dependency_links.txt
+settle.egg-info/entry_points.txt
+settle.egg-info/top_level.txt

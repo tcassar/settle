@@ -1,0 +1,4 @@
+digraph { 4 -> 13 [label="  0/15  "]
+13 -> 4 [label="  0/0  ", color=red]
+20
+ }

@@ -1,11 +1,5 @@
 setup.py
-Settle.egg-info/PKG-INFO
-Settle.egg-info/SOURCES.txt
-Settle.egg-info/dependency_links.txt
-Settle.egg-info/entry_points.txt
-Settle.egg-info/top_level.txt
 client/__init__.py
-client/__main__.py
 client/cli.py
 crypto/__init__.py
 crypto/hashes.py
@@ -14,6 +8,11 @@ crypto/rsa.py
 server/__init__.py
 server/db_handler.py
 server/endpoint.py
+settle.egg-info/PKG-INFO
+settle.egg-info/SOURCES.txt
+settle.egg-info/dependency_links.txt
+settle.egg-info/entry_points.txt
+settle.egg-info/top_level.txt
 simplify/__init__.py
 simplify/base_graph.py
 simplify/flow_algorithms.py

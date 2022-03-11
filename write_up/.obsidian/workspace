@@ -7,11 +7,9 @@
         "id": "2236675a1844b00e",
         "type": "leaf",
         "state": {
-          "type": "markdown",
+          "type": "image",
           "state": {
-            "file": "README.md",
-            "mode": "source",
-            "source": false
+            "file": "images/big graph settle.svg"
           }
         }
       }
@@ -69,7 +67,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
+                "file": "images/big graph settle.svg",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -89,9 +87,9 @@
   },
   "active": "2236675a1844b00e",
   "lastOpenFiles": [
-    "README.md",
     "images/big graph settle.svg",
     "images/big settled.svg",
+    "README.md",
     "README.pdf",
     "images/residual edge.png",
     "images/residual edge 1.png",
