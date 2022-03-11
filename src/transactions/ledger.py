@@ -1,10 +1,10 @@
 # coding=utf-8
 
-from src.simplify.flow_algorithms import Simplify
+from src.simplify.flow_algorithms import Simplify, SettleError
 import src.simplify.flow_graph as flow
 from src.crypto import keys
 from src.simplify.graph_objects import Vertex
-from src.transactions.transaction import Transaction
+from src.transactions.transaction import Transaction, VerificationError
 
 import csv
 import os
@@ -80,7 +80,7 @@ class Ledger:
 
         new_trns: list[Transaction] = []
 
-        edge: src.simplify.flow_graph.FlowEdge
+        edge: flow.FlowEdge
 
         # go through every outgoing transaction by person
         for person, adj_list in fg.graph.items():
@@ -93,6 +93,7 @@ class Ledger:
                 else:
                     # generate UNSIGNED transactions
                     # TODO: let db handle id; keep it initialised to 0
+                    edge: flow.FlowEdge  # type: ignore
                     trn = Transaction(
                         edge.src.ID,
                         edge.node.ID,
@@ -109,13 +110,20 @@ class Ledger:
         # build ledger as a flow graph
         fg = self._as_flow()
         fg.to_dot(title='pre_settle')
-        simplified_fg = Simplify.simplify_debt(fg)
+        try:
+            simplified_fg = Simplify.simplify_debt(fg)
 
-        # settle, update ledger
-        simplified_fg.to_dot(title='settled')
-        self.ledger = self._flow_to_transactions(simplified_fg)
+            # settle, update ledger
+            simplified_fg.to_dot(title='settled')
+            self.ledger = self._flow_to_transactions(simplified_fg)
 
+        except SettleError:
+            # no changes made to graph, keep ledger as is, with sigs.
+            print('Graph already at few transactions per person; no optimisations found')
 
+        except VerificationError as ve:
+            # let verification error propagate up
+            raise ve
 
 
 class LedgerLoader:
@@ -125,7 +133,7 @@ class LedgerLoader:
 
         print("loading from csv")
 
-        def field(str_: str) -> int:
+        def get_field(str_: str) -> int:
             return header.index(str_)
 
         def build_trn() -> tuple[
@@ -133,26 +141,26 @@ class LedgerLoader:
         ]:
 
             ldr = keys.RSAKeyLoaderFromNumbers()
-            ldr.load(n=int(row[field("src_n")]), e=int(row[field("src_e")]))  # type: ignore
+            ldr.load(n=int(row[get_field("src_n")]), e=int(row[get_field("src_e")]))  # type: ignore
             src_pub: keys.RSAPublicKey = keys.RSAPublicKey(ldr)
 
             ldr2 = keys.RSAKeyLoaderFromNumbers()
-            ldr2.load(n=int(row[field("dest_n")]), e=int(row[field("dest_e")]))  # type: ignore
+            ldr2.load(n=int(row[get_field("dest_n")]), e=int(row[get_field("dest_e")]))  # type: ignore
             dest_pub: keys.RSAPublicKey = keys.RSAPublicKey(ldr2)
 
             print(src_pub, dest_pub, "---", sep="\n")
 
             return (
-                int(row[field("src")]),
-                int(row[field("dest")]),
-                int(row[field("amount")]),
+                int(row[get_field("src")]),
+                int(row[get_field("dest")]),
+                int(row[get_field("amount")]),
                 src_pub,
                 dest_pub,
-                int(row[field("ID")]),
+                int(row[get_field("ID")]),
             )
 
         if not os.path.exists(path):
-            raise FileNotFoundError(f"File not found at current path: \n{os.getcwd()}")
+            raise FileNotFoundError(f"File not found at current path: \n{os.getcwd()};\nsearched for {path}")
 
         transactions: list[list[Transaction]] = []
 
@@ -170,7 +178,7 @@ class LedgerLoader:
                 trn = Transaction(*build_trn())
 
                 try:
-                    transactions[int(row[field("group")])].append(trn)
+                    transactions[int(row[get_field("group")])].append(trn)
 
                 except IndexError:
                     # make position at group if not made yet (assuming consecutive 0 indexed group numbers
