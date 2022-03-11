@@ -1,5 +1,0 @@
-client
-crypto
-server
-simplify
-transactions

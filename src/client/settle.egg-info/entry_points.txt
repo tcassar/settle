@@ -1,3 +1,0 @@
-[console_scripts]
-login = cli:settle
-
