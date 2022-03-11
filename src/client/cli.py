@@ -4,7 +4,6 @@ import src.crypto.hashes as hasher
 import src.crypto.keys as keys
 
 import click
-from click.shell_completion import add_completion_class
 
 
 @click.group()
