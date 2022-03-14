@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 import unittest
 
 import src.simplify.flow_graph
@@ -10,11 +11,12 @@ from src.transactions.transaction import VerificationError
 
 def setUpModule():
     print(os.getcwd())
+    os.chdir('/home/tcassar/projects/settle')
 
 
 def key_path(usr: str, keytype='private') -> str:
     assert usr == "d" or usr == "m" or usr == "t"
-    return f"../src/crypto/sample_keys/{usr}_{keytype}-key.pe{'m' if keytype == 'private' else ''}"
+    return f"./src/crypto/sample_keys/{usr}_{keytype}-key.pe{'m' if keytype == 'private' else ''}"
 
 
 class TestLedger(unittest.TestCase):
@@ -38,7 +40,7 @@ class TestLedger(unittest.TestCase):
         self.d_priv, self.m_priv, self.t_priv = self.d_m_t_keys.values()
 
         self.valid, self.missing_key, self.invalid = LedgerLoader.load_from_csv(
-            "./test_transactions/database.csv"
+            "./tests/test_transactions/database.csv"
         )
 
     def test_add(self):
@@ -53,7 +55,7 @@ class TestLedger(unittest.TestCase):
             ledger.append(6)  # type: ignore
 
     def test_load_from_csv(self):
-        ledger_list = LedgerLoader.load_from_csv("./test_transactions/database.csv")
+        ledger_list = LedgerLoader.load_from_csv("./tests/test_transactions/database.csv")
         self.assertEqual(len(ledger_list), 3)
 
     def test_verify_transactions(self):
