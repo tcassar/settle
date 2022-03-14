@@ -8,7 +8,8 @@ import subprocess
 from dataclasses import dataclass, field
 
 
-class RSAKeyLoaderFromNumbers: ...
+class RSAKeyLoaderFromNumbers:
+    ...
 
 
 class RSAKeyError(Exception):
@@ -41,7 +42,9 @@ class RSAKeyLoader:
 
         try:
             if not os.path.exists(path_to_private_key):
-                raise RSAParserError(f"File not found at current path: \n{path_to_private_key}")
+                raise RSAParserError(
+                    f"File not found at current path: \n{path_to_private_key}"
+                )
             key = str(
                 subprocess.check_output(
                     f"openssl rsa -noout -text < {path_to_private_key}", shell=True
@@ -101,7 +104,7 @@ class RSAPublicKey:
         self.lookup = loader.lookup
 
     def __str__(self):
-        return f'n={self.n},\ne={self.e}\n'
+        return f"n={self.n},\ne={self.e}\n"
 
     def __getattr__(self, item: str) -> int:
         """Redefine getattr so that will only give n and e"""
@@ -113,10 +116,12 @@ class RSAPublicKey:
     def _exists(self, item) -> bool:
         """Returns an attribute if it exists else raise an RSAKeyError"""
         if self.lookup is not None:
-            if self.lookup[item] is not None:
-                return True
-        else:
-            raise RSAKeyError("Requested attribute not found; have you parsed a key?")
+            try:
+                return not not self.lookup[item]
+            except KeyError:
+                raise RSAKeyError(
+                    "Requested attribute not found; have you parsed a key?"
+                )
 
 
 @dataclass
@@ -124,10 +129,10 @@ class RSAKeyLoaderFromNumbers:  # type: ignore
     lookup: dict[str, int] = field(default_factory=lambda: {})
 
     def load(self, *, n: int, e: int, d: int = 0) -> None:
-        self.lookup['n'] = n
-        self.lookup['e'] = e
+        self.lookup["n"] = n
+        self.lookup["e"] = e
         if d:
-            self.lookup['d'] = d
+            self.lookup["d"] = d
 
     def pub_key(self) -> RSAPublicKey:
         return RSAPublicKey(self)
@@ -137,9 +142,8 @@ class RSAKeyLoaderFromNumbers:  # type: ignore
 
 
 class RSAPrivateKey(RSAPublicKey):
-
     def __str__(self):
-        return f'n={self.n},\ne={self.e},\nd={self.d}'
+        return f"n={self.n},\ne={self.e},\nd={self.d}"
 
     def __getattr__(self, item: str) -> int:
         """
@@ -156,7 +160,7 @@ class RSAPrivateKey(RSAPublicKey):
         if self._exists(item):
             return self.lookup[item]
         else:
-            raise AttributeError
+            raise RSAKeyError
 
 
 class TestPubKey(RSAPublicKey):
