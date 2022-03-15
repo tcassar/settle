@@ -28,7 +28,7 @@ def login(email, password):
     click.secho(f"login successful for {email}", fg="green")
 
 
-@click.option("--pub_key", prompt="Path to RSA key")
+@click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
 @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
 @click.option("--email", prompt=True)
 @click.option("--name", prompt="Full Name")
@@ -66,42 +66,65 @@ def register(name, email, password, pub_key):
 
 @settle.command()
 def whoami():
-    """gives your name, email, public key numbers in bytes"""
+    """gives your name, email, public key numbers"""
     ...
 
+
+@click.option('-g', '--groups', flag_value='groups', default=False)
+@click.option('-t', '--transactions', flag_value='transactions', default=False)
+@settle.command()
+def show(transactions, groups):
+    """Shows all of your open transactions / groups along with IDs"""
+
+    # note: flags are None or True for some godforsaken reason
+
+    # show both if no flags
+    if not transactions and not groups:
+        transactions = groups = True
+
+    click.echo(f'{transactions}, {groups}')
 
 # |----------------|
 # |  TRANSACTIONS  |
 # |----------------|
 
 
+@click.argument('key_path')
+@click.argument('transaction_id')
 @settle.command()
-def sign():
-    ...
+def sign(transaction_id, key_path):
+    """Signs a transaction given an ID and a path to key"""
 
 
+@click.option('-g', '--groups', flag_value='groups', default=False)
+@click.option('-t', '--transactions', flag_value='transactions', default=False)
 @settle.command()
-def verify():
-    ...
+def verify(groups, transactions):
+    """Verifies either given transaction or a group; pass in by ID"""
 
 
 # |----------|
 # |  GROUPS  |
 # |----------|
 
-
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+@click.argument('group_id')
 @settle.command()
-def join():
+def join(password, group_id):
     ...
 
 
+@click.argument('group_id')
 @settle.command()
-def leave():
-    ...
+def leave(group_id):
+    """If your net debt within a group is 0, you can leave a group"""
 
 
+@click.argument('group_id')
 @settle.command()
-def simplify():
+def simplify(group_id):
+    """Will settle the group; can be done by anyone at anytime;
+    everyone signs newly generated transactions if new transactions are generated"""
     ...
 
 
@@ -111,12 +134,16 @@ def simplify():
 
 # TODO: specify group or trn, show by id
 
-
+@click.option('-g', '--groups', flag_value='groups', default=False)
+@click.option('-t', '--transactions', flag_value='transactions', default=False)
 @settle.command()
-def new():
+def new(groups, transactions):
+    """generate a new transaction or group"""
+    if groups and transactions:
+        click.secho(f'Cannot handle both new group and new transaction; one at a time please', fg='yellow')
+
+
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+def new_group(password):
     ...
 
-
-@settle.command()
-def show():
-    ...
