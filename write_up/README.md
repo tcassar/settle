@@ -168,9 +168,9 @@ The augmenting path is a path of edges in the residual graph, where each edge ha
 **Residual Graph** and **Residual Edges**
 The residual graph is the combination of the flow graph , and residual edges. For each original edge from $u$ -> $v$ , with capacity $c$, there exists a residual edge from $v$ -> $u$, with capacity $-c$ 
 
-![[residual edge 1.png|400]]
+![[residual edge 1.svg|400]]
 
-Residual edges are valid edges to consider when looking for an augmenting path, given that they have unused capacity (the above example's residual edge has an unused capacity c, as $0 - -c = c$)
+Residual edges are valid edges to consider when looking for an augmenting path, given that they have unused capacity (the above example's residual edge has an unused capacity c, as $0 - 0 = 0$)
 
 **Augmenting the flow**
 The act of pushing as much flow as possible along an augmenting path. 
@@ -209,7 +209,11 @@ Since Edmonds-Karp's runtime is independent of flow, its input, it is classed as
 ### Settling a graph using a Max Flow algorithm
 Having explored various max flow algorithms, the question now becomes how to settle an entire graph's worth of debt. This is a fairly challenging problem since max flow algorithms only work on a source node an sink node.
 
+==talk about what I found, why it didn't work, what i did?==
+
 The solution is to walk through the graph, and run a max flow from the current node to each of their neighbours. 
+
+
 
 ![[big graph settle.svg|300]]
 

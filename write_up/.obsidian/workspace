@@ -7,9 +7,11 @@
         "id": "2236675a1844b00e",
         "type": "leaf",
         "state": {
-          "type": "image",
+          "type": "markdown",
           "state": {
-            "file": "images/big graph settle.svg"
+            "file": "notes.md",
+            "mode": "source",
+            "source": false
           }
         }
       }
@@ -67,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "images/big graph settle.svg",
+                "file": "notes.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -87,15 +89,15 @@
   },
   "active": "2236675a1844b00e",
   "lastOpenFiles": [
-    "images/big graph settle.svg",
-    "images/big settled.svg",
+    "notes.md",
     "README.md",
+    "images/residual edge 1.png",
+    "images/big settled.svg",
+    "images/big graph settle.svg",
     "README.pdf",
     "images/residual edge.png",
-    "images/residual edge 1.png",
     "images/pre settle simple.png",
     "images/evenfy_ui.png",
-    "images/basic_settle.png",
-    "images/splitwise_ui.png"
+    "images/basic_settle.png"
   ]
 }

@@ -57,7 +57,7 @@ class Transaction(Signable):
             .h
         )
 
-    # IMPORTANT: CANNOT USE DUNDER HASH AS PYTHON DOES WEIRD HASH COMPRESSION
+    # note: IMPORTANT: CANNOT USE DUNDER HASH AS PYTHON DOES WEIRD HASH COMPRESSION
     def __hash__(self):
         raise NotImplementedError("__hash__ cannot be used, used .hash() method")
 

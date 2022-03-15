@@ -1,2 +1,8 @@
-## Edges in a flow graph
-### Real edge
+# API Resources
+
+```
+
+Users
+get usr/<id>  # whoami
+
+```
