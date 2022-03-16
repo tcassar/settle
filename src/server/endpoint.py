@@ -41,23 +41,33 @@ class Group(Resource):
 
 
 class User(Resource):
-    def get(self, uid: int):
+    def get(self, email: str):
         # query db for all users
         cursor = get_db().cursor()
 
         query = """
-                 SELECT users.name, users.email, keys.key_n, keys.key_e
+                 SELECT users.name, users.email, keys.n, keys.e
                  FROM users, keys
-                 WHERE usr_id = ? AND keys.key_id = users.key_id;
+                 WHERE email = ? AND keys.key_id = users.key_id;
                 """
 
-        usr_data = cursor.execute(query, [uid]).fetchall()[0]
+        # only return one usr, so unpack row into usr_data
+        try:
+            usr_data: list = cursor.execute(query, [email]).fetchall()[0]
+        except IndexError:
+            # returned blank info
+            return 'User data not found', 404
 
         # use data to build user class
         # use schema to convert to json
 
-        usr = models.User(*[item for item in usr_data])
-        schema = schemas.UserSchema()
+        try:
+            # make sure the requested user exists
+            usr = models.User(*[item for item in usr_data])
+            schema = schemas.UserSchema()
+        except TypeError:
+            # didn't have required arguments to build usr
+            return 'Not enough user data', 404
 
         return schema.dump(usr), 200
 
@@ -71,7 +81,7 @@ class Transaction(Resource):
 
 api.add_resource(Group, "/group/<int:group_id>")
 api.add_resource(Transaction, "/transaction")
-api.add_resource(User, "/user/<int:uid>")
+api.add_resource(User, "/user/<string:email>")
 
 
 @click.group()

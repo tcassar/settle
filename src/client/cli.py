@@ -1,9 +1,23 @@
 # coding=utf-8
 
 import click
+import requests
 
 import src.crypto.hashes as hasher
 import src.crypto.keys as keys
+import src.server.schemas as schemas
+
+
+SERVER = "http://127.0.0.1:5000/"
+
+
+def url(query: str) -> str:
+    return SERVER + query
+
+
+def check_response(response: requests.Response):
+    if response.status_code == 404:
+        click.secho(f'ERROR: {response.text}', fg='red')
 
 
 @click.group()
@@ -64,10 +78,20 @@ def register(name, email, password, pub_key):
         click.secho(f"Account could not be created")
 
 
+@click.argument('email')
 @settle.command()
-def whoami():
+def whois(email):
     """gives your name, email, public key numbers"""
-    ...
+    usr_response: requests.Response = requests.get(url(f'/user/{email}'))
+    check_response(usr_response)
+
+    # build a user from received data
+
+    schema = schemas.UserSchema()
+    result = schema.load(usr_response.json())
+    pprint(result)
+
+
 
 
 @click.option('-g', '--groups', flag_value='groups', default=False)
