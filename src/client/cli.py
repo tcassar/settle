@@ -11,18 +11,20 @@ import src.server.models as models
 
 SERVER = "http://127.0.0.1:5000/"
 
+def hash_password(password) -> str:
+    return str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
+
 
 def url(query: str) -> str:
     return SERVER + query
 
 
 def invalid_response(response: requests.Response) -> bool:
-    if str(response.status_code)[0] == '4':
+    if str(response.status_code)[0] != '2':
         e = response.json()['message']
         click.secho(f"ERROR: {e}", fg="red")
         return True
-    else:
-        return False
+
 
 
 @click.group()
@@ -35,16 +37,16 @@ def settle():
 # |--------|
 
 
-# @click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
-# @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
-# @click.option("--email", prompt=True)
-# @click.option("--name", prompt="Full Name")
+@click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option("--email", prompt=True)
+@click.option("--name", prompt="Full Name")
 @settle.command()
 def register(
-    name='t',
-    email='t@t.com',
-    password='brav',
-    pub_key='/home/tcassar/projects/settle/src/crypto/sample_keys/t_private-key.pem',
+    name,
+    email,
+    password,
+    pub_key,
 ):
     """Register to settle, using email, passwd, and an RSA public key"""
 
@@ -62,7 +64,7 @@ def register(
         )
         return
 
-    password: str = str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
+    password: str = hash_password(password)
     n_as_bytes = pub_key.n.to_bytes(256, sys.byteorder)
 
     usr = models.User(
@@ -143,8 +145,8 @@ def verify(groups, transactions):
 # |  GROUPS  |
 # |----------|
 
-
 @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option("--email", prompt=True)
 @click.argument("group_id")
 @settle.command()
 def join(password, group_id):
@@ -171,19 +173,19 @@ def simplify(group_id):
 
 # TODO: specify group or trn, show by id
 
-
-@click.option("-g", "--groups", flag_value="groups", default=False)
-@click.option("-t", "--transactions", flag_value="transactions", default=False)
-@settle.command()
-def new(groups, transactions):
-    """generate a new transaction or group"""
-    if groups and transactions:
-        click.secho(
-            f"Cannot handle both new group and new transaction; one at a time please",
-            fg="yellow",
-        )
-
-
 @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
-def new_group(password):
-    ...
+@click.option("--name", prompt=True)
+@settle.command(name='new-group')
+def new_group(name, password):
+
+    schema = schemas.GroupSchema()
+    group = models.Group(name, hash_password(password))
+
+    as_json = schema.dump(group)
+    response = requests.post(url('group'), json=as_json)
+
+    if invalid_response(response):
+        return
+    else:
+        click.secho(response.text, fg='green')
+        click.secho('You can join this group with `settle join`')

@@ -37,7 +37,19 @@ def close_connection(exception):
 
 
 class Group(Resource):
-    ...
+    def post(self):
+
+        # print(request.json)
+        schema = schemas.GroupSchema()
+        group = schema.load(request.json)
+
+        cursor = get_db().cursor()
+
+        cursor.execute("""INSERT INTO groups (name, group_password) VALUES (?, ?)""", [group['name'], group['password']])
+
+        get_db().commit()
+
+        return f'Created group ID={cursor.lastrowid} named {group["name"]}', 201
 
 
 class User(Resource):
@@ -110,7 +122,7 @@ class Transaction(Resource):
     ...
 
 
-api.add_resource(Group, "/group/<int:group_id>")
+api.add_resource(Group, "/group/<int:group_id>", "/group",)
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
 

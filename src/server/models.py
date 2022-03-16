@@ -17,3 +17,12 @@ Email:\t{self.email}
 Modulus:\t{self.modulus},
 Public Exponent:\t{self.pub_exp}
                 """
+
+
+@dataclass
+class Group:
+    name: str
+    password: str
+
+    def __repr__(self):
+        return f'Group({self.name}, {self.password})'
