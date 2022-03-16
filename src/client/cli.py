@@ -1,4 +1,5 @@
 # coding=utf-8
+from dataclasses import dataclass
 
 import src.crypto.hashes as hasher
 import src.crypto.keys as keys
