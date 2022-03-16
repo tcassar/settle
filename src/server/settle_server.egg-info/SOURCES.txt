@@ -1,7 +1,0 @@
-endpoint.py
-setup.py
-settle_server.egg-info/PKG-INFO
-settle_server.egg-info/SOURCES.txt
-settle_server.egg-info/dependency_links.txt
-settle_server.egg-info/entry_points.txt
-settle_server.egg-info/top_level.txt

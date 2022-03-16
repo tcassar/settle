@@ -1,15 +1,14 @@
 # coding=utf-8
 
-from src.server import schemas as schemas
-from src.server import models as models
-
-
 import os
+import sqlite3
+
 import click
 from flask import Flask, g
 from flask_restful import Resource, Api
-import sqlite3
-import json
+
+from src.server import models as models
+from src.server import schemas as schemas
 
 app = Flask(__name__)
 api = Api(app)

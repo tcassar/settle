@@ -1,14 +1,14 @@
 # coding=utf-8
 
-from src.simplify.flow_algorithms import Simplify, SettleError
-import src.simplify.flow_graph as flow
-from src.crypto import keys
-from src.simplify.graph_objects import Vertex
-from src.transactions.transaction import Transaction, VerificationError
-
 import csv
 import os
 from dataclasses import dataclass, field
+
+import src.simplify.flow_graph as flow
+from src.crypto import keys
+from src.simplify.flow_algorithms import Simplify, SettleError
+from src.simplify.graph_objects import Vertex
+from src.transactions.transaction import Transaction, VerificationError
 
 
 class LedgerBuildError(Exception):

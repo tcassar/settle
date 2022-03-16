@@ -1,3 +1,0 @@
-[console_scripts]
-settle = src.client.cli:settle
-

@@ -1,10 +1,9 @@
 # coding=utf-8
-from dataclasses import dataclass
+
+import click
 
 import src.crypto.hashes as hasher
 import src.crypto.keys as keys
-
-import click
 
 
 @click.group()
