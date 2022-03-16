@@ -1,14 +1,15 @@
 # coding=utf-8
 
-import os
-import sqlite3
+from src.server import models as models
+from src.server import schemas as schemas
 
 import click
 from flask import Flask, g
 from flask_restful import Resource, Api
+import os
+import sqlite3
 
-from src.server import models as models
-from src.server import schemas as schemas
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -72,7 +73,7 @@ class User(Resource):
         return schema.dump(usr), 200
 
     def post(self):
-        ...
+        return 'received', 201
 
 
 class Transaction(Resource):
@@ -81,7 +82,8 @@ class Transaction(Resource):
 
 api.add_resource(Group, "/group/<int:group_id>")
 api.add_resource(Transaction, "/transaction")
-api.add_resource(User, "/user/<string:email>")
+api.add_resource(User, "/user/<string:email>",
+                 "/user")
 
 
 @click.group()

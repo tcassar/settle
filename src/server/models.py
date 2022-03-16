@@ -7,8 +7,9 @@ from dataclasses import dataclass
 class User:
     name: str
     email: str
-    modulus: bytes
+    modulus: str
     pub_exp: bytes
+    password: bytes = b''
 
     def __str__(self):
         return f"""Name: {self.name}

@@ -14,6 +14,7 @@ class UserSchema(Schema):
     def make_user(self, data, **kwargs):
         return User(**data)
 
+
 class TransactionSchema(Schema):
     ...
 
