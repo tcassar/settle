@@ -77,5 +77,3 @@ class TestTransaction(unittest.TestCase):
             # edit pub key, thus should fail
             self.pub_key.lookup["n"] = 3
             self.trn.verify()
-
-

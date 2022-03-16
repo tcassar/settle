@@ -5,6 +5,7 @@ Handles transaction object
 """
 
 import datetime
+
 # coding=utf-8
 import sys
 from abc import ABC, abstractmethod
@@ -106,7 +107,7 @@ class Transaction(Signable):
             for sig in [self.src, self.dest]:
                 _ = self.signatures[sig]
         except KeyError:
-            raise VerificationError(f'Has not been signed by USRID {sig}')
+            raise VerificationError(f"Has not been signed by USRID {sig}")
 
         # build list of keys to verif
         usr_keys = [self.src_pub, self.dest_pub]
@@ -119,6 +120,4 @@ class Transaction(Signable):
         for key, origin in zip(usr_keys, [self.src, self.dest]):
             hash_from_sig = rsa.RSA.inv_sig(self.signatures[origin], key)
             if hash_from_sig != hash_from_obj:
-                raise VerificationError(f'{self.src} sig invalid')
-
-
+                raise VerificationError(f"{self.src} sig invalid")

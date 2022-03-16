@@ -4,11 +4,10 @@ from src.server import models as models
 from src.server import schemas as schemas
 
 import click
-from flask import Flask, g
-from flask_restful import Resource, Api
+from flask import Flask, g, request
+from flask_restful import Resource, Api, abort
 import os
 import sqlite3
-
 
 
 app = Flask(__name__)
@@ -42,6 +41,7 @@ class Group(Resource):
 
 
 class User(Resource):
+    
     def get(self, email: str):
         # query db for all users
         cursor = get_db().cursor()
@@ -68,12 +68,34 @@ class User(Resource):
             schema = schemas.UserSchema()
         except TypeError:
             # didn't have required arguments to build usr
-            return 'Not enough user data', 404
+            return "User data invalid", 404
 
         return schema.dump(usr), 200
 
     def post(self):
-        return 'received', 201
+
+        cursor = get_db().cursor()
+
+        # now is a user object
+        schema = schemas.UserSchema()
+        usr = schema.load(request.json)
+
+        print(usr)
+        print(usr.password)
+
+        # add user to db
+
+        keys_query = """INSERT INTO keys (n, e)
+                        VALUES (?, ?)"""
+
+        users_query = """INSERT INTO users (NAME, EMAIL, PASSWORD, KEY_ID)
+                         VALUES (?, ?, ?, ?)"""
+
+        cursor.execute(keys_query, [usr.modulus, usr.pub_exp])
+
+        key_id = cursor.lastrowid
+        cursor.execute(users_query, [usr.name, usr.email, usr.password, key_id])
+        get_db().commit()
 
 
 class Transaction(Resource):
@@ -82,8 +104,7 @@ class Transaction(Resource):
 
 api.add_resource(Group, "/group/<int:group_id>")
 api.add_resource(Transaction, "/transaction")
-api.add_resource(User, "/user/<string:email>",
-                 "/user")
+api.add_resource(User, "/user/<string:email>", "/user")
 
 
 @click.group()

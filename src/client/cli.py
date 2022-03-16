@@ -41,9 +41,9 @@ def settle():
 # @click.option("--name", prompt="Full Name")
 @settle.command()
 def register(
-    name="t",
-    email="t",
-    password="t",
+    name="Maia RM",
+    email="maiareymacia@gmail.com",
+    password="wag1",
     pub_key="/home/tcassar/projects/settle/src/crypto/sample_keys/m_private-key.pem",
 ):
     """Register to settle, using email, passwd, and an RSA public key"""
@@ -62,7 +62,7 @@ def register(
         )
         return
 
-    password: bytes = hasher.Hasher(password.encode(encoding="utf8")).digest().h
+    password: str = str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
 
     n_as_bytes = pub_key.n.to_bytes(256, sys.byteorder)
 
@@ -70,7 +70,8 @@ def register(
         name,
         email,
         str(n_as_bytes),
-        pub_key.e.to_bytes(4, sys.byteorder),
+        str(pub_key.e.to_bytes(4, sys.byteorder)),
+        password,
     )
 
     # build json repr of object
@@ -82,7 +83,7 @@ def register(
         print(response)
         click.secho(f"Failed to create account under email {email}", fg="yellow")
     else:
-        click.secho(f"Account created successfully, {usr}", fg="green")
+        click.secho(f"Account created successfully,\n\n{usr}", fg="green")
 
     # TODO: Push info to server
     #   Check that email doesn't already exist

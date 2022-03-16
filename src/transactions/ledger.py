@@ -109,17 +109,19 @@ class Ledger:
     def simplify_ledger(self):
         # build ledger as a flow graph
         fg = self._as_flow()
-        fg.to_dot(title='pre_settle')
+        fg.to_dot(title="pre_settle")
         try:
             simplified_fg = Simplify.simplify_debt(fg)
 
             # settle, update ledger
-            simplified_fg.to_dot(title='settled')
+            simplified_fg.to_dot(title="settled")
             self.ledger = self._flow_to_transactions(simplified_fg)
 
         except SettleError:
             # no changes made to graph, keep ledger as is, with sigs.
-            print('Graph already at few transactions per person; no optimisations found')
+            print(
+                "Graph already at few transactions per person; no optimisations found"
+            )
 
         except VerificationError as ve:
             # let verification error propagate up
@@ -160,7 +162,9 @@ class LedgerLoader:
             )
 
         if not os.path.exists(path):
-            raise FileNotFoundError(f"File not found at current path: \n{os.getcwd()};\nsearched for {path}")
+            raise FileNotFoundError(
+                f"File not found at current path: \n{os.getcwd()};\nsearched for {path}"
+            )
 
         transactions: list[list[Transaction]] = []
 

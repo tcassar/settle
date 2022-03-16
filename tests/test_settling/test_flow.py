@@ -183,7 +183,9 @@ class TestMaxFlow(TestCase):
         a, b, c, d, *_ = self.graph.nodes()
         edges = MaxFlow.nodes_to_path(self.graph, [a, b, c, d])
 
-        self.assertEqual(edges, [FlowEdge(a, b, 10), FlowEdge(b, c, 2), FlowEdge(c, d, 10)])
+        self.assertEqual(
+            edges, [FlowEdge(a, b, 10), FlowEdge(b, c, 2), FlowEdge(c, d, 10)]
+        )
 
     def test_augmenting_path(self):
         a, b, c, d, *_ = self.graph.nodes()
@@ -334,4 +336,3 @@ class TestSimplify(TestCase):  # type: ignore
         with self.assertRaises(NoOptimisations):
             clean = Simplify.simplify_debt(debt)
             clean.to_dot(n=1)
-

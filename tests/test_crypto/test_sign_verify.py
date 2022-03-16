@@ -69,4 +69,3 @@ class TestRSA(TestCase):
         de_sign: bytes = rsa.RSA.inv_sig(sig, self.public)
 
         self.assertEqual(m_bytes, de_sign)
-

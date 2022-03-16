@@ -191,5 +191,3 @@ class FlowGraph(GenericDigraph):
     #     incoming = [(node, incoming_func(node)) for node in self.graph.keys()]
     #     incoming.sort(key=lambda row: row[1], reverse=True)
     #     return [node for node, _ in incoming
-
-

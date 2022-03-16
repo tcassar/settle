@@ -11,10 +11,10 @@ from src.transactions.transaction import VerificationError
 
 def setUpModule():
     print(os.getcwd())
-    os.chdir('/home/tcassar/projects/settle')
+    os.chdir("/home/tcassar/projects/settle")
 
 
-def key_path(usr: str, keytype='private') -> str:
+def key_path(usr: str, keytype="private") -> str:
     assert usr == "d" or usr == "m" or usr == "t"
     return f"./src/crypto/sample_keys/{usr}_{keytype}-key.pe{'m' if keytype == 'private' else ''}"
 
@@ -55,7 +55,9 @@ class TestLedger(unittest.TestCase):
             ledger.append(6)  # type: ignore
 
     def test_load_from_csv(self):
-        ledger_list = LedgerLoader.load_from_csv("./tests/test_transactions/database.csv")
+        ledger_list = LedgerLoader.load_from_csv(
+            "./tests/test_transactions/database.csv"
+        )
         self.assertEqual(len(ledger_list), 3)
 
     def test_verify_transactions(self):
@@ -134,13 +136,6 @@ class TestLedger(unittest.TestCase):
         self.sign()
         self.valid.simplify_ledger()
 
-        trn = Transaction(
-            4,
-            13,
-            15,
-            self.d_pub,
-            self.m_pub
-        )
+        trn = Transaction(4, 13, 15, self.d_pub, self.m_pub)
 
         self.assertEqual(self.valid.ledger, [trn])
-

@@ -21,7 +21,6 @@ class TestRSAKeyLoading(TestCase):
         self.key_path = "./crypto/sample_keys/d_private-key.pem"
         self.pub_key_path = "./crypto/sample_keys/d_public-key.pe"
 
-
     def test_file_loading(self):
         """Tests that file is being loaded correctly assuming correct file"""
 
