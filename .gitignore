@@ -7,3 +7,4 @@ tests/graph_renders
 ./*.egg-info
 /settle.egg-info/
 /src/server/settle_server.egg-info/
+!/src/graph_renders/

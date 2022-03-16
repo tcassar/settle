@@ -1,4 +1,5 @@
 # coding=utf-8
+import sys
 from dataclasses import dataclass
 
 
@@ -8,3 +9,11 @@ class User:
     email: str
     modulus: bytes
     pub_exp: bytes
+
+    def __str__(self):
+        return f"""Name: {self.name}
+Email: {self.email}
+Modulus: {self.modulus},
+Public Exponent: {self.pub_exp}
+                """
+

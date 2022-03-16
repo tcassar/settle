@@ -15,9 +15,13 @@ def url(query: str) -> str:
     return SERVER + query
 
 
-def check_response(response: requests.Response):
+def invalid_response(response: requests.Response) -> bool:
     if response.status_code == 404:
-        click.secho(f'ERROR: {response.text}', fg='red')
+        e = response.text.strip().replace('"', '')
+        click.secho(f'ERROR: {e}', fg='red')
+        return True
+    else:
+        return False
 
 
 @click.group()
@@ -83,14 +87,15 @@ def register(name, email, password, pub_key):
 def whois(email):
     """gives your name, email, public key numbers"""
     usr_response: requests.Response = requests.get(url(f'/user/{email}'))
-    check_response(usr_response)
+    if invalid_response(usr_response):
+        return
 
     # build a user from received data
 
     schema = schemas.UserSchema()
-    result = schema.load(usr_response.json())
-    pprint(result)
+    usr = schema.load(usr_response.json())
 
+    click.secho(str(usr), fg='green')
 
 
 
