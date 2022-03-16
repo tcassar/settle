@@ -5,7 +5,7 @@ from src.server import schemas as schemas
 
 import click
 from flask import Flask, g, request
-from flask_restful import Resource, Api, abort
+from flask_restful import Resource, Api, abort  # type: ignore
 import os
 import sqlite3
 
@@ -80,6 +80,12 @@ class User(Resource):
         schema = schemas.UserSchema()
         usr = schema.load(request.json)
 
+        query = """SELECT usr_id FROM users WHERE email = ?"""
+
+        exists = cursor.execute(query, [usr.email])
+        if exists.fetchall():
+            abort(409, message='User already exists')
+
         print(usr)
         print(usr.password)
 
@@ -95,7 +101,7 @@ class User(Resource):
 
         key_id = cursor.lastrowid
         cursor.execute(users_query, [usr.name, usr.email, usr.password, key_id])
-        get_db().commit()
+        # get_db().commit()
 
 
 class Transaction(Resource):

@@ -17,8 +17,8 @@ def url(query: str) -> str:
 
 
 def invalid_response(response: requests.Response) -> bool:
-    if response.status_code == 404:
-        e = response.text.strip().replace('"', "")
+    if str(response.status_code)[0] == '4':
+        e = response.json()['message']
         click.secho(f"ERROR: {e}", fg="red")
         return True
     else:
@@ -35,16 +35,16 @@ def settle():
 # |--------|
 
 
-# @click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
-# @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
-# @click.option("--email", prompt=True)
-# @click.option("--name", prompt="Full Name")
+@click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option("--email", prompt=True)
+@click.option("--name", prompt="Full Name")
 @settle.command()
 def register(
-    name="Maia RM",
-    email="maiareymacia@gmail.com",
-    password="wag1",
-    pub_key="/home/tcassar/projects/settle/src/crypto/sample_keys/m_private-key.pem",
+    name,
+    email,
+    password,
+    pub_key,
 ):
     """Register to settle, using email, passwd, and an RSA public key"""
 
