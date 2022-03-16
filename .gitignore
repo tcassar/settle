@@ -4,4 +4,6 @@ __pycache__
 .mypy_cache
 tests/graph_renders
 .obsidian
-*.egg-info
+./*.egg-info
+/settle.egg-info/
+/src/server/settle_server.egg-info/
