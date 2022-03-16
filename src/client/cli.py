@@ -35,16 +35,16 @@ def settle():
 # |--------|
 
 
-@click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
-@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
-@click.option("--email", prompt=True)
-@click.option("--name", prompt="Full Name")
+# @click.option("--pub_key", prompt="Path to RSA key", type=click.Path())
+# @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+# @click.option("--email", prompt=True)
+# @click.option("--name", prompt="Full Name")
 @settle.command()
 def register(
-    name,
-    email,
-    password,
-    pub_key,
+    name='t',
+    email='t@t.com',
+    password='brav',
+    pub_key='/home/tcassar/projects/settle/src/crypto/sample_keys/t_private-key.pem',
 ):
     """Register to settle, using email, passwd, and an RSA public key"""
 
@@ -63,7 +63,6 @@ def register(
         return
 
     password: str = str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
-
     n_as_bytes = pub_key.n.to_bytes(256, sys.byteorder)
 
     usr = models.User(
@@ -83,7 +82,8 @@ def register(
         print(response)
         click.secho(f"Failed to create account under email {email}", fg="yellow")
     else:
-        click.secho(f"Account created successfully,\n\n{usr}", fg="green")
+        click.secho(f"Account created successfully", fg="green")
+        click.echo(f'{usr}')
 
     # TODO: Push info to server
     #   Check that email doesn't already exist

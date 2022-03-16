@@ -12,8 +12,8 @@ class User:
     password: str = "default"
 
     def __str__(self):
-        return f"""Name: {self.name}
-Email: {self.email}
-Modulus: {self.modulus},
-Public Exponent: {self.pub_exp}
+        return f"""\nName:\t{self.name}
+Email:\t{self.email}
+Modulus:\t{self.modulus},
+Public Exponent:\t{self.pub_exp}
                 """

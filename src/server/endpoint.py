@@ -101,7 +101,9 @@ class User(Resource):
 
         key_id = cursor.lastrowid
         cursor.execute(users_query, [usr.name, usr.email, usr.password, key_id])
-        # get_db().commit()
+        get_db().commit()
+
+        return schema.dump(usr), 201
 
 
 class Transaction(Resource):

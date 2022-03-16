@@ -9,6 +9,7 @@ class UserSchema(Schema):
     email = fields.Email()
     modulus = fields.Str()
     pub_exp = fields.Str()
+    password = fields.Str()
 
     @post_load
     def make_user(self, data, **kwargs):
