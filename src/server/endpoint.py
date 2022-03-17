@@ -18,6 +18,10 @@ DATABASE = "/home/tcassar/projects/settle/settle_db.sqlite"
 # connecting to and clearing up db
 
 
+class ResourceError(Exception):
+    ...
+
+
 def get_db():
     """Returns current database connection"""
     db = getattr(g, "_database", None)
@@ -26,6 +30,16 @@ def get_db():
         db = g._database = sqlite3.connect(DATABASE)
 
     return db
+
+
+def build_args(data_from_cursor) -> list:
+    if args := data_from_cursor:
+        args = [item for item in args.fetchone()]
+        return args
+    else:
+        raise ResourceError(
+            "Database error: failed to build schema of object as nothing was retrieved"
+        )
 
 
 @app.teardown_appcontext
@@ -46,8 +60,9 @@ class Group(Resource):
 
         try:
             group_data = cursor.execute(get_group, [id])
+
             # create group object
-            group = models.Group(*[item for item in group_data.fetchall()[0]])
+            group = models.Group(*build_args(group_data))
         except IndexError:
             abort(404, message="Group ID does not exist")
         except TypeError as te:
@@ -87,9 +102,9 @@ class User(Resource):
                  WHERE email = ? AND keys.id = users.key_id;
                 """
 
-        # only return one usr, so unpack row into usr_data
+        # only return one usr, so unpack first into usr_data
         try:
-            usr_data: list = cursor.execute(query, [email]).fetchall()[0]
+            usr_data: list = cursor.execute(query, [email]).fetchone()
         except IndexError:
             # returned blank info
             return "User data not found", 404
@@ -122,9 +137,6 @@ class User(Resource):
         if exists.fetchall():
             abort(409, message="User already exists")
 
-        print(usr)
-        print(usr.password)
-
         # add user to db
 
         keys_query = """INSERT INTO keys (n, e)
@@ -142,6 +154,40 @@ class User(Resource):
         return schema.dump(usr), 201
 
 
+class UserGroupBridge(Resource):
+    """For handling users connections to groups
+    POST will add user to group
+    GET will get all groups associated with user"""
+
+    def post(self, id: int, email: str):
+        # assumes these things already exist as they have been validated by client already
+        uid_sql = """SELECT id FROM users WHERE email = ?"""
+
+        glink_sql = """INSERT INTO group_link (group_id, usr_id) 
+                        VALUES (?, ?)"""  # group id then user id
+
+        cursor = get_db().cursor()
+        uid = cursor.execute(uid_sql, [email]).fetchone()[0]
+
+        cursor.execute(glink_sql, [id, uid])
+
+        get_db().commit()
+
+        glink_data = cursor.execute(
+            """SELECT * from group_link WHERE id = ?""", [cursor.lastrowid]
+        )
+
+        try:
+            print('making group')
+            glink = models.GroupLink(*build_args(glink_data))
+        except ResourceError as re:
+            return 404, f'{re}, failed'
+
+        schema = schemas.GroupLinkSchema()
+
+        return schema.dump(glink), 201
+
+
 class Transaction(Resource):
     ...
 
@@ -149,6 +195,7 @@ class Transaction(Resource):
 api.add_resource(Group, "/group/<int:id>", "/group")
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
+api.add_resource(UserGroupBridge, "/group/<int:id>/<string:email>")
 
 
 @click.group()

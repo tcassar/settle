@@ -64,6 +64,7 @@ def verify(groups, transactions):
 def new_group(name, password):
     client.new_group(name, password)
 
+
 #
 # @click.option(
 #     "--group_password",
@@ -80,12 +81,13 @@ def new_group(name, password):
 # @settle.command()
 # def join(email, password, group_id, group_password):
 
+
 @settle.command()
 def join():
-    email = 'cassar.thomas.e@gmail.com'
-    password = 'admin'
+    email = "cassar.thomas.e@gmail.com"
+    password = "admin"
     group_id = 3
-    group_password = 'test'
+    group_password = "test"
 
     client.join(email, password, group_id, group_password)
 

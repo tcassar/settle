@@ -26,3 +26,10 @@ class Group:
 
     def __repr__(self):
         return f"Group({self.name}, {self.password})"
+
+
+@dataclass
+class GroupLink:
+    id: int
+    group_id: int
+    usr_id: int

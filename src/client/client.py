@@ -107,8 +107,11 @@ def join(email, password, group_id, group_password):
     # 1: verify user
     helpers.auth_usr(email, password)
 
-    #: verify group
+    # 2: verify group
     helpers.auth_group(group_id, group_password)
+
+    # 3: post to groups
+    uid = requests.post(helpers.url(f"group/{group_id}/{email}"))
 
 
 # TODO: leave
@@ -126,7 +129,8 @@ def simplify(group_id):
 @trap
 def new_group(name, password):
     schema = schemas.GroupSchema()
-    group = models.Group(name, helpers.hash_password(password))
+    # note: 0 is placeholder, will be overwritten by db
+    group = models.Group(0, name, helpers.hash_password(password))
 
     as_json = schema.dump(group)
     response = requests.post(helpers.url("group"), json=as_json)

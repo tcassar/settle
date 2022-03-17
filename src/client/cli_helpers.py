@@ -38,10 +38,8 @@ def _auth(resource: str, password: str):
     # build a user from received data
 
     rep = usr_response.json()
-    print(f'rep is a {rep}')
-    print()
 
-    if rep['password'] != hash_password(password):
+    if rep["password"] != hash_password(password):
         raise AuthError("Password Incorrect")
 
 

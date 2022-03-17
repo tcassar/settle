@@ -29,3 +29,13 @@ class GroupSchema(Schema):
     @post_load
     def make_group(self, data, **kwargs):
         return models.Group(**data)
+
+
+class GroupLinkSchema(Schema):
+    id = fields.Int()
+    group_id = fields.Int()
+    usr_id = fields.Int()
+
+    @post_load
+    def make_group_link(self, data, **kwargs):
+        return models.GroupLink(**data)
