@@ -1,14 +1,7 @@
 # coding=utf-8
 
-from src.client.cli_helpers import AuthError, hash_password, url, invalid_response
-
-import src.crypto.keys as keys
-import src.server.schemas as schemas
-import src.server.models as models
-
 import click
-import sys
-import requests
+import src.client.client as client
 
 
 @click.group()
@@ -32,64 +25,13 @@ def register(
     password,
     pub_key,
 ):
-    """Register to settle, using email, passwd, and an RSA public key"""
-
-    # extract and store modulus and pub exp as bytes, ready for db
-    ldr = keys.RSAKeyLoader()
-    try:
-        ldr.load(pub_key)
-        ldr.parse()
-        pub_key: keys.RSAPublicKey = keys.RSAPublicKey(ldr)
-    except keys.RSAParserError as rsa_err:
-        click.secho(
-            f"Failed to create account - issue with given RSA key;\n{rsa_err}",
-            fg="red",
-            bold=True,
-        )
-        return
-
-    password: str = hash_password(password)
-    n_as_bytes = pub_key.n.to_bytes(256, sys.byteorder)
-
-    usr = models.User(
-        name,
-        email,
-        str(n_as_bytes),
-        str(pub_key.e.to_bytes(4, sys.byteorder)),
-        password,
-    )
-
-    # build json repr of object
-    schema = schemas.UserSchema()
-    usr_as_json = schema.dump(usr)
-
-    response = requests.post(url("user"), json=usr_as_json)
-    if invalid_response(response):
-        print(response)
-        click.secho(f"Failed to create account under email {email}", fg="yellow")
-        return
-
-    click.secho(f"Account created successfully", fg="green")
-    click.echo(f"{usr}")
-
-    # TODO: Push info to server
-    #   Check that email doesn't already exist
+    client.register(name, email, password, pub_key)
 
 
 @click.argument("email")
 @settle.command()
 def whois(email):
-    """gives your name, email, public key numbers"""
-    usr_response: requests.Response = requests.get(url(f"user/{email}"))
-    if invalid_response(usr_response):
-        return
-
-    # build a user from received data
-
-    schema = schemas.UserSchema()
-    usr = schema.load(usr_response.json())
-    click.secho(f"\nFound user with email {email}:\n", fg="green")
-    click.secho(str(usr))
+    client.whois(email)
 
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
@@ -97,38 +39,28 @@ def whois(email):
 @settle.command()
 def show(transactions, groups):
     """Shows all of your open transactions / groups along with IDs"""
-
-    # note: flags are None or True for some godforsaken reason
-
-    # show both if no flags
-    if not transactions and not groups:
-        transactions = groups = True
-
-    click.echo(f"{transactions}, {groups}")
-
-
-# |----------------|
-# |  TRANSACTIONS  |
-# |----------------|
+    client.show(transactions, groups)
 
 
 @click.argument("key_path")
 @click.argument("transaction_id")
 @settle.command()
 def sign(transaction_id, key_path):
-    """Signs a transaction given an ID and a path to key"""
+    client.sign(transaction_id, key_path)
 
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
 @click.option("-t", "--transactions", flag_value="transactions", default=False)
 @settle.command()
 def verify(groups, transactions):
-    """Verifies either given transaction or a group; pass in by ID"""
+    client.verify(groups, transactions)
 
 
-# |----------|
-# |  GROUPS  |
-# |----------|
+@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option("--name", prompt=True)
+@settle.command(name="new-group")
+def new_group(name, password):
+    client.new_group(name, password)
 
 
 @click.option(
@@ -144,55 +76,16 @@ def verify(groups, transactions):
 @click.argument("group_id")
 @settle.command()
 def join(email, password, group_id, group_password):
-
-    # 1: verify user
-    usr_response: requests.Response = requests.get(url(f"user/{email}"))
-    if invalid_response(usr_response):
-        return
-
-    # build a user from received data
-
-    schema = schemas.UserSchema()
-    server_password = usr_response.json()["password"]
-
-    if server_password != hash_password(password):
-        raise AuthError
+    client.join(email, password, group_id, group_password)
 
 
 @click.argument("group_id")
 @settle.command()
 def leave(group_id):
-    """If your net debt within a group is 0, you can leave a group"""
+    client.leave(group_id)
 
 
 @click.argument("group_id")
 @settle.command()
 def simplify(group_id):
-    """Will settle the group; can be done by anyone at anytime;
-    everyone signs newly generated transactions if new transactions are generated"""
-    ...
-
-
-# |-----------|
-# |  GENERAL  |
-# |-----------|
-
-# TODO: specify group or trn, show by id
-
-
-@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
-@click.option("--name", prompt=True)
-@settle.command(name="new-group")
-def new_group(name, password):
-
-    schema = schemas.GroupSchema()
-    group = models.Group(name, hash_password(password))
-
-    as_json = schema.dump(group)
-    response = requests.post(url("group"), json=as_json)
-
-    if invalid_response(response):
-        return
-    else:
-        click.secho(response.text, fg="green")
-        click.secho("You can join this group with `settle join`")
+    client.simplify(group_id)

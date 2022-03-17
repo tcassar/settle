@@ -27,4 +27,3 @@ class GroupSchema(Schema):
     @post_load
     def make_group(self, data, **kwargs):
         return Group(**data)
-

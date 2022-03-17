@@ -37,7 +37,6 @@ def close_connection(exception):
 
 
 class Group(Resource):
-
     def get(self, id: int, password: str):
 
         cursor = get_db().cursor()
@@ -49,8 +48,7 @@ class Group(Resource):
         try:
             group = cursor.execute(get_group, [id, password])
         except IndexError:
-            abort(404, message='Group ID does not exist')
-
+            abort(404, message="Group ID does not exist")
 
     def post(self):
 
@@ -60,7 +58,10 @@ class Group(Resource):
 
         cursor = get_db().cursor()
 
-        cursor.execute("""INSERT INTO groups (name, password) VALUES (?, ?)""", [group['name'], group['password']])
+        cursor.execute(
+            """INSERT INTO groups (name, password) VALUES (?, ?)""",
+            [group["name"], group["password"]],
+        )
 
         get_db().commit()
 
@@ -68,7 +69,6 @@ class Group(Resource):
 
 
 class User(Resource):
-    
     def get(self, email: str):
         # query db for all users
         cursor = get_db().cursor()
@@ -84,7 +84,7 @@ class User(Resource):
             usr_data: list = cursor.execute(query, [email]).fetchall()[0]
         except IndexError:
             # returned blank info
-            return 'User data not found', 404
+            return "User data not found", 404
 
         # use data to build user class
         # use schema to convert to json
@@ -112,7 +112,7 @@ class User(Resource):
 
         exists = cursor.execute(query, [usr.email])
         if exists.fetchall():
-            abort(409, message='User already exists')
+            abort(409, message="User already exists")
 
         print(usr)
         print(usr.password)
@@ -138,7 +138,11 @@ class Transaction(Resource):
     ...
 
 
-api.add_resource(Group, "/group/<int:group_id>/<string:password>", "/group",)
+api.add_resource(
+    Group,
+    "/group/<int:group_id>/<string:password>",
+    "/group",
+)
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
 

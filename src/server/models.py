@@ -25,4 +25,4 @@ class Group:
     password: str
 
     def __repr__(self):
-        return f'Group({self.name}, {self.password})'
+        return f"Group({self.name}, {self.password})"

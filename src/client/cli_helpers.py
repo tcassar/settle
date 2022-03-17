@@ -1,7 +1,7 @@
 import click
 import requests
 
-from crypto import hashes as hasher
+from src.crypto import hashes as hasher
 
 SERVER = "http://127.0.0.1:5000/"
 
