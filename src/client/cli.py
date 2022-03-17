@@ -105,8 +105,8 @@ def whois(email):
 
     schema = schemas.UserSchema()
     usr = schema.load(usr_response.json())
-
-    click.secho(str(usr), fg="green")
+    click.secho(f'\nFound user with email {email}:\n', fg='green')
+    click.secho(str(usr))
 
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
