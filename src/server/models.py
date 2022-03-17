@@ -20,6 +20,7 @@ Public Exponent:\t{self.pub_exp}
 
 @dataclass
 class Group:
+    id: int
     name: str
     password: str
 

@@ -37,19 +37,21 @@ def _auth(resource: str, password: str):
 
     # build a user from received data
 
-    server_password = usr_response.json()['password']
+    rep = usr_response.json()
+    print(f'rep is a {rep}')
+    print()
 
-    if server_password != hash_password(password):
-        raise AuthError('Password Incorrect')
+    if rep['password'] != hash_password(password):
+        raise AuthError("Password Incorrect")
 
 
 def auth_usr(email: str, password: str):
     """Authorises user, raises AuthError if fails"""
-    return _auth(f'user/{email}', password)
+    return _auth(f"user/{email}", password)
 
 
 def auth_group(group_id: int, password: str):
-    return _auth(f'group/{group_id}', password)
+    return _auth(f"group/{group_id}", password)
 
 
 def trap(func) -> object:
@@ -62,11 +64,13 @@ def trap(func) -> object:
             func(*args, **kwargs)
 
         except AuthError as ae:
-            click.secho('Authorisation Error; aborting...', fg='red')
+            click.secho("Authorisation Error; aborting...", fg="red")
             click.echo(ae)
 
         except InvalidResponseError as nre:
-            click.secho('Could not find requested resource on servers; aborting...', fg='yellow')
+            click.secho(
+                "Could not find requested resource on servers; aborting...", fg="yellow"
+            )
             click.echo(nre)
 
     return inner

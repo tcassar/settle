@@ -62,6 +62,7 @@ def register(
     click.secho(f"Account created successfully", fg="green")
     click.echo(f"{usr}")
 
+
 @trap
 def whois(email):
     """gives your name, email, public key numbers"""
@@ -74,6 +75,7 @@ def whois(email):
     usr = schema.load(usr_response.json())
     click.secho(f"\nFound user with email {email}:\n", fg="green")
     click.secho(str(usr))
+
 
 # TODO: Show
 def show(transactions, groups):
@@ -101,6 +103,7 @@ def verify(groups, transactions):
 # TODO: join
 @trap
 def join(email, password, group_id, group_password):
+
     # 1: verify user
     helpers.auth_usr(email, password)
 
@@ -118,6 +121,7 @@ def simplify(group_id):
     """Will settle the group; can be done by anyone at anytime;
     everyone signs newly generated transactions if new transactions are generated"""
     ...
+
 
 @trap
 def new_group(name, password):

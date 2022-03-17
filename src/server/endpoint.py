@@ -45,9 +45,18 @@ class Group(Resource):
                  WHERE groups.id = ?"""
 
         try:
-            group = cursor.execute(get_group, [id])
+            group_data = cursor.execute(get_group, [id])
+            # create group object
+            group = models.Group(*[item for item in group_data.fetchall()[0]])
         except IndexError:
             abort(404, message="Group ID does not exist")
+        except TypeError as te:
+            abort(404, message=f"Group data invalid; {te}")
+
+        # create group schema
+        schema = schemas.GroupSchema()
+
+        return schema.dump(group), 200
 
     def post(self):
 
@@ -137,11 +146,7 @@ class Transaction(Resource):
     ...
 
 
-api.add_resource(
-    Group,
-    "/group/<int:group_id>",
-    "/group"
-)
+api.add_resource(Group, "/group/<int:id>", "/group")
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
 

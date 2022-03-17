@@ -22,6 +22,7 @@ class TransactionSchema(Schema):
 
 
 class GroupSchema(Schema):
+    id = fields.Int()
     name = fields.Str()
     password = fields.Str()
 
