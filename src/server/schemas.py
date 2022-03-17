@@ -12,7 +12,7 @@ class UserSchema(Schema):
     password = fields.Str()
 
     @post_load
-    def make_user(self, data):
+    def make_user(self, data, **kwargs):
         return User(**data)
 
 
@@ -24,7 +24,7 @@ class GroupSchema(Schema):
     name = fields.Str()
     password = fields.Str()
 
-    # @post_load
-    # def make_group(self, data):
-    #     return Group(**data)
+    @post_load
+    def make_group(self, data, **kwargs):
+        return Group(**data)
 

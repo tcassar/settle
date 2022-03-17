@@ -45,7 +45,7 @@ class Group(Resource):
 
         cursor = get_db().cursor()
 
-        cursor.execute("""INSERT INTO groups (name, group_password) VALUES (?, ?)""", [group['name'], group['password']])
+        cursor.execute("""INSERT INTO groups (name, password) VALUES (?, ?)""", [group['name'], group['password']])
 
         get_db().commit()
 
@@ -61,7 +61,7 @@ class User(Resource):
         query = """
                  SELECT users.name, users.email, keys.n, keys.e
                  FROM users, keys
-                 WHERE email = ? AND keys.key_id = users.key_id;
+                 WHERE email = ? AND keys.id = users.key_id;
                 """
 
         # only return one usr, so unpack row into usr_data
@@ -92,7 +92,8 @@ class User(Resource):
         schema = schemas.UserSchema()
         usr = schema.load(request.json)
 
-        query = """SELECT users.id FROM users WHERE email = ?"""
+        query = """SELECT users.id FROM users WHERE email = ?
+        """
 
         exists = cursor.execute(query, [usr.email])
         if exists.fetchall():
