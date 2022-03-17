@@ -92,7 +92,7 @@ class User(Resource):
         schema = schemas.UserSchema()
         usr = schema.load(request.json)
 
-        query = """SELECT usr_id FROM users WHERE email = ?"""
+        query = """SELECT users.id FROM users WHERE email = ?"""
 
         exists = cursor.execute(query, [usr.email])
         if exists.fetchall():

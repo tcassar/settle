@@ -11,6 +11,7 @@ import src.server.models as models
 
 SERVER = "http://127.0.0.1:5000/"
 
+
 def hash_password(password) -> str:
     return str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
 
@@ -24,7 +25,8 @@ def invalid_response(response: requests.Response) -> bool:
         e = response.json()['message']
         click.secho(f"ERROR: {e}", fg="red")
         return True
-
+    else:
+        return False
 
 
 @click.group()
