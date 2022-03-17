@@ -1,32 +1,14 @@
 # coding=utf-8
-import sys
 
-import click
-import requests
+from src.client.cli_helpers import AuthError, hash_password, url, invalid_response
 
-import src.crypto.hashes as hasher
 import src.crypto.keys as keys
 import src.server.schemas as schemas
 import src.server.models as models
 
-SERVER = "http://127.0.0.1:5000/"
-
-
-def hash_password(password) -> str:
-    return str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
-
-
-def url(query: str) -> str:
-    return SERVER + query
-
-
-def invalid_response(response: requests.Response) -> bool:
-    if str(response.status_code)[0] != '2':
-        e = response.json()['message']
-        click.secho(f"ERROR: {e}", fg="red")
-        return True
-    else:
-        return False
+import click
+import sys
+import requests
 
 
 @click.group()
@@ -85,9 +67,10 @@ def register(
     if invalid_response(response):
         print(response)
         click.secho(f"Failed to create account under email {email}", fg="yellow")
-    else:
-        click.secho(f"Account created successfully", fg="green")
-        click.echo(f'{usr}')
+        return
+
+    click.secho(f"Account created successfully", fg="green")
+    click.echo(f"{usr}")
 
     # TODO: Push info to server
     #   Check that email doesn't already exist
@@ -105,7 +88,7 @@ def whois(email):
 
     schema = schemas.UserSchema()
     usr = schema.load(usr_response.json())
-    click.secho(f'\nFound user with email {email}:\n', fg='green')
+    click.secho(f"\nFound user with email {email}:\n", fg="green")
     click.secho(str(usr))
 
 
@@ -147,12 +130,33 @@ def verify(groups, transactions):
 # |  GROUPS  |
 # |----------|
 
-@click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
+
+@click.option(
+    "--group_password",
+    prompt="Group Password",
+    hide_input=True,
+    confirmation_prompt=True,
+)
+@click.option(
+    "--password", prompt="Your password", hide_input=True, confirmation_prompt=True
+)
 @click.option("--email", prompt=True)
 @click.argument("group_id")
 @settle.command()
-def join(password, group_id):
-    ...
+def join(email, password, group_id, group_password):
+
+    # 1: verify user
+    usr_response: requests.Response = requests.get(url(f"user/{email}"))
+    if invalid_response(usr_response):
+        return
+
+    # build a user from received data
+
+    schema = schemas.UserSchema()
+    server_password = usr_response.json()["password"]
+
+    if server_password != hash_password(password):
+        raise AuthError
 
 
 @click.argument("group_id")
@@ -175,19 +179,20 @@ def simplify(group_id):
 
 # TODO: specify group or trn, show by id
 
+
 @click.option("--password", prompt=True, hide_input=True, confirmation_prompt=True)
 @click.option("--name", prompt=True)
-@settle.command(name='new-group')
+@settle.command(name="new-group")
 def new_group(name, password):
 
     schema = schemas.GroupSchema()
     group = models.Group(name, hash_password(password))
 
     as_json = schema.dump(group)
-    response = requests.post(url('group'), json=as_json)
+    response = requests.post(url("group"), json=as_json)
 
     if invalid_response(response):
         return
     else:
-        click.secho(response.text, fg='green')
-        click.secho('You can join this group with `settle join`')
+        click.secho(response.text, fg="green")
+        click.secho("You can join this group with `settle join`")

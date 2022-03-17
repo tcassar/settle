@@ -37,6 +37,21 @@ def close_connection(exception):
 
 
 class Group(Resource):
+
+    def get(self, id: int, password: str):
+
+        cursor = get_db().cursor()
+        # check group exists and
+
+        get_group = """SELECT * FROM groups
+                 WHERE id = ?"""
+
+        try:
+            group = cursor.execute(get_group, [id, password])
+        except IndexError:
+            abort(404, message='Group ID does not exist')
+
+
     def post(self):
 
         # print(request.json)
@@ -59,7 +74,7 @@ class User(Resource):
         cursor = get_db().cursor()
 
         query = """
-                 SELECT users.name, users.email, keys.n, keys.e
+                 SELECT users.name, users.email, keys.n, keys.e, users.password
                  FROM users, keys
                  WHERE email = ? AND keys.id = users.key_id;
                 """
@@ -123,7 +138,7 @@ class Transaction(Resource):
     ...
 
 
-api.add_resource(Group, "/group/<int:group_id>", "/group",)
+api.add_resource(Group, "/group/<int:group_id>/<string:password>", "/group",)
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
 
