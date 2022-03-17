@@ -1,8 +1,8 @@
 # coding=utf-8
 
 import click
-import src.client.client as client
 
+import src.client.client as client
 
 @click.group()
 def settle():
@@ -46,6 +46,7 @@ def show(transactions, groups):
 @click.argument("transaction_id")
 @settle.command()
 def sign(transaction_id, key_path):
+
     client.sign(transaction_id, key_path)
 
 
@@ -67,16 +68,17 @@ def new_group(name, password):
     "--group_password",
     prompt="Group Password",
     hide_input=True,
-    confirmation_prompt=True,
 )
 @click.option(
-    "--password", prompt="Your password", hide_input=True, confirmation_prompt=True
+    "--password", prompt="Your password", hide_input=True,
 )
 @click.option("--email", prompt=True)
 @click.argument("group_id")
 @settle.command()
 def join(email, password, group_id, group_password):
+    # note: known pycharm issue, this is fine
     client.join(email, password, group_id, group_password)
+
 
 
 @click.argument("group_id")

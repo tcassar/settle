@@ -1,7 +1,8 @@
 # coding=utf-8
 
-from models import *
 from marshmallow import Schema, fields, post_load
+
+import models  # type: ignore
 
 
 class UserSchema(Schema):
@@ -13,7 +14,7 @@ class UserSchema(Schema):
 
     @post_load
     def make_user(self, data, **kwargs):
-        return User(**data)
+        return models.User(**data)
 
 
 class TransactionSchema(Schema):
@@ -26,4 +27,4 @@ class GroupSchema(Schema):
 
     @post_load
     def make_group(self, data, **kwargs):
-        return Group(**data)
+        return models.Group(**data)

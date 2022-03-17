@@ -1,21 +1,19 @@
 # coding=utf-8
 
-from src.client.cli_helpers import AuthError, hash_password, url, invalid_response
-
-import src.crypto.keys as keys
-import src.server.schemas as schemas
-import src.server.models as models
+import sys
 
 import click
-import sys
 import requests
 
+import src.crypto.keys as keys
+import src.server.models as models
+import src.server.schemas as schemas
+import src.client.cli_helpers as helpers
 
-# |--------|
-# |  USER  |
-# |--------|
+trap = helpers.trap
 
 
+@trap
 def register(
     name,
     email,
@@ -38,7 +36,7 @@ def register(
         )
         return
 
-    password: str = hash_password(password)
+    password: str = helpers.hash_password(password)
     n_as_bytes = pub_key.n.to_bytes(256, sys.byteorder)
 
     usr = models.User(
@@ -53,8 +51,10 @@ def register(
     schema = schemas.UserSchema()
     usr_as_json = schema.dump(usr)
 
-    response = requests.post(url("user"), json=usr_as_json)
-    if invalid_response(response):
+    response = requests.post(helpers.url("user"), json=usr_as_json)
+    try:
+        helpers.validate_response(response)
+    except helpers.InvalidResponseError:
         print(response)
         click.secho(f"Failed to create account under email {email}", fg="yellow")
         return
@@ -62,12 +62,11 @@ def register(
     click.secho(f"Account created successfully", fg="green")
     click.echo(f"{usr}")
 
-
+@trap
 def whois(email):
     """gives your name, email, public key numbers"""
-    usr_response: requests.Response = requests.get(url(f"user/{email}"))
-    if invalid_response(usr_response):
-        return
+    usr_response: requests.Response = requests.get(helpers.url(f"user/{email}"))
+    helpers.validate_response(usr_response)
 
     # build a user from received data
 
@@ -76,7 +75,7 @@ def whois(email):
     click.secho(f"\nFound user with email {email}:\n", fg="green")
     click.secho(str(usr))
 
-
+# TODO: Show
 def show(transactions, groups):
     """Shows all of your open transactions / groups along with IDs"""
 
@@ -89,67 +88,46 @@ def show(transactions, groups):
     click.echo(f"{transactions}, {groups}")
 
 
-# |----------------|
-# |  TRANSACTIONS  |
-# |----------------|
-
-
+# TODO: sign
 def sign(transaction_id, key_path):
     """Signs a transaction given an ID and a path to key"""
 
 
+# TODO: verify
 def verify(groups, transactions):
     """Verifies either given transaction or a group; pass in by ID"""
 
 
-# |----------|
-# |  GROUPS  |
-# |----------|
-
-
+# TODO: join
+@trap
 def join(email, password, group_id, group_password):
-
     # 1: verify user
-    usr_response: requests.Response = requests.get(url(f"user/{email}"))
-    if invalid_response(usr_response):
-        return
+    helpers.auth_usr(email, password)
 
-    # build a user from received data
-
-    schema = schemas.UserSchema()
-    server_password = usr_response.json()["password"]
-
-    if server_password != hash_password(password):
-        raise AuthError
+    #: verify group
+    helpers.auth_group(group_id, group_password)
 
 
+# TODO: leave
 def leave(group_id):
     """If your net debt within a group is 0, you can leave a group"""
 
 
+# TODO: simplify
 def simplify(group_id):
     """Will settle the group; can be done by anyone at anytime;
     everyone signs newly generated transactions if new transactions are generated"""
     ...
 
-
-# |-----------|
-# |  GENERAL  |
-# |-----------|
-
-# TODO: specify group or trn, show by id
-
-
+@trap
 def new_group(name, password):
-
     schema = schemas.GroupSchema()
-    group = models.Group(name, hash_password(password))
+    group = models.Group(name, helpers.hash_password(password))
 
     as_json = schema.dump(group)
-    response = requests.post(url("group"), json=as_json)
+    response = requests.post(helpers.url("group"), json=as_json)
 
-    if invalid_response(response):
-        return
-    else:
-        click.secho(response.text, fg="green")
-        click.secho("You can join this group with `settle join`")
+    helpers.validate_response(response)
+
+    click.secho(response.text, fg="green")
+    click.secho("You can join this group with `settle join`")

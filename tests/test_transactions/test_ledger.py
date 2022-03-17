@@ -1,11 +1,10 @@
 # coding=utf-8
-import os
 import unittest
 
 import src.simplify.flow_graph
 import src.simplify.graph_objects
-from src.transactions.ledger import *
 from src.crypto import keys
+from src.transactions.ledger import *
 from src.transactions.transaction import VerificationError
 
 

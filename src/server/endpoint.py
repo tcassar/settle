@@ -1,14 +1,14 @@
 # coding=utf-8
 
-from src.server import models as models
-from src.server import schemas as schemas
+import os
+import sqlite3
 
 import click
 from flask import Flask, g, request
 from flask_restful import Resource, Api, abort  # type: ignore
-import os
-import sqlite3
 
+from src.server import models as models
+from src.server import schemas as schemas
 
 app = Flask(__name__)
 api = Api(app)
@@ -37,16 +37,15 @@ def close_connection(exception):
 
 
 class Group(Resource):
-    def get(self, id: int, password: str):
-
+    def get(self, id: int):
         cursor = get_db().cursor()
         # check group exists and
 
         get_group = """SELECT * FROM groups
-                 WHERE id = ?"""
+                 WHERE groups.id = ?"""
 
         try:
-            group = cursor.execute(get_group, [id, password])
+            group = cursor.execute(get_group, [id])
         except IndexError:
             abort(404, message="Group ID does not exist")
 
@@ -140,8 +139,8 @@ class Transaction(Resource):
 
 api.add_resource(
     Group,
-    "/group/<int:group_id>/<string:password>",
-    "/group",
+    "/group/<int:group_id>",
+    "/group"
 )
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
