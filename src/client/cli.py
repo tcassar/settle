@@ -65,29 +65,21 @@ def new_group(name, password):
     client.new_group(name, password)
 
 
-#
-# @click.option(
-#     "--group_password",
-#     prompt="Group Password",
-#     hide_input=True,
-# )
-# @click.option(
-#     "--password",
-#     prompt="Your password",
-#     hide_input=True,
-# )
-# @click.option("--email", prompt=True)
-# @click.argument("group_id")
-# @settle.command()
-# def join(email, password, group_id, group_password):
 
-
+@click.option(
+    "--group_password",
+    prompt="Group Password",
+    hide_input=True,
+)
+@click.option(
+    "--password",
+    prompt="Your password",
+    hide_input=True,
+)
+@click.option("--email", prompt=True)
+@click.argument("group_id")
 @settle.command()
-def join():
-    email = "cassar.thomas.e@gmail.com"
-    password = "admin"
-    group_id = 3
-    group_password = "test"
+def join(email, password, group_id, group_password):
 
     client.join(email, password, group_id, group_password)
 

@@ -111,8 +111,9 @@ def join(email, password, group_id, group_password):
     helpers.auth_group(group_id, group_password)
 
     # 3: post to groups
-    uid = requests.post(helpers.url(f"group/{group_id}/{email}"))
-
+    group = requests.post(helpers.url(f"group/{group_id}/{email}"))
+    helpers.validate_response(group)
+    click.secho(f'Successfully joined group {group_id}', fg='green')
 
 # TODO: leave
 def leave(group_id):

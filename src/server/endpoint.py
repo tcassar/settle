@@ -83,12 +83,12 @@ class Group(Resource):
 
         cursor.execute(
             """INSERT INTO groups (name, password) VALUES (?, ?)""",
-            [group["name"], group["password"]],
+            [group.name, group.password],
         )
 
         get_db().commit()
 
-        return f'Created group ID={cursor.lastrowid} named {group["name"]}', 201
+        return f'Created group ID={cursor.lastrowid} named {group.name}', 201
 
 
 class User(Resource):
@@ -187,6 +187,15 @@ class UserGroupBridge(Resource):
 
         return schema.dump(glink), 201
 
+    def get(self, email: str):
+        """Return all groups that a user is part of"""
+
+    sql = """SELECT id, name FROM groups WHERE id IN (
+            SELECT group_id FROM group_link WHERE usr_id = (
+            SELECT usr_id FROM users WHERE email = ? ))"""
+
+    swq = """SELECT group_id FROM group_link WHERE usr_id=1"""
+
 
 class Transaction(Resource):
     ...
@@ -195,7 +204,7 @@ class Transaction(Resource):
 api.add_resource(Group, "/group/<int:id>", "/group")
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
-api.add_resource(UserGroupBridge, "/group/<int:id>/<string:email>")
+api.add_resource(UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>")
 
 
 @click.group()
