@@ -32,6 +32,7 @@ def get_db():
 
 
 def build_args(data_from_cursor: list | tuple) -> list:
+    """Given a ROW OF PARAMETERS FROM DB will return list as args"""
     if args := data_from_cursor:
         args = [item for item in args]
         return args
@@ -54,14 +55,14 @@ class Group(Resource):
         cursor = get_db().cursor()
         # check group exists and
 
-        get_group = """SELECT * FROM groups
+        get_group = """SELECT id, name, password FROM groups
                  WHERE groups.id = ?"""
 
         try:
             group_data = cursor.execute(get_group, [id])
-
+            group_data = group_data.fetchall()
             # create group object
-            group = models.Group(*build_args(group_data.fetchall()))
+            group = models.Group(*build_args(*group_data))
         except IndexError:
             abort(404, message="Group ID does not exist")
             group = ""  # type: ignore

@@ -93,8 +93,6 @@ def show(transactions, groups, email):
         # receive list of groups JSON;
         groups_data = requests.get(helpers.url(f"group/{email}"))
 
-        print(f"received {groups_data.json()}")
-
         group_objs: list[models.Group] = []
         for group in groups_data.json()["groups"]:
             group_objs.append(models.Group(group["id"], group["name"], group["password"]))
