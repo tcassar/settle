@@ -39,3 +39,11 @@ class GroupLinkSchema(Schema):
     @post_load
     def make_group_link(self, data, **kwargs):
         return models.GroupLink(**data)
+
+
+class GroupListSchema(Schema):
+    groups = fields.List(fields.Nested(GroupSchema()))
+
+    @post_load
+    def make_group_list(self, data, **kwargs):
+        return models.GroupList(**data)

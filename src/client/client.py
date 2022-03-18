@@ -77,8 +77,8 @@ def whois(email):
     click.secho(str(usr))
 
 
-# TODO: Show
-def show(transactions, groups):
+# TODO: Show; change fn signature to incl email
+def show(transactions, groups, email):
     """Shows all of your open transactions / groups along with IDs"""
 
     # note: flags are None or True for some godforsaken reason
@@ -87,7 +87,14 @@ def show(transactions, groups):
     if not transactions and not groups:
         transactions = groups = True
 
-    click.echo(f"{transactions}, {groups}")
+    if groups:
+        click.secho('GROUPS:\n')
+
+        # receive list of groups JSON;
+        groups_data = requests.get(helpers.url(f'group/{email}'))
+
+        print(f'received {groups_data.json()}')
+
 
 
 # TODO: sign
@@ -113,7 +120,8 @@ def join(email, password, group_id, group_password):
     # 3: post to groups
     group = requests.post(helpers.url(f"group/{group_id}/{email}"))
     helpers.validate_response(group)
-    click.secho(f'Successfully joined group {group_id}', fg='green')
+    click.secho(f"Successfully joined group {group_id}", fg="green")
+
 
 # TODO: leave
 def leave(group_id):

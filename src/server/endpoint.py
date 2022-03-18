@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import os
 import sqlite3
 
@@ -32,9 +31,9 @@ def get_db():
     return db
 
 
-def build_args(data_from_cursor) -> list:
+def build_args(data_from_cursor: list | tuple) -> list:
     if args := data_from_cursor:
-        args = [item for item in args.fetchone()]
+        args = [item for item in args]
         return args
     else:
         raise ResourceError(
@@ -62,11 +61,13 @@ class Group(Resource):
             group_data = cursor.execute(get_group, [id])
 
             # create group object
-            group = models.Group(*build_args(group_data))
+            group = models.Group(*build_args(group_data.fetchall()))
         except IndexError:
             abort(404, message="Group ID does not exist")
+            group = ''  # type: ignore
         except TypeError as te:
             abort(404, message=f"Group data invalid; {te}")
+            group = ''  # type: ignore
 
         # create group schema
         schema = schemas.GroupSchema()
@@ -88,7 +89,7 @@ class Group(Resource):
 
         get_db().commit()
 
-        return f'Created group ID={cursor.lastrowid} named {group.name}', 201
+        return f"Created group ID={cursor.lastrowid} named {group.name}", 201
 
 
 class User(Resource):
@@ -178,10 +179,10 @@ class UserGroupBridge(Resource):
         )
 
         try:
-            print('making group')
-            glink = models.GroupLink(*build_args(glink_data))
+            print("making group")
+            glink = models.GroupLink(*build_args(glink_data.fetchone()))
         except ResourceError as re:
-            return 404, f'{re}, failed'
+            return 404, f"{re}, failed"
 
         schema = schemas.GroupLinkSchema()
 
@@ -190,11 +191,28 @@ class UserGroupBridge(Resource):
     def get(self, email: str):
         """Return all groups that a user is part of"""
 
-    sql = """SELECT id, name FROM groups WHERE id IN (
-            SELECT group_id FROM group_link WHERE usr_id = (
-            SELECT usr_id FROM users WHERE email = ? ))"""
+        sql = """SELECT g.id, g.name, g.password FROM users
+        JOIN group_link gl on users.id = gl.usr_id
+        JOIN groups g on g.id = gl.group_id
+        WHERE users.id
+                  = (
+            SELECT users.id FROM users
+            WHERE email = ?
+            );
+        """
 
-    swq = """SELECT group_id FROM group_link WHERE usr_id=1"""
+        cursor = get_db().cursor()
+        group_data = cursor.execute(sql, [email])
+        groups: list[models.Group] = []
+
+        for row in group_data.fetchall():
+            groups.append(models.Group(*build_args(row)))
+
+        groups_obj = models.GroupList(groups)
+        groups_schema = schemas.GroupListSchema()
+
+
+        return groups_schema.dump(groups_obj), 200
 
 
 class Transaction(Resource):
@@ -204,7 +222,9 @@ class Transaction(Resource):
 api.add_resource(Group, "/group/<int:id>", "/group")
 api.add_resource(Transaction, "/transaction")
 api.add_resource(User, "/user/<string:email>", "/user")
-api.add_resource(UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>")
+api.add_resource(
+    UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>"
+)
 
 
 @click.group()

@@ -33,3 +33,8 @@ class GroupLink:
     id: int
     group_id: int
     usr_id: int
+
+
+@dataclass
+class GroupList:
+    groups: list[Group]

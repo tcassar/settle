@@ -37,10 +37,12 @@ def whois(email):
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
 @click.option("-t", "--transactions", flag_value="transactions", default=False)
+@click.option("--email", prompt=True)
 @settle.command()
-def show(transactions, groups):
+def show(transactions, groups, email):
     """Shows all of your open transactions / groups along with IDs"""
-    client.show(transactions, groups)
+    email = 'cassar.thomas.e@gmail.com'
+    client.show(transactions, groups, email)
 
 
 @click.argument("key_path")
@@ -65,7 +67,6 @@ def new_group(name, password):
     client.new_group(name, password)
 
 
-
 @click.option(
     "--group_password",
     prompt="Group Password",
@@ -80,7 +81,6 @@ def new_group(name, password):
 @click.argument("group_id")
 @settle.command()
 def join(email, password, group_id, group_password):
-
     client.join(email, password, group_id, group_password)
 
 
