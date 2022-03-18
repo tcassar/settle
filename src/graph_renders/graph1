@@ -1,4 +1,0 @@
-digraph { dad -> tom [label="  0/15  "]
-tom -> dad [label="  0/0  ", color=red]
-maia
- }

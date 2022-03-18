@@ -3,6 +3,7 @@
 from marshmallow import Schema, fields, post_load
 
 import models  # type: ignore
+import src.transactions.transaction
 
 
 class UserSchema(Schema):
@@ -15,10 +16,6 @@ class UserSchema(Schema):
     @post_load
     def make_user(self, data, **kwargs):
         return models.User(**data)
-
-
-class TransactionSchema(Schema):
-    ...
 
 
 class GroupSchema(Schema):
@@ -47,3 +44,22 @@ class GroupListSchema(Schema):
     @post_load
     def make_group_list(self, data, **kwargs):
         return models.GroupList(**data)
+
+
+# Transaction schemas
+
+
+class TransactionSchema(Schema):
+    src = fields.Int()
+    dest = fields.Int()
+    amount = fields.Int()
+    src_pub = fields.Str()
+    dest_pub = fields.Str()
+    ID = fields.Int()
+    msg = fields.Str()
+    time = fields.DateTime()
+    signatures = fields.Dict()
+
+    @post_load
+    def make_group_list(self, data, **kwargs):
+        return src.transactions.transaction.Transaction(**data)

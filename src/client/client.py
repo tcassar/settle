@@ -12,6 +12,10 @@ import src.client.cli_helpers as helpers
 
 trap = helpers.trap
 
+###############
+#  ANCILLARY  #
+###############
+
 
 @trap
 def register(
@@ -77,7 +81,6 @@ def whois(email):
     click.secho(str(usr))
 
 
-# TODO: Show; change fn signature to incl email
 def show(transactions, groups, email):
     """Shows all of your open transactions / groups along with IDs"""
 
@@ -88,32 +91,23 @@ def show(transactions, groups, email):
         transactions = groups = True
 
     if groups:
-        click.secho("Groups that you are a member of:\n", fg='blue')
+        click.secho("Groups that you are a member of:\n", fg="blue")
 
         # receive list of groups JSON;
         groups_data = requests.get(helpers.url(f"group/{email}"))
 
         group_objs: list[models.Group] = []
         for group in groups_data.json()["groups"]:
-            group_objs.append(models.Group(group["id"], group["name"], group["password"]))
+            group_objs.append(
+                models.Group(group["id"], group["name"], group["password"])
+            )
 
         groups = models.GroupList(group_objs)
 
-        click.echo_via_pager(str(groups))
+        click.echo(str(groups))
         # type: ignore
 
 
-# TODO: sign
-def sign(transaction_id, key_path):
-    """Signs a transaction given an ID and a path to key"""
-
-
-# TODO: verify
-def verify(groups, transactions):
-    """Verifies either given transaction or a group; pass in by ID"""
-
-
-# TODO: join
 @trap
 def join(email, password, group_id, group_password):
 
@@ -134,13 +128,6 @@ def leave(group_id):
     """If your net debt within a group is 0, you can leave a group"""
 
 
-# TODO: simplify
-def simplify(group_id):
-    """Will settle the group; can be done by anyone at anytime;
-    everyone signs newly generated transactions if new transactions are generated"""
-    ...
-
-
 @trap
 def new_group(name, password):
     schema = schemas.GroupSchema()
@@ -154,3 +141,34 @@ def new_group(name, password):
 
     click.secho(response.text, fg="green")
     click.secho("You can join this group with `settle join`")
+
+
+##############
+# FUNCTIONAL #
+##############
+
+# TODO: New transaction
+def new_transaction(email, password, dest_email, amount, group):
+    ...
+
+
+# TODO: simplify
+def simplify(group_id):
+    """Will settle the group; can be done by anyone at anytime;
+    everyone signs newly generated transactions if new transactions are generated"""
+    ...
+
+
+# TODO: sign
+def sign(transaction_id, key_path):
+    """Signs a transaction given an ID and a path to key"""
+
+
+# TODO: verify
+def verify(groups, transactions):
+    """Verifies either given transaction or a group; pass in by ID"""
+
+
+# TODO: debt
+def debt(email, group):
+    ...
