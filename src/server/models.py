@@ -25,7 +25,10 @@ class Group:
     password: str
 
     def __repr__(self):
-        return f"Group({self.name}, {self.password})"
+        return f"Group(name={self.name}, id={self.id})"
+
+    def __str__(self):
+        return f"Group:\n\tName: {self.name}, ID = {self.id}"
 
 
 @dataclass
@@ -38,3 +41,10 @@ class GroupLink:
 @dataclass
 class GroupList:
     groups: list[Group]
+
+    def __str__(self):
+        out = ""
+        for group in self.groups:
+            out += f"{str(group)}\n"
+
+        return out

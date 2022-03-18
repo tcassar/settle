@@ -64,10 +64,10 @@ class Group(Resource):
             group = models.Group(*build_args(group_data.fetchall()))
         except IndexError:
             abort(404, message="Group ID does not exist")
-            group = ''  # type: ignore
+            group = ""  # type: ignore
         except TypeError as te:
             abort(404, message=f"Group data invalid; {te}")
-            group = ''  # type: ignore
+            group = ""  # type: ignore
 
         # create group schema
         schema = schemas.GroupSchema()
@@ -210,7 +210,6 @@ class UserGroupBridge(Resource):
 
         groups_obj = models.GroupList(groups)
         groups_schema = schemas.GroupListSchema()
-
 
         return groups_schema.dump(groups_obj), 200
 

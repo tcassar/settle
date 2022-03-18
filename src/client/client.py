@@ -88,13 +88,21 @@ def show(transactions, groups, email):
         transactions = groups = True
 
     if groups:
-        click.secho('GROUPS:\n')
+        click.secho("Groups that you are a member of:\n", fg='blue')
 
         # receive list of groups JSON;
-        groups_data = requests.get(helpers.url(f'group/{email}'))
+        groups_data = requests.get(helpers.url(f"group/{email}"))
 
-        print(f'received {groups_data.json()}')
+        print(f"received {groups_data.json()}")
 
+        group_objs: list[models.Group] = []
+        for group in groups_data.json()["groups"]:
+            group_objs.append(models.Group(group["id"], group["name"], group["password"]))
+
+        groups = models.GroupList(group_objs)
+
+        click.echo_via_pager(str(groups))
+        # type: ignore
 
 
 # TODO: sign

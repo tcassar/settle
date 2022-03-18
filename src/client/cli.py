@@ -41,7 +41,7 @@ def whois(email):
 @settle.command()
 def show(transactions, groups, email):
     """Shows all of your open transactions / groups along with IDs"""
-    email = 'cassar.thomas.e@gmail.com'
+    email = "cassar.thomas.e@gmail.com"
     client.show(transactions, groups, email)
 
 
