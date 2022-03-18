@@ -16,7 +16,7 @@ A project to help groups of people manage money using digitally signed transacti
 + No policing of people who do not pay their debt - this is a problem for people in the group to deal with as they choose
 
 ## Background to the Problem
-A common problem for many young people is that of money. More specifically, keeping track of who owes who how much money in a group of friends. Arguments about how much money is owed, and whether or not people have been remunerated are commonplace. This is something I often see amongst my own group of friends. I know one person in particular ([[Write Up#The End User|the end user]]) feels as though he is never payed back, and would like to see a solution to the money tracking problem.
+A common problem for many young people is that of money. Specifically, keeping track of who owes who how much money in a group of friends. Arguments about how much money is owed, and whether or not people have been remunerated, are commonplace. This is something I often see amongst my own group of friends. I know one person in particular ([[Analysis#The End User|the end user]]) feels as though he is never payed back, and would like to see a solution to the money tracking problem.
 
 In order to arrive at a solution, what is needed is a reliable, trustworthy way to track money. People who use the tracker will need some sort of guarantee that people cannot 'hack' the app, changing people's debts. Since I am the creator, and likely a future user of this app, my friends also need confidence that I will not be able to write off all of my debts. Hence, that is problem number 1 - **secured transactions**.
 
@@ -33,12 +33,12 @@ Another problem that he identified was that of chains of debt. He (rightly) poin
 
 A valid concern with this plan is the fact that some may end up owing people they didn't before the simplification. Consider a simple case where A owes B £10, and B owes C £10. Two transactions could be reduced to 1, if A were to pay C directly. However, in a larger group, people may not like giving money to people who they do not directly owe on the will of my program. Hence, an important constraint is that no one owes someone that they didn't owe before settling occurred (see image below.)
 
-![[abc_debt 1.png|600]]
+![[abc_debt 1.png|400]]
 Even though the dashed edge would reduce transactions, it should not be added.
 
-The end user suggested that I keep the interface as simple as possible. He maintained that he didn't want lots of unnecessary frills - just a simple, functional interface. To this, I suggested the use of a CLI. I was a little concerned that most people would not have used one before and may not know what it is. However, once I explained the concept, he seemed to come round to the idea. It's main benefit over a graphical user interface (GUI) is that it is unambiguous. It is also, arguably, easier to do things with a CLI once you know how to use it. 
+The end user suggested that I keep the interface as simple as possible. He maintained that he didn't want lots of unnecessary frills - just a simple, functional interface. To this, I suggested the use of a CLI. I was a little concerned that most people would not have used one before and may not know what it is. However, once I explained the concept, he seemed to come round to the idea. It's main benefit over a graphical user interface (GUI) is that it is unambiguous. It is also, arguably, easier to do things with a CLI once you become comfortable with using one. 
 
-The final main worry that my interviewee brought up was that of guaranteed security. I had talked to him when I had the idea for this project, before I had learned about asymmetric encryption and cryptographic signatures. He wanted to know how a transaction coming from him could be verified as his, and no one else could pretend that they are, say, owed lots of money. He also didn't trust me, and said that if our group of friends started using this product, he would suspect that I would "code away my debts"
+The final main worry that my interviewee brought up was that of guaranteed security. I had talked to him when I had the idea for this project, before I had learned about asymmetric encryption and cryptographic signatures. He wanted to know how a transaction coming from him could be verified as his, and no one else could pretend that they are, say, owed lots of money. He also didn't trust me, and said that if our group of friends started using this product, he would suspect that I would "code away my debts".
 
 ---
 In short, the problems identified here are as follows:
@@ -209,19 +209,87 @@ Since Edmonds-Karp's runtime is independent of flow, its input, it is classed as
 ### Settling a graph using a Max Flow algorithm
 Having explored various max flow algorithms, the question now becomes how to settle an entire graph's worth of debt. This is a fairly challenging problem since max flow algorithms only work on a source node an sink node.
 
-==talk about what I found, why it didn't work, what i did?==
 
-The solution is to walk through the graph, and run a max flow from the current node to each of their neighbours. 
+After researching, I found a solution which proposed the following.
+
+ ```
+ // initial graph is the initial network of debts
+
+ clean_graph = WeightedDigraph()
+ for edge(u, v) in initial_graph:
+	 if flow := max_flow(u, v):
+		//  append an edge to the new graph from u -> v with weight flow if flow > 0
+		clean_graph.append(u, v, flow)
+		// remove edge that has been maxflowed  
+		initial_graph.remove_edge(u, v)
+	 
+ ```
+ 
+
+![[main settle eg.png|500]]
 
 
-
-![[big graph settle.svg|300]]
-
-First, a new weighted digraph is generated (with no edges, but all the same nodes) for the cleaned edges.
+In prose, a new weighted digraph is generated (with no edges, but all the same nodes) for the cleaned edges.
 
 Starting on node $G$, we would therefore run a max flow from $G \rightarrow B$ . If the max flow from $G \rightarrow B > 0$, then an edge with the weight of the max flow from $G \rightarrow B$ is added to the new weighted digraph. The edge from $G \rightarrow B$ in the flow graph is deleted. This process will happen again from  $G \rightarrow D$. After having explored all neighbours, the BFS continues, until every edge in the graph has been settled. In the above example, a valid settling could look like this ^[Due to the heuristic nature of the model there will likely be multiple valid settled graphs]
 
-![[big settled.svg|300]]
+![[correct settled.png|300]]
+
+
+However, while hand tracing the aforementioned algorithm, I discovered that it was not a correct algorithm.
+
+Take the original, unsettled graph, and select the edge in blue first![[main settle eg.png|500]]
+
+Running Edmonds-Karp along this network with Alice as a source and Charlie as a sink gives a max-flow of 15. Thus, add an edge to the new graph from Alice to Charlie with a weight of 15, and remove the Alice - Charlie edge from the initial graph  
+
+This gives the new graph:
+![[broken step 1.png|300]]
+
+And the 'initial' graph
+![[left after broken step 1.png|500]]
+
+Repeating this process for the remaining two edges gives us max-flows of
+	Alice -> Bob: 5
+	Bob -> Charlie: 5 (after removing Alice -> Bob)
+
+The 'clean' graph that is generated will therefore look like this
+![[broken final.png|500]]
+
+
+Notice that initially, Alice owed the group £15. Now she owes the group £20. Similarly, Charlie was owed a total of £15 pounds by the group, and is now owed £20. 
+
+Thus, this algorithm is incorrect.
+
+
+The reason why is because it does not account for how max-flow is generated. In the case of the first edge we just considered, we calculated a max-flow of 15. This was achieved by pushing 5 units of flow down the Alice -> Bob -> Charlie path, and 10 units of flow directly from Alice -> Charlie. 
+
+Since all of these paths become saturated, it should be the case that **no more flow can be pushed through the graph**. This algorithm only removes the considered edge, instead of all of the edges saturated by the max-flow algorithm.
+
+The approach I decided to take was to modify the initial graph in place. After a max-flow is run, and a new edge is added to the clean graph, the initial graph is restructured. The restructuring replaces the capacity of each edge (u, v) to its original unused capacity. Like this, any saturated edges are removed, and future iterations of the graph are constrained to only produce results based on outcomes of previous iterations. 
+
+You may assume that this step is unnecessary, as it should be the case that the max-flow algorithm does not consider saturated paths. However, the max-flow runs on the residual graph, and thus may augment flow in a way that 'removes' money from a previous transaction. Since the transactions are solidified in another graph, this creates a discrepancy, and was where the error in the algorithm I found online lay. 
+
+Hence, I implemented the algorithm as follows:
+
+```
+
+clean = FlowGraph()
+
+ for edge(u, v) in graph:
+	 if flow := max_flow(u, v):
+		// append an edge to the new graph from u -> v with weight = flow
+		clean.add_edge(u, v, flow)
+
+		// restructures edges as described above
+		graph.reduce_edges() 		
+		
+		// for loop now runs on until no more edges in graph; 
+		// thus stops when no edges left in initial graph
+		
+
+```
+
+Correctness of the implementation is shown in the testing section
 
 ---
 Note: **Implications to security**
@@ -235,11 +303,11 @@ However, as with all private key cryptography, private keys need to be kept secr
 After careful consideration of the end user, and existing systems, I can arrive at my high level and low level requirements
 
 On a high level, my objectives are as follows:
-1) [x] An RSA implementation that will allow the signing, and verification, of transactions
-2) [x] A way to settle the debts of the group in as few as possible (heuristically speaking) monetary transfers
-3) [ ] A server-side component of the application which can verify transactions, and store / retrieve them from a database
-4) [ ] A client-side component of the application that will have a simple user interface (CLI)
-5) [ ] A database that should be able to store user and transaction information
+1) An RSA implementation that will allow the signing, and verification, of transactions
+2) A way to settle the debts of the group in as few as possible (heuristically speaking) monetary transfers
+3) A server-side component of the application which can verify transactions, and store / retrieve them from a database
+4) A client-side component of the application that will have a simple user interface (CLI)
+5) A database that should be able to store user and transaction information
 
 ## Low Level Requirements
 For the purposes of testing, these are low level requirements that I would like to fulfil.
@@ -260,9 +328,9 @@ For the purposes of testing, these are low level requirements that I would like 
  
  4) Object Signing
 	 1) Algorithm to convert an object to a hash in a reproducible way, minimising the chance of hash collisions
-	 3) Ability to sign a class of object with RSA sig scheme
-	 4) Ability to verify a signed object with RSA verif scheme, raising an error if signature is invalid
-	 5) The server is able to use a master key to sign settled transactions
+	 2) Ability to sign a class of object with RSA sig scheme
+	 3) Ability to verify a signed object with RSA verif scheme, raising an error if signature is invalid
+	 4) The server is able to use a master key to sign settled transactions
 
 #### Debt Simplification (B)
 1) A reliable digraph structure, with operations to `transactions.graph.GenericDigraph`
@@ -285,42 +353,50 @@ For the purposes of testing, these are low level requirements that I would like 
 
 4) A reliable recursive BFS that works on
 	1) Digraphs
-	2) Weighted Digraphs
+	2) Weighted Digraphs ==ask if keep in and say was unneeded in eval==
 	3) Flow Graphs
 	4) BFS should also be able to be used to operate on edges in a graph
 
 ==talk about combination, passing function into recursive bfs==
 5) Implementation of Edmonds-Karp
-	2) Way to find shortest augmenting path between two nodes
-	3) Way to find bottleneck value of a path
-	4) Finding max flow along a flow graph from source node to sink node
+	1) Way to find shortest augmenting path between two nodes
+	2) Way to find bottleneck value of a path
+	3) Finding max flow along a flow graph from source node to sink node
 
 6) Simplifying an entire graph using Edmonds Karp, using the method laid out in [[#Settling a graph using a Max Flow algorithm]]. 
 
-7) Be able to convert a list of valid transactions into a flow graph
-8) Be able to convert a digraph into a list of transactions, signed by the server
+7) Be able to convert a list of valid transactions into a flow graph 
+8) Be able to convert a digraph into a list of transactions, signed by the server ==ask if keep in and say was unneeded in eval==
 
 
 #### Client / Server Structure (C)
 1) The server should be accessible to the client via a REST API
-2) The server should be able to pull a group's transactions from a database, run the settling 
-3) The client should be able to request 
+2) The client should be relatively thin, only dealing with input from user and handling error 400 and 500 codes gracefully.
+3) The server should be able to pull a group's transactions from a database, run the settling, and handle any requests from the client 
+4) The client should be able to request 
 	1) See their own user information
 		1) Total debt across all groups
 		2) Open transactions
 		3) Closed transactions
-	==DECIDE / SEE TIME==
-	1) Open transactions / closed transactions
-	2) Mark a transaction as settled
-	3) Make / invite people /  leave groups
-	4) Settle a group
-	5) Create a transaction
-	6) Sign an open transaction
-	7) Mark a transaction as settled
+	2) Open transactions / closed transactions
+	3) Mark a transaction as settled
+	4) Make / invite people /  leave groups
+	5) Settle a group
+	6) Create a transaction
+	7) Sign an open transaction
+	8) Mark a transaction as settled
+
+5) Ancillary functions should allow users to:
+	   1) Register for an account, giving email, name RSA private key in PEM format and a password
+	   2) A `whois` function, allowing you to see people's user info (name, email, public key)
+	   3) Create groups with a name and password
+	   4) Join groups by ID
+	   5) Leave groups given you owe 0 debt to the group
+	   6) Delete your account given you have no debts to anyone
+
 
 #### Command Line Interface (D)
 1) Everything listed in C.3
-2) Should be able to make an account, and delete account (given that debt = $\pm$ 0)
 
 #### Database Architecture (E)
 1) User information

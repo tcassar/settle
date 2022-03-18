@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "notes.md",
+            "file": "Analysis.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "notes.md",
+                "file": "Analysis.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -89,15 +89,15 @@
   },
   "active": "2236675a1844b00e",
   "lastOpenFiles": [
+    "Analysis.md",
+    "Design.md",
     "notes.md",
-    "README.md",
+    "images/main settle eg.png",
+    "Pasted image 20220318131850.png",
+    "Write Up.md",
     "images/residual edge 1.png",
     "images/big settled.svg",
     "images/big graph settle.svg",
-    "README.pdf",
-    "images/residual edge.png",
-    "images/pre settle simple.png",
-    "images/evenfy_ui.png",
-    "images/basic_settle.png"
+    "README.pdf"
   ]
 }
