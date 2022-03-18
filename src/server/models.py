@@ -9,6 +9,7 @@ class User:
     modulus: str
     pub_exp: str
     password: str = "default"
+    id: int = 0
 
     def __str__(self):
         return f"""\nName:\t{self.name}

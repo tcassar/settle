@@ -99,7 +99,7 @@ class User(Resource):
         cursor = get_db().cursor()
 
         query = """
-                 SELECT users.name, users.email, keys.n, keys.e, users.password
+                 SELECT users.name, users.email, keys.n, keys.e, users.password, users.id
                  FROM users, keys
                  WHERE email = ? AND keys.id = users.key_id;
                 """
@@ -153,7 +153,7 @@ class User(Resource):
         cursor.execute(users_query, [usr.name, usr.email, usr.password, key_id])
         get_db().commit()
 
-        return schema.dump(usr), 201
+        return (schema.dump(usr),)
 
 
 class UserGroupBridge(Resource):

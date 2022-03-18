@@ -7,6 +7,7 @@ import src.transactions.transaction
 
 
 class UserSchema(Schema):
+    id = fields.Int()
     name = fields.Str()
     email = fields.Email()
     modulus = fields.Str()

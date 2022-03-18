@@ -3,6 +3,7 @@ import click
 import requests
 
 from src.crypto import hashes as hasher
+from src.server import models
 
 SERVER = "http://127.0.0.1:5000/"
 
@@ -50,6 +51,21 @@ def auth_usr(email: str, password: str):
 
 def auth_group(group_id: int, password: str):
     return _auth(f"group/{group_id}", password)
+
+
+def get_user(email: str) -> models.User:
+    usr_rep = requests.get(url(f"user/{email}"))
+
+    try:
+        validate_response(usr_rep)
+    except InvalidResponseError:
+        raise InvalidResponseError(f"No user associated with email {email}")
+
+    usr = usr_rep.json()
+
+    return models.User(
+        usr["name"], usr["email"], usr["modulus"], usr["pub_exp"], '', usr["id"]
+    )
 
 
 def trap(func) -> object:

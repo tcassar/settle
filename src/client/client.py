@@ -5,10 +5,12 @@ import sys
 import click
 import requests
 
+import src.client.cli_helpers as helpers
 import src.crypto.keys as keys
 import src.server.models as models
 import src.server.schemas as schemas
-import src.client.cli_helpers as helpers
+import src.transactions.transaction as trn
+
 
 trap = helpers.trap
 
@@ -148,8 +150,29 @@ def new_group(name, password):
 ##############
 
 # TODO: New transaction
+# TODO: new transaction
+@trap
 def new_transaction(email, password, dest_email, amount, group):
-    ...
+    # 1. verify src credentials
+    helpers.auth_usr(email, password)
+
+    # 2. get users as models.User objects destination exists
+    src = helpers.get_user(email)
+    dest = helpers.get_user(dest_email)
+
+    # convert amount into pence
+    amount *= 100
+    if type(amount) == float:
+        amount //= 1
+        amount = int(amount)
+
+    # get uids for transaction object
+    src_id: int
+    dest_id: int
+
+    # get public keys, build RSAPublicKeyObjects
+
+    print(src.id, dest.id)
 
 
 # TODO: simplify
