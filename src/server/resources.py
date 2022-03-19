@@ -226,15 +226,30 @@ class PrettyTransaction(Resource):
                             VALUES (?, ?) ON CONFLICT DO NOTHING """
 
         cursor.execute(insert_to_pairs, [transaction.src, transaction.dest])
-        print(cursor.lastrowid)
-
         get_db().commit()
 
-        # add to transactions
+        # get relevant info
+        pair_id = cursor.execute("""SELECT pairs.id FROM pairs 
+                     WHERE src_id = ? AND dest_id = ?""", [transaction.src, transaction.dest]).fetchone()[0]
 
-        tsn_sql = """"""
-        # TODO: add transactions with joins
-        cursor.execute(tsn_sql)
+        key_id_query = """SELECT keys.id FROM keys 
+                          JOIN users u on keys.id = u.key_id
+                          WHERE u.id = ?"""
+
+        src_key_id = cursor.execute(key_id_query, [transaction.src]).fetchone()[0]
+        dest_key_id = cursor.execute(key_id_query, [transaction.dest]).fetchone()[0]
+
+        cursor.execute("""INSERT INTO transactions 
+        (pair_id, group_id, amount, src_key, dest_key, reference, time_of_creation)
+        VALUES (?, ?, ?, ?, ?, ?, ?)""", [pair_id,
+                                          transaction.group,
+                                          transaction.amount,
+                                          src_key_id,
+                                          dest_key_id,
+                                          transaction.msg,
+                                          transaction.time])
+
+        get_db().commit()
 
         return request.json, 201
 
