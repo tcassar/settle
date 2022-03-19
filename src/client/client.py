@@ -125,9 +125,11 @@ def show(transactions, groups, email):
 
         try:
             # TODO: print out received transactions
+            running = 0
             for pretty in transactions_data.json()["src_list"]:
                 click.secho(
                     f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
+                running += pretty["amount"]
 
                 click.secho(
                     f'\nReference: {pretty["time"]}' +
@@ -136,10 +138,18 @@ def show(transactions, groups, email):
             for pretty in transactions_data.json()["dest_list"]:
                 click.secho(
                     f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
+                running -= pretty["amount"]
 
                 click.secho(
                     f'\nReference: {pretty["time"]}' +
                     f'\nAgreed upon at {pretty["reference"]}')
+
+            click.echo('----------\n')
+            running = round(running / 100, 2)
+            if running > 0:
+                click.secho(f'You owe a total of{running:02}', fg='red')
+            else:
+                click.secho(f'You are owed a total of £{running:02}', fg='green')
 
         except TypeError as te:
             if transactions_data.json() is None:

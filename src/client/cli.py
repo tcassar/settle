@@ -37,13 +37,10 @@ def whois(email):
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
 @click.option("-t", "--transactions", flag_value="transactions", default=False)
-# @click.option("--email", prompt=True)
+@click.option("--email", prompt=True)
 @settle.command()
-# def show(transactions, groups, email):
-def show(transactions, groups):
-
+def show(transactions, groups, email):
     """Shows all of your open transactions / groups along with IDs"""
-    email = 'cassar.thomas.e@gmail.com'
     client.show(transactions, groups, email)
 
 
@@ -99,21 +96,13 @@ def debt(email, group):
     client.debt(email, group)
 
 
-#
-# @click.option("--password", prompt=True, hide_input=True)
-# @click.option("--email", prompt="Your email")
-# @click.option("--group", "-g", prompt=True)
-# @click.option('--reference')
-# @click.option("--amount", prompt="Amount (in GBP)")
-# @click.option("--dest_email", prompt="Email of payee")
-# def new_transaction(email, password, dest_email, amount, group, reference):
-@settle.command(name="new-transaction")
-def new_transaction():
-    email = "cassar.thomas.e@gmail.com"
-    password = "admin"
-    dest_email = "keith@edl.com"
-    reference = "scran"
-    amount = 12.99
-    group = 3
 
+@click.option("--password", prompt=True, hide_input=True)
+@click.option("--email", prompt="Your email")
+@click.option("--group", "-g", prompt=True)
+@click.option('--reference')
+@click.option("--amount", prompt="Amount (in GBP)")
+@click.option("--dest_email", prompt="Email of payee")
+@settle.command(name="new-transaction")
+def new_transaction(email, password, dest_email, amount, group, reference):
     client.new_transaction(email, password, dest_email, amount, group, reference)
