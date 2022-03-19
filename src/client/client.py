@@ -189,8 +189,13 @@ def new_transaction(email, password, dest_email, amount, group, reference):
         group=group
     )
 
-    print(transaction)
+    # build schema
+    trn_schema = schemas.TransactionSchema()
 
+    # post to server
+    response = requests.post(helpers.url('transaction'), json=trn_schema.dump(transaction))
+
+    click.echo(response.text)
 
 # TODO: simplify
 def simplify(group_id):

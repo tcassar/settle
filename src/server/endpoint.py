@@ -216,7 +216,9 @@ class UserGroupBridge(Resource):
 
 
 class Transaction(Resource):
-    ...
+
+    def post(self):
+        return request.json, 201
 
 
 api.add_resource(Group, "/group/<int:id>", "/group")
