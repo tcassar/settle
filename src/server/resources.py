@@ -226,17 +226,19 @@ class PrettyTransaction(Resource):
                 WHERE transactions.settled = 0 AND u.email = ?"""
 
         pretty_src_transaction_data = cursor.execute(src_sql, [email])
-        pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
-
         src_transactions = []
         for row in pretty_src_transaction_data:
             src_transactions.append(models.PrettyTransaction(*build_args(row)))
 
-        pretty_list_schema = schemas.PrettyListSchema()
+
+        pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
 
         dest_transactions = []
         for row in pretty_dest_transaction_data:
-            dest_transactions.append(models.PrettyTransaction(*build_args(row)))
+            trn = models.PrettyTransaction(*build_args(row))
+            dest_transactions.append(trn)
+
+        pretty_list_schema = schemas.PrettyListSchema()
 
         if not src_transactions and dest_transactions:
             return 'No open transactions', 200
