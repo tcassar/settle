@@ -163,7 +163,10 @@ def new_group(name, password):
     as_json = schema.dump(group)
     response = requests.post(helpers.url("group"), json=as_json)
 
-    helpers.validate_response(response)
+    try:
+        helpers.validate_response(response)
+    except helpers.InvalidResponseError as ire:
+        raise helpers.InvalidResponseError(f'Couldn\'t create new group...\n{ire}')
 
     click.secho(response.text, fg="green")
     click.secho("You can join this group with `settle join`")

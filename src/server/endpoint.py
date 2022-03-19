@@ -9,7 +9,7 @@ from src.server.resources import (
     Group,
     User,
     UserGroupBridge,
-    Transaction,
+    PrettyTransaction,
     TransactionSigVerif,
     get_db,
     Simplifier,
@@ -31,7 +31,7 @@ def close_connection(exception):
 
 api.add_resource(Group, "/group/<int:id>", "/group")
 
-api.add_resource(Transaction, "/transaction", "/transaction/<string:email>")
+api.add_resource(PrettyTransaction, "/transaction", "/transaction/<string:email>")
 
 api.add_resource(User, "/user/<string:email>", "/user")
 

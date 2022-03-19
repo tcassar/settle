@@ -203,7 +203,7 @@ class UserGroupBridge(Resource):
         return groups_schema.dump(groups_obj), 200
 
 
-class Transaction(Resource):
+class PrettyTransaction(Resource):
     def get(self, email: str):
         """Gets a user's unsigned transactions"""
         sql = """"""
@@ -213,29 +213,20 @@ class Transaction(Resource):
         return request.json, 200
 
     def post(self):
-
         cursor = get_db().cursor()
+
+        # note: IDs are ints
 
         # load transaction object into schema from request
         trn_json = request.json
         trn_schema = schemas.TransactionSchema()
-        transaction = trn_schema.load(trn_json)
-
-        # add to pairs
-        pairs_exist = """SELECT COUNT(*) FROM pairs
-                        WHERE src_id = ? AND dest_id = ?"""
+        transaction = trn_schema.make_transaction(trn_json)
 
         insert_to_pairs = """INSERT INTO pairs (src_id, dest_id)
-                            VALUES (?, ?)"""
+                            VALUES (?, ?) ON CONFLICT DO NOTHING """
 
-        pairs_exist = cursor.execute(
-            pairs_exist, [transaction.src, transaction.dest]
-        ).fetchone()[0]
-        if pairs_exist:
-            print("Pairs exist")
-            pass
-        else:
-            cursor.execute(insert_to_pairs, [transaction.src, transaction.dest])
+        cursor.execute(insert_to_pairs, [transaction.src, transaction.dest])
+        print(cursor.lastrowid)
 
         get_db().commit()
 
