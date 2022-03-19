@@ -43,7 +43,7 @@ class Transaction(Signable):
     dest_pub: keys.RSAPublicKey
     ID: int = 0
     msg: str = ""
-    time = datetime.datetime.now()
+    time: datetime.datetime = datetime.datetime.now()
     signatures: dict[int, bytes] = field(default_factory=lambda: {})
     group: int = 0
 

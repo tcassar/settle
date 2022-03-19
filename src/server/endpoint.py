@@ -218,6 +218,13 @@ class UserGroupBridge(Resource):
 class Transaction(Resource):
 
     def post(self):
+
+        # load transaction object into schema from request
+        trn_schema = schemas.TransactionSchema()
+        transaction = trn_schema.load(request.json)
+
+        print(transaction)
+
         return request.json, 201
 
 
