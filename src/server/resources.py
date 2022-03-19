@@ -271,3 +271,9 @@ class Simplifier(Resource):
 class Debt(Resource):
     def get(self, email):
         """Return amount of debt that a user has"""
+
+
+class GroupDebt(Resource):
+    def get(self, id, email):
+        """Return amount of debt that a user has in a group"""
+
