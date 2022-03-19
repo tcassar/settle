@@ -5,7 +5,15 @@ import click
 from flask import Flask, g
 from flask_restful import Resource, Api, abort  # type: ignore
 
-from server.resources import Group, User, UserGroupBridge, Transaction, TransactionSigVerif, get_db
+from server.resources import (
+    Group,
+    User,
+    UserGroupBridge,
+    Transaction,
+    TransactionSigVerif,
+    get_db,
+    Simplifier,
+)
 
 app = Flask(__name__)
 api = Api(app)
@@ -20,13 +28,19 @@ def close_connection(exception):
 
 
 api.add_resource(Group, "/group/<int:id>", "/group")
-api.add_resource(Transaction, "/transaction")
+
+api.add_resource(Transaction, "/transaction", "/transaction/<string:email>")
+
 api.add_resource(User, "/user/<string:email>", "/user")
+
 api.add_resource(
     UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>"
 )
 
-api.add_resource(TransactionSigVerif, '/transaction/auth/<int:id>')
+api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>")
+
+api.add_resource(Simplifier, "/simplify/<int:gid>")
+
 
 @click.group()
 def settle_server():

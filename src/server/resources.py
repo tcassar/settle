@@ -13,6 +13,11 @@ DATABASE = "/home/tcassar/projects/settle/settle_db.sqlite"
 
 # helpers
 
+
+class ResourceError(Exception):
+    ...
+
+
 def get_db():
     """Returns current database connection"""
     db = getattr(g, "_database", None)
@@ -33,14 +38,12 @@ def build_args(data_from_cursor: list | tuple) -> list:
             "Database error: failed to build schema of object as nothing was retrieved"
         )
 
+
 # Resources
 
 
 class Group(Resource):
     def get(self, id: int):
-        return self.get_group_schema(id)
-
-    def get_group_schema(self, id):
         cursor = get_db().cursor()
         # check group exists and
         get_group = """SELECT id, name, password FROM groups
@@ -201,11 +204,12 @@ class UserGroupBridge(Resource):
 
 
 class Transaction(Resource):
-
-    def get(self):
+    def get(self, email: str):
         """Gets a user's unsigned transactions"""
         sql = """"""
         # sql should return complete rows of transaction table
+
+        return request.json, 200
 
     def post(self):
 
@@ -246,19 +250,21 @@ class Transaction(Resource):
 class TransactionSigVerif(Resource):
     def get(self, id):
         """Verify a transaction"""
+        return request.json, 200
+
 
     def post(self, id):
         """Sign a transaction"""
+        return request.json, 201
+
 
 
 class Simplifier(Resource):
-    def get(self, id):
+    def get(self, gid: int):
         """Return what a group would look like settled"""
+        return request.json, 200
 
-    def post(self, id):
+    def post(self, gid: int):
         """Actually settle the group, return img of graph, 201 if succeeded"""
         # note: will require priv key to sign all of group's outstanding transactions
-
-
-class ResourceError(Exception):
-    ...
+        return request.json, 201
