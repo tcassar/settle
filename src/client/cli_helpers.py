@@ -37,7 +37,9 @@ def _auth(resource: str, password: str):
     try:
         validate_response(usr_response)
     except InvalidResponseError:
-        raise InvalidResponseError(f"No {resource.split('/')[0]} with identifier {resource.split('/')[1]} found")
+        raise InvalidResponseError(
+            f"No {resource.split('/')[0]} with identifier {resource.split('/')[1]} found"
+        )
 
     # build a user from received data
 
@@ -67,7 +69,7 @@ def get_user(email: str) -> models.User:
     usr = usr_rep.json()
 
     return models.User(
-        usr["name"], usr["email"], usr["modulus"], usr["pub_exp"], '', usr["id"]
+        usr["name"], usr["email"], usr["modulus"], usr["pub_exp"], "", usr["id"]
     )
 
 
@@ -82,12 +84,13 @@ def trap(func) -> object:
 
         except AuthError as ae:
             click.secho("Authorisation Error; aborting...", fg="red")
-            click.secho(ae, fg='red')
+            click.secho(ae, fg="red")
 
         except InvalidResponseError as nre:
             click.secho(
-                f"Could not find requested resource on servers; aborting...", fg="yellow"
+                f"Could not find requested resource on servers; aborting...",
+                fg="yellow",
             )
-            click.secho(nre, fg='red')
+            click.secho(nre, fg="red")
 
     return inner

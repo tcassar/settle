@@ -101,6 +101,7 @@ def simplify(group_id):
 def debt(email, group):
     client.debt(email, group)
 
+
 #
 # @click.option("--password", prompt=True, hide_input=True)
 # @click.option("--email", prompt="Your email")
@@ -114,7 +115,7 @@ def new_transaction():
     email = "cassar.thomas.e@gmail.com"
     password = "admin"
     dest_email = "keith@edl.com"
-    reference = 'scran'
+    reference = "scran"
     amount = 12.99
     group = 3
 

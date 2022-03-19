@@ -289,7 +289,8 @@ clean = FlowGraph()
 
 ```
 
-Correctness of the implementation is shown in the testing section
+
+In the worst case scenario, only 1 edge is removed from the graph each time `graph.reduce_edges()` is called. In this case, 1 max-flow would happen per edge of the graph, giving a time complexity of $\mathcal O((EV^2)\cdot E) = \mathcal O((EV)^2)$ . However in practice, more than one edge will become saturated with each max-flow, reducing the expected time complexity.
 
 ---
 Note: **Implications to security**
@@ -298,6 +299,8 @@ Since the server that is settling a group of transactions is creating and destro
 The solution to extend security through the settling process is to have the server be able to sign the new transactions. There may be a security risk here in that the server's private key can act as a master key, validating any transaction.
 
 However, as with all private key cryptography, private keys need to be kept secret. Thus, while this is something that needs to be kept in mind, it does not require large redesigns of the security software.
+
+
 
 ## High Level Objectives for the Solution
 After careful consideration of the end user, and existing systems, I can arrive at my high level and low level requirements
