@@ -1,4 +1,5 @@
 # coding=utf-8
+import datetime
 from dataclasses import dataclass
 
 
@@ -49,3 +50,17 @@ class GroupList:
             out += f"{str(group)}\n"
 
         return out
+
+
+@dataclass
+class PrettyTransaction:
+    src: str
+    dest: str
+    amount: int
+    time: str
+    reference: str
+
+    def __str__(self):
+        return f'{self.src} owes {self.dest} £{round(self.amount / 100, 2):02}' \
+               f'\nReference: {self.reference}' \
+               f'\nAgreed upon at {self.time}'

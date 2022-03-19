@@ -16,6 +16,4 @@
 
 ## High Level System Design
 
-On a high level, the system is decomposed into 5 separate modules. 
-
-
+On a high level, the system is decomposed into 5 separate modules, each accounting for a main component of the system. These are `crypto`, `simplify`, `transactions`, `client` and `server`. 

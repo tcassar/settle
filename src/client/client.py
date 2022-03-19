@@ -108,6 +108,24 @@ def show(transactions, groups, email):
         click.echo(str(groups))
         # type: ignore
 
+    if transactions:
+        click.secho("\nYour open transactions:\n", fg="blue")
+
+        # transaction schema
+        trn_schema = schemas.TransactionSchema()
+
+        # receive list of transactions
+        transactions_data = requests.get(helpers.url(f'/transaction/{email}'))
+
+        for transaction in transactions_data.json()["transactions"]:  # note: this may have to change
+            t = trn_schema.load(transaction)
+            click.secho(
+               f'{t.src} owes {t.dest} £{round(t.amount / 100, 2):02}', fg='yellow')
+
+            click.secho(
+               f'\nReference: {t.reference}' +
+               f'\nAgreed upon at {t.time}' )
+
 
 @trap
 def join(email, password, group_id, group_password):
@@ -208,6 +226,7 @@ def simplify(group_id):
 # TODO: sign
 def sign(transaction_id, key_path):
     """Signs a transaction given an ID and a path to key"""
+    # load private key
 
 
 # TODO: verify

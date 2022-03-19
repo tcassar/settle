@@ -63,5 +63,18 @@ class TransactionSchema(Schema):
     group = fields.Int()
 
     @post_load
-    def make_group_list(self, data, **kwargs):
+    def make_transaction(self, data, **kwargs):
         return src.transactions.transaction.Transaction(**data)
+
+
+class PrettyTransactionSchema(Schema):
+    src = fields.Str()
+    dest = fields.Str()
+    amount = fields.Int()
+    time = fields.Str()
+    reference = fields.Str()
+
+    @post_load
+    def make_pretty_transaction(self, data, **kwargs):
+        return models.PrettyTransaction(**data)
+

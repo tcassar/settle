@@ -209,6 +209,7 @@ class Transaction(Resource):
         sql = """"""
         # sql should return complete rows of transaction table
 
+        # note: use pretty transaction schema
         return request.json, 200
 
     def post(self):
