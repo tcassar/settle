@@ -5,7 +5,7 @@ import click
 from flask import Flask, g
 from flask_restful import Resource, Api, abort  # type: ignore
 
-from server.resources import (
+from src.server.resources import (
     Group,
     User,
     UserGroupBridge,
@@ -13,6 +13,7 @@ from server.resources import (
     TransactionSigVerif,
     get_db,
     Simplifier,
+    Debt
 )
 
 app = Flask(__name__)
@@ -41,6 +42,8 @@ api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>")
 
 api.add_resource(Simplifier, "/simplify/<int:gid>")
 
+api.add_resource(Debt, "/user/debt/<string:email>")
+
 
 @click.group()
 def settle_server():
@@ -54,4 +57,3 @@ def start(host, debug):
     os.chdir("/home/tcassar/projects/settle")
     app.run(debug=debug, host=host)
     db = get_db()
-    cursor = db.cursor()

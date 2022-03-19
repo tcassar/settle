@@ -252,11 +252,9 @@ class TransactionSigVerif(Resource):
         """Verify a transaction"""
         return request.json, 200
 
-
     def post(self, id):
         """Sign a transaction"""
         return request.json, 201
-
 
 
 class Simplifier(Resource):
@@ -268,3 +266,8 @@ class Simplifier(Resource):
         """Actually settle the group, return img of graph, 201 if succeeded"""
         # note: will require priv key to sign all of group's outstanding transactions
         return request.json, 201
+
+
+class Debt(Resource):
+    def get(self, email):
+        """Return amount of debt that a user has"""
