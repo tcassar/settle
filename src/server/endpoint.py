@@ -219,11 +219,28 @@ class Transaction(Resource):
 
     def post(self):
 
-        # load transaction object into schema from request
-        trn_schema = schemas.TransactionSchema()
-        transaction = trn_schema.load(request.json)
+        cursor = get_db().cursor()
 
-        print(transaction)
+        # load transaction object into schema from request
+        trn_json = request.json
+        trn_schema = schemas.TransactionSchema()
+        transaction = trn_schema.load(trn_json)
+
+        # add to pairs
+        pairs_exist = """SELECT COUNT(*) FROM pairs
+                        WHERE src_id = ? AND dest_id = ?"""
+
+        insert_to_pairs = """INSERT INTO pairs (src_id, dest_id)
+                            VALUES (?, ?)"""
+
+        pairs_exist = cursor.execute(pairs_exist, [transaction.src, transaction.dest]).fetchone()[0]
+        if pairs_exist:
+            print("Pairs exist")
+            pass
+        else:
+            cursor.execute(insert_to_pairs, [transaction.src, transaction.dest])
+
+        get_db().commit()
 
         return request.json, 201
 

@@ -101,16 +101,16 @@ def simplify(group_id):
 def debt(email, group):
     client.debt(email, group)
 
-
-@click.option("--password", prompt=True, hide_input=True)
-@click.option("--email", prompt="Your email")
-@click.option("--group", "-g", prompt=True)
-@click.option('--reference')
-@click.option("--amount", prompt="Amount (in GBP)")
-@click.option("--dest_email", prompt="Email of payee")
+#
+# @click.option("--password", prompt=True, hide_input=True)
+# @click.option("--email", prompt="Your email")
+# @click.option("--group", "-g", prompt=True)
+# @click.option('--reference')
+# @click.option("--amount", prompt="Amount (in GBP)")
+# @click.option("--dest_email", prompt="Email of payee")
+# def new_transaction(email, password, dest_email, amount, group, reference):
 @settle.command(name="new-transaction")
-def new_transaction(email, password, dest_email, amount, group, reference):
-
+def new_transaction():
     email = "cassar.thomas.e@gmail.com"
     password = "admin"
     dest_email = "keith@edl.com"
