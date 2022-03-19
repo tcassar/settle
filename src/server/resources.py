@@ -206,7 +206,12 @@ class UserGroupBridge(Resource):
 class PrettyTransaction(Resource):
     def get(self, email: str):
         """Gets a user's unsigned transactions"""
-        sql = """"""
+        sql = """SELECT * FROM transactions
+                INNER JOIN pairs p on p.id = transactions.pair_id
+                INNER JOIN users u on u.id = p.src_id or u.id = p.dest_id
+                WHERE transactions.settled = 0 AND u.email = ?
+        """
+
         # sql should return complete rows of transaction table
 
         # note: use pretty transaction schema
