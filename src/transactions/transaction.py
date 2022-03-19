@@ -45,6 +45,7 @@ class Transaction(Signable):
     msg: str = ""
     time = datetime.datetime.now()
     signatures: dict[int, bytes] = field(default_factory=lambda: {})
+    group: int = 0
 
     def hash(self) -> bytes:
         # standard way to produce hash using SHA256 interface from crypto lib

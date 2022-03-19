@@ -29,12 +29,15 @@ def validate_response(response: requests.Response) -> None:
     if str(response.status_code)[0] != "2":
         e = response.json()
         click.secho(f"ERROR: {e}", fg="red")
-        raise InvalidResponseError
+        raise InvalidResponseError(response.text)
 
 
 def _auth(resource: str, password: str):
     usr_response: requests.Response = requests.get(url(resource))
-    validate_response(usr_response)
+    try:
+        validate_response(usr_response)
+    except InvalidResponseError:
+        raise InvalidResponseError(f"No {resource.split('/')[0]} with identifier {resource.split('/')[1]} found")
 
     # build a user from received data
 
@@ -79,12 +82,12 @@ def trap(func) -> object:
 
         except AuthError as ae:
             click.secho("Authorisation Error; aborting...", fg="red")
-            click.echo(ae)
+            click.secho(ae, fg='red')
 
         except InvalidResponseError as nre:
             click.secho(
-                "Could not find requested resource on servers; aborting...", fg="yellow"
+                f"Could not find requested resource on servers; aborting...", fg="yellow"
             )
-            click.echo(nre)
+            click.secho(nre, fg='red')
 
     return inner

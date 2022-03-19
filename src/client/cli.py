@@ -105,15 +105,17 @@ def debt(email, group):
 @click.option("--password", prompt=True, hide_input=True)
 @click.option("--email", prompt="Your email")
 @click.option("--group", "-g", prompt=True)
+@click.option('--reference')
 @click.option("--amount", prompt="Amount (in GBP)")
 @click.option("--dest_email", prompt="Email of payee")
 @settle.command(name="new-transaction")
-def new_transaction(email, password, dest_email, amount, group):
+def new_transaction(email, password, dest_email, amount, group, reference):
 
-    email = "cassar.thomas.e@gmail.com"
-    password = "admin"
-    dest_email = "keith@edl.com"
-    amount = 12.99
-    group = 3
+    # email = "cassar.thomas.e@gmail.com"
+    # password = "admin"
+    # dest_email = "keith@edl.com"
+    # reference = 'scran'
+    # amount = 12.99
+    # group = 3
 
-    client.new_transaction(email, password, dest_email, amount, group)
+    client.new_transaction(email, password, dest_email, amount, group, reference)

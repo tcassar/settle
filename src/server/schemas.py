@@ -60,6 +60,7 @@ class TransactionSchema(Schema):
     msg = fields.Str()
     time = fields.DateTime()
     signatures = fields.Dict()
+    group = fields.Int()
 
     @post_load
     def make_group_list(self, data, **kwargs):

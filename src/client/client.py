@@ -153,7 +153,7 @@ def new_group(name, password):
 # TODO: New transaction
 # TODO: new transaction
 @trap
-def new_transaction(email, password, dest_email, amount, group):
+def new_transaction(email, password, dest_email, amount, group, reference):
     # 1. verify src credentials
     helpers.auth_usr(email, password)
 
@@ -177,6 +177,19 @@ def new_transaction(email, password, dest_email, amount, group):
     src_key = keys.RSAPublicKey(src_key_ldr)
     dest_key = keys.RSAPublicKey(dest_key_ldr)
 
+    # build transaction
+
+    transaction = trn.Transaction(
+        src=src.id,
+        dest=dest.id,
+        amount=amount,
+        src_pub=src_key,
+        dest_pub=dest_key,
+        msg=reference,
+        group=group
+    )
+
+    print(transaction)
 
 
 # TODO: simplify
