@@ -48,14 +48,15 @@ def register(
     usr = models.User(
         name,
         email,
-        str(n_as_bytes),
-        str(pub_key.e.to_bytes(4, sys.byteorder)),
+        hex(pub_key.n),
+        hex(pub_key.e),
         password,
     )
 
     # build json repr of object
     schema = schemas.UserSchema()
     usr_as_json = schema.dump(usr)
+
 
     response = requests.post(helpers.url("user"), json=usr_as_json)
     try:
@@ -166,13 +167,10 @@ def new_transaction(email, password, dest_email, amount, group):
         amount //= 1
         amount = int(amount)
 
-    # get uids for transaction object
-    src_id: int
-    dest_id: int
+    # build key objects
+    src_key_ldr = keys.RSAKeyLoaderFromNumbers()
+    dest_key_ldr = keys.RSAKeyLoaderFromNumbers()
 
-    # get public keys, build RSAPublicKeyObjects
-
-    print(src.id, dest.id)
 
 
 # TODO: simplify
