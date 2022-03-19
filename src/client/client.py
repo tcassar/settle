@@ -124,15 +124,22 @@ def show(transactions, groups, email):
             raise helpers.InvalidResponseError(f'Problem with fetching your transactions...\n{ire}')
 
         try:
-            print(transactions_data.json())
             # TODO: print out received transactions
-            # for transaction in transactions_data.json()["pretty_list"][0]:
-            #     click.secho(
-            #        f'{email} owes {t.dest} £{round(t.amount / 100, 2):02}', fg='yellow')
-            #
-            #     click.secho(
-            #        f'\nReference: {t.reference}' +
-            #        f'\nAgreed upon at {t.time}')
+            for pretty in transactions_data.json()["src_list"]:
+                click.secho(
+                    f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
+
+                click.secho(
+                    f'\nReference: {pretty["time"]}' +
+                    f'\nAgreed upon at {pretty["reference"]}')
+
+            for pretty in transactions_data.json()["dest_list"]:
+                click.secho(
+                    f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
+
+                click.secho(
+                    f'\nReference: {pretty["time"]}' +
+                    f'\nAgreed upon at {pretty["reference"]}')
 
         except TypeError as te:
             if transactions_data.json() is None:
