@@ -116,7 +116,6 @@ def show(transactions, groups, email):
         click.secho("\nYour open transactions:\n", fg="blue")
 
         # transaction schema
-        trn_schema = schemas.TransactionSchema()
 
         # receive list of transactions
         try:
@@ -125,18 +124,20 @@ def show(transactions, groups, email):
             raise helpers.InvalidResponseError(f'Problem with fetching your transactions...\n{ire}')
 
         try:
-            for transaction in transactions_data.json()["transactions"]:  # note: this may have to change
-                t = trn_schema.load(transaction)
-                click.secho(
-                   f'{t.src} owes {t.dest} £{round(t.amount / 100, 2):02}', fg='yellow')
+            print(transactions_data.json())
+            # TODO: print out received transactions
+            # for transaction in transactions_data.json()["pretty_list"][0]:
+            #     click.secho(
+            #        f'{email} owes {t.dest} £{round(t.amount / 100, 2):02}', fg='yellow')
+            #
+            #     click.secho(
+            #        f'\nReference: {t.reference}' +
+            #        f'\nAgreed upon at {t.time}')
 
-                click.secho(
-                   f'\nReference: {t.reference}' +
-                   f'\nAgreed upon at {t.time}')
-
-        except TypeError:
+        except TypeError as te:
             if transactions_data.json() is None:
                 click.secho('No open transactions', fg='green')
+                click.echo(te)
 
 
 @trap

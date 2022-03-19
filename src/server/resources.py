@@ -206,16 +206,44 @@ class UserGroupBridge(Resource):
 class PrettyTransaction(Resource):
     def get(self, email: str):
         """Gets a user's unsigned transactions"""
-        sql = """SELECT * FROM transactions
+
+        cursor = get_db().cursor()
+
+        # TODO: make you just who you owe money to
+
+        src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
-                INNER JOIN users u on u.id = p.src_id or u.id = p.dest_id
+                INNER JOIN users u on u.id = p.src_id
+                INNER JOIN users u2 on u2.id = p.dest_id
                 WHERE transactions.settled = 0 AND u.email = ?
         """
 
-        # sql should return complete rows of transaction table
+        dest_sql = """
+        SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email FROM transactions
+                INNER JOIN pairs p on p.id = transactions.pair_id
+                INNER JOIN users u on u.id = p.dest_id
+                INNER JOIN users u2 on u2.id = p.src_id
+                WHERE transactions.settled = 0 AND u.email = ?"""
 
-        # note: use pretty transaction schema
-        return request.json, 200
+        pretty_src_transaction_data = cursor.execute(src_sql, [email])
+        pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
+
+        src_transactions = []
+        for row in pretty_src_transaction_data:
+            src_transactions.append(models.PrettyTransaction(*build_args(row)))
+
+        pretty_list_schema = schemas.PrettyListSchema()
+
+        dest_transactions = []
+        for row in pretty_dest_transaction_data:
+            dest_transactions.append(models.PrettyTransaction(*build_args(row)))
+
+        if not src_transactions and dest_transactions:
+            return 'No open transactions', 200
+        else:
+            pretty_list = models.PrettyList(src_transactions, dest_transactions)
+
+            return pretty_list_schema.dump(pretty_list), 200
 
     def post(self):
         cursor = get_db().cursor()
@@ -251,12 +279,15 @@ class PrettyTransaction(Resource):
                                           transaction.amount,
                                           src_key_id,
                                           dest_key_id,
-                                          transaction.msg,
+                                          transaction.reference,
                                           transaction.time])
 
         get_db().commit()
 
         return request.json, 201
+
+
+
 
 
 class TransactionSigVerif(Resource):

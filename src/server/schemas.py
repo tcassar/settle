@@ -58,8 +58,8 @@ class TransactionSchema(Schema):
     src_pub = fields.Str()
     dest_pub = fields.Str()
     ID = fields.Int()
-    msg = fields.Str()
-    time = fields.DateTime()
+    reference = fields.Str()
+    time = fields.Str()
     signatures = fields.Dict()
     group = fields.Int()
 
@@ -69,8 +69,9 @@ class TransactionSchema(Schema):
 
 
 class PrettyTransactionSchema(Schema):
-    src = fields.Str()
-    dest = fields.Str()
+    ID = fields.Int()
+    other = fields.Str()
+    group = fields.Int()
     amount = fields.Int()
     time = fields.Str()
     reference = fields.Str()
@@ -79,3 +80,11 @@ class PrettyTransactionSchema(Schema):
     def make_pretty_transaction(self, data, **kwargs):
         return models.PrettyTransaction(**data)
 
+
+class PrettyListSchema(Schema):
+    src_list = fields.List(fields.Nested(PrettyTransactionSchema()))
+    dest_list = fields.List(fields.Nested(PrettyTransactionSchema()))
+
+    @post_load
+    def make_pretty_list(self, data, **kwargs):
+        return models.PrettyList(**data)

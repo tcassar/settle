@@ -42,7 +42,7 @@ class Transaction(Signable):
     src_pub: keys.RSAPublicKey
     dest_pub: keys.RSAPublicKey
     ID: int = 0
-    msg: str = ""
+    reference: str = ""
     time: datetime.datetime = datetime.datetime.now()
     signatures: dict[int, bytes] = field(default_factory=lambda: {})
     group: int = 0
@@ -51,7 +51,7 @@ class Transaction(Signable):
         # standard way to produce hash using SHA256 interface from crypto lib
         return (
             hashes.Hasher(
-                f"{self.src, self.dest, self.amount, self.msg, self.time}".encode(
+                f"{self.src, self.dest, self.amount, self.reference, self.time}".encode(
                     "utf8", sys.byteorder
                 )
             )

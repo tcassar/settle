@@ -37,10 +37,13 @@ def whois(email):
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
 @click.option("-t", "--transactions", flag_value="transactions", default=False)
-@click.option("--email", prompt=True)
+# @click.option("--email", prompt=True)
 @settle.command()
-def show(transactions, groups, email):
+# def show(transactions, groups, email):
+def show(transactions, groups):
+
     """Shows all of your open transactions / groups along with IDs"""
+    email = 'cassar.thomas.e@gmail.com'
     client.show(transactions, groups, email)
 
 
