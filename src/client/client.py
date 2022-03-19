@@ -171,6 +171,12 @@ def new_transaction(email, password, dest_email, amount, group):
     src_key_ldr = keys.RSAKeyLoaderFromNumbers()
     dest_key_ldr = keys.RSAKeyLoaderFromNumbers()
 
+    src_key_ldr.load(n=int(src.modulus, 16), e=int(src.pub_exp, 16))
+    dest_key_ldr.load(n=int(dest.modulus, 16), e=int(dest.pub_exp, 16))
+
+    src_key = keys.RSAPublicKey(src_key_ldr)
+    dest_key = keys.RSAPublicKey(dest_key_ldr)
+
 
 
 # TODO: simplify
