@@ -259,13 +259,12 @@ class TransactionSigVerif(Resource):
 
 
 class Simplifier(Resource):
-    def get(self, gid: int):
-        """Return what a group would look like settled"""
-        return request.json, 200
 
     def post(self, gid: int):
         """Actually settle the group, return img of graph, 201 if succeeded"""
         # note: will require priv key to sign all of group's outstanding transactions
+
+        # return a ledger schema
         return request.json, 201
 
 

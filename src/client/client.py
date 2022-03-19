@@ -82,6 +82,7 @@ def whois(email):
     click.secho(str(usr))
 
 
+@trap
 def show(transactions, groups, email):
     """Shows all of your open transactions / groups along with IDs"""
 
@@ -95,7 +96,10 @@ def show(transactions, groups, email):
         click.secho("Groups that you are a member of:\n", fg="blue")
 
         # receive list of groups JSON;
-        groups_data = requests.get(helpers.url(f"group/{email}"))
+        try:
+            groups_data = requests.get(helpers.url(f"group/{email}"))
+        except helpers.InvalidResponseError as ire:
+            raise helpers.InvalidResponseError(f'Problem fetching your group...\n{ire}')
 
         group_objs: list[models.Group] = []
         for group in groups_data.json()["groups"]:
@@ -115,16 +119,24 @@ def show(transactions, groups, email):
         trn_schema = schemas.TransactionSchema()
 
         # receive list of transactions
-        transactions_data = requests.get(helpers.url(f'/transaction/{email}'))
+        try:
+            transactions_data = requests.get(helpers.url(f'/transaction/{email}'))
+        except helpers.InvalidResponseError as ire:
+            raise helpers.InvalidResponseError(f'Problem with fetching your transactions...\n{ire}')
 
-        for transaction in transactions_data.json()["transactions"]:  # note: this may have to change
-            t = trn_schema.load(transaction)
-            click.secho(
-               f'{t.src} owes {t.dest} £{round(t.amount / 100, 2):02}', fg='yellow')
+        try:
+            for transaction in transactions_data.json()["transactions"]:  # note: this may have to change
+                t = trn_schema.load(transaction)
+                click.secho(
+                   f'{t.src} owes {t.dest} £{round(t.amount / 100, 2):02}', fg='yellow')
 
-            click.secho(
-               f'\nReference: {t.reference}' +
-               f'\nAgreed upon at {t.time}' )
+                click.secho(
+                   f'\nReference: {t.reference}' +
+                   f'\nAgreed upon at {t.time}')
+
+        except TypeError:
+            if transactions_data.json() is None:
+                click.secho('No open transactions', fg='green')
 
 
 @trap
@@ -140,11 +152,6 @@ def join(email, password, group_id, group_password):
     group = requests.post(helpers.url(f"group/{group_id}/{email}"))
     helpers.validate_response(group)
     click.secho(f"Successfully joined group {group_id}", fg="green")
-
-
-# TODO: leave
-def leave(group_id):
-    """If your net debt within a group is 0, you can leave a group"""
 
 
 @trap
@@ -217,10 +224,17 @@ def new_transaction(email, password, dest_email, amount, group, reference):
 
 
 # TODO: simplify
+@trap
 def simplify(group_id):
     """Will settle the group; can be done by anyone at anytime;
     everyone signs newly generated transactions if new transactions are generated"""
-    ...
+
+    response = requests.post(helpers.url(f'/simplify/{group_id}'))
+
+    try:
+        helpers.validate_response(response)
+    except helpers.InvalidResponseError as ire:
+        raise helpers.InvalidResponseError(f'Problem settling group... \n{ire}')
 
 
 # TODO: sign

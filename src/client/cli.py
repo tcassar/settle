@@ -85,12 +85,6 @@ def join(email, password, group_id, group_password):
 
 @click.argument("group_id")
 @settle.command()
-def leave(group_id):
-    client.leave(group_id)
-
-
-@click.argument("group_id")
-@settle.command()
 def simplify(group_id):
     client.simplify(group_id)
 
