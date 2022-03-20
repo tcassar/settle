@@ -301,7 +301,6 @@ The solution to extend security through the settling process is to have the serv
 However, as with all private key cryptography, private keys need to be kept secret. Thus, while this is something that needs to be kept in mind, it does not require large redesigns of the security software.
 
 
-
 ## High Level Objectives for the Solution
 After careful consideration of the end user, and existing systems, I can arrive at my high level and low level requirements
 
@@ -420,3 +419,17 @@ For the purposes of testing, these are low level requirements that I would like 
 	1) Group name
 	2) People in the group
 	3) Transactions in the group
+
+
+## Project Critical Path
+The order in which I will carry out the project in 6 distinct phases
+
+1) Cryptography
+2) Debt Simplification
+3) Combination of 1 & 2 into a fully encompassing transaction object
+4) Database setup and design of SQL statements to retrieve data
+5) API design to allow communication between client and server
+6) User Command Line Interface design
+
+In more detail
+![[Project Critical Path.png]]

@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Analysis.md",
+            "file": "Design.md",
             "mode": "source",
             "source": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Analysis.md",
+                "file": "Design.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -89,15 +89,15 @@
   },
   "active": "2236675a1844b00e",
   "lastOpenFiles": [
-    "Analysis.md",
     "Design.md",
+    "Design.pdf",
+    "Analysis.md",
+    "images/Transaction class diagram.jpg",
+    "crypto.jpg",
+    "images/Sign Flow Diagram.png",
     "Drafts/Analysis Draft 2.pdf",
     "notes.md",
     "images/main settle eg.png",
-    "Pasted image 20220318131850.png",
-    "Write Up.md",
-    "images/residual edge 1.png",
-    "images/big settled.svg",
-    "images/big graph settle.svg"
+    "Pasted image 20220318131850.png"
   ]
 }
