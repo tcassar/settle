@@ -60,6 +60,7 @@ class PrettyTransaction:
     time: str
     reference: str
     other: str
+    verified: bool
 
     def __str__(self):
         return f'{self.src} owes {self.dest} £{round(self.amount / 100, 2):02}' \

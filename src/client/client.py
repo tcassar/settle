@@ -124,32 +124,59 @@ def show(transactions, groups, email):
             raise helpers.InvalidResponseError(f'Problem with fetching your transactions...\n{ire}')
 
         try:
-            # TODO: print out received transactions
-            running = 0
+            unverified_running = 0
+            verified_running = 0
             for pretty in transactions_data.json()["src_list"]:
+
                 click.secho(
                     f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
-                running += pretty["amount"]
+                unverified_running += pretty["amount"]
 
                 click.secho(
                     f'\nReference: {pretty["time"]}' +
                     f'\nAgreed upon at {pretty["reference"]}')
+
+                if pretty['verified'] is True:
+                    click.secho('Verified', fg='green')
+                    verified_running += 0
+                else:
+                    click.secho('Unverified', fg='red')
 
             for pretty in transactions_data.json()["dest_list"]:
                 click.secho(
                     f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
-                running -= pretty["amount"]
+                unverified_running -= pretty["amount"]
 
                 click.secho(
                     f'\nReference: {pretty["time"]}' +
                     f'\nAgreed upon at {pretty["reference"]}')
 
+                if pretty['verified'] is True:
+                    click.secho('Verified', fg='green')
+                    verified_running -= 0
+                else:
+                    click.secho('Unverified', fg='red')
+
             click.echo('----------\n')
-            running = round(running / 100, 2)
-            if running > 0:
-                click.secho(f'You owe a total of{running:02}', fg='red')
+
+            unverified_running = round(unverified_running / 100, 2)
+            verified_running = round(verified_running / 100, 2)
+
+            if verified_running > 0:
+                click.secho(f'You owe a total of{verified_running:02}', fg='red')
+            elif verified_running < 0:
+                click.secho(f'You are owed a total of £{verified_running:02}', fg='blue')
             else:
-                click.secho(f'You are owed a total of £{running:02}', fg='green')
+                click.secho(f'You owe and are owed nothing; all debts settled', fg='green')
+
+            if unverified_running > 0:
+                click.secho(f'Your unverified totals => you owe {verified_running:02}', fg='yellow')
+            elif unverified_running < 0:
+                click.secho(f'Your unverified totals => you are owed {verified_running:02}', fg='yellow')
+            else:
+                click.secho(f'Your unverified totals => all debts settled', fg='yellow')
+
+
 
         except TypeError as te:
             if transactions_data.json() is None:
@@ -265,7 +292,7 @@ def sign(transaction_id, key_path):
 
 
 # TODO: verify
-def verify(groups, transactions):
+def verify(transactions):
     """Verifies either given transaction or a group; pass in by ID"""
 
 

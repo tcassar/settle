@@ -75,6 +75,7 @@ class PrettyTransactionSchema(Schema):
     amount = fields.Int()
     time = fields.Str()
     reference = fields.Str()
+    verified = fields.Bool()
 
     @post_load
     def make_pretty_transaction(self, data, **kwargs):

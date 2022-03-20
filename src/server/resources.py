@@ -211,7 +211,7 @@ class PrettyTransaction(Resource):
 
         # TODO: make you just who you owe money to
 
-        src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email FROM transactions
+        src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.src_id
                 INNER JOIN users u2 on u2.id = p.dest_id
@@ -219,7 +219,7 @@ class PrettyTransaction(Resource):
         """
 
         dest_sql = """
-        SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email FROM transactions
+        SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.dest_id
                 INNER JOIN users u2 on u2.id = p.src_id
@@ -229,7 +229,6 @@ class PrettyTransaction(Resource):
         src_transactions = []
         for row in pretty_src_transaction_data:
             src_transactions.append(models.PrettyTransaction(*build_args(row)))
-
 
         pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
 
@@ -287,9 +286,6 @@ class PrettyTransaction(Resource):
         get_db().commit()
 
         return request.json, 201
-
-
-
 
 
 class TransactionSigVerif(Resource):
