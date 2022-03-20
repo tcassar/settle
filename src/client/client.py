@@ -99,7 +99,7 @@ def show(transactions, groups, email):
         try:
             groups_data = requests.get(helpers.url(f"group/{email}"))
         except helpers.InvalidResponseError as ire:
-            raise helpers.InvalidResponseError(f'Problem fetching your group...\n{ire}')
+            raise helpers.InvalidResponseError(f"Problem fetching your group...\n{ire}")
 
         group_objs: list[models.Group] = []
         for group in groups_data.json()["groups"]:
@@ -119,9 +119,11 @@ def show(transactions, groups, email):
 
         # receive list of transactions
         try:
-            transactions_data = requests.get(helpers.url(f'/transaction/{email}'))
+            transactions_data = requests.get(helpers.url(f"/transaction/{email}"))
         except helpers.InvalidResponseError as ire:
-            raise helpers.InvalidResponseError(f'Problem with fetching your transactions...\n{ire}')
+            raise helpers.InvalidResponseError(
+                f"Problem with fetching your transactions...\n{ire}"
+            )
 
         try:
             unverified_running = 0
@@ -129,58 +131,72 @@ def show(transactions, groups, email):
             for pretty in transactions_data.json()["src_list"]:
 
                 click.secho(
-                    f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
+                    f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}',
+                    fg="yellow",
+                )
                 unverified_running += pretty["amount"]
 
                 click.secho(
-                    f'\nReference: {pretty["time"]}' +
-                    f'\nAgreed upon at {pretty["reference"]}')
+                    f'\nReference: {pretty["time"]}'
+                    + f'\nAgreed upon at {pretty["reference"]}'
+                )
 
-                if pretty['verified'] is True:
-                    click.secho('Verified', fg='green')
+                if pretty["verified"] is True:
+                    click.secho("Verified", fg="green")
                     verified_running += 0
                 else:
-                    click.secho('Unverified', fg='red')
+                    click.secho("Unverified", fg="red")
 
             for pretty in transactions_data.json()["dest_list"]:
                 click.secho(
-                    f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}', fg='yellow')
+                    f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}',
+                    fg="yellow",
+                )
                 unverified_running -= pretty["amount"]
 
                 click.secho(
-                    f'\nReference: {pretty["time"]}' +
-                    f'\nAgreed upon at {pretty["reference"]}')
+                    f'\nReference: {pretty["time"]}'
+                    + f'\nAgreed upon at {pretty["reference"]}'
+                )
 
-                if pretty['verified'] is True:
-                    click.secho('Verified', fg='green')
+                if pretty["verified"] is True:
+                    click.secho("Verified", fg="green")
                     verified_running -= 0
                 else:
-                    click.secho('Unverified', fg='red')
+                    click.secho("Unverified", fg="red")
 
-            click.echo('----------\n')
+            click.echo("----------\n")
 
             unverified_running = round(unverified_running / 100, 2)
             verified_running = round(verified_running / 100, 2)
 
             if verified_running > 0:
-                click.secho(f'You owe a total of{verified_running:02}', fg='red')
+                click.secho(f"You owe a total of{verified_running:02}", fg="red")
             elif verified_running < 0:
-                click.secho(f'You are owed a total of £{verified_running:02}', fg='blue')
+                click.secho(
+                    f"You are owed a total of £{verified_running:02}", fg="blue"
+                )
             else:
-                click.secho(f'You owe and are owed nothing; all debts settled', fg='green')
+                click.secho(
+                    f"You owe and are owed nothing; all debts settled", fg="green"
+                )
 
             if unverified_running > 0:
-                click.secho(f'Your unverified totals => you owe {verified_running:02}', fg='yellow')
+                click.secho(
+                    f"Your unverified totals => you owe {verified_running:02}",
+                    fg="yellow",
+                )
             elif unverified_running < 0:
-                click.secho(f'Your unverified totals => you are owed {verified_running:02}', fg='yellow')
+                click.secho(
+                    f"Your unverified totals => you are owed {verified_running:02}",
+                    fg="yellow",
+                )
             else:
-                click.secho(f'Your unverified totals => all debts settled', fg='yellow')
-
-
+                click.secho(f"Your unverified totals => all debts settled", fg="yellow")
 
         except TypeError as te:
             if transactions_data.json() is None:
-                click.secho('No open transactions', fg='green')
+                click.secho("No open transactions", fg="green")
                 click.echo(te)
 
 
@@ -211,7 +227,7 @@ def new_group(name, password):
     try:
         helpers.validate_response(response)
     except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f'Couldn\'t create new group...\n{ire}')
+        raise helpers.InvalidResponseError(f"Couldn't create new group...\n{ire}")
 
     click.secho(response.text, fg="green")
     click.secho("You can join this group with `settle join`")
@@ -277,12 +293,12 @@ def simplify(group_id):
     """Will settle the group; can be done by anyone at anytime;
     everyone signs newly generated transactions if new transactions are generated"""
 
-    response = requests.post(helpers.url(f'/simplify/{group_id}'))
+    response = requests.post(helpers.url(f"/simplify/{group_id}"))
 
     try:
         helpers.validate_response(response)
     except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f'Problem settling group... \n{ire}')
+        raise helpers.InvalidResponseError(f"Problem settling group... \n{ire}")
 
 
 # TODO: sign

@@ -14,7 +14,7 @@ from src.server.resources import (
     get_db,
     Simplifier,
     Debt,
-    GroupDebt
+    GroupDebt,
 )
 
 app = Flask(__name__)

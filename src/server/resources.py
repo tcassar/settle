@@ -240,7 +240,7 @@ class PrettyTransaction(Resource):
         pretty_list_schema = schemas.PrettyListSchema()
 
         if not src_transactions and dest_transactions:
-            return 'No open transactions', 200
+            return "No open transactions", 200
         else:
             pretty_list = models.PrettyList(src_transactions, dest_transactions)
 
@@ -263,8 +263,11 @@ class PrettyTransaction(Resource):
         get_db().commit()
 
         # get relevant info
-        pair_id = cursor.execute("""SELECT pairs.id FROM pairs 
-                     WHERE src_id = ? AND dest_id = ?""", [transaction.src, transaction.dest]).fetchone()[0]
+        pair_id = cursor.execute(
+            """SELECT pairs.id FROM pairs 
+                     WHERE src_id = ? AND dest_id = ?""",
+            [transaction.src, transaction.dest],
+        ).fetchone()[0]
 
         key_id_query = """SELECT keys.id FROM keys 
                           JOIN users u on keys.id = u.key_id
@@ -273,15 +276,20 @@ class PrettyTransaction(Resource):
         src_key_id = cursor.execute(key_id_query, [transaction.src]).fetchone()[0]
         dest_key_id = cursor.execute(key_id_query, [transaction.dest]).fetchone()[0]
 
-        cursor.execute("""INSERT INTO transactions 
+        cursor.execute(
+            """INSERT INTO transactions 
         (pair_id, group_id, amount, src_key, dest_key, reference, time_of_creation)
-        VALUES (?, ?, ?, ?, ?, ?, ?)""", [pair_id,
-                                          transaction.group,
-                                          transaction.amount,
-                                          src_key_id,
-                                          dest_key_id,
-                                          transaction.reference,
-                                          transaction.time])
+        VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            [
+                pair_id,
+                transaction.group,
+                transaction.amount,
+                src_key_id,
+                dest_key_id,
+                transaction.reference,
+                transaction.time,
+            ],
+        )
 
         get_db().commit()
 
@@ -299,7 +307,6 @@ class TransactionSigVerif(Resource):
 
 
 class Simplifier(Resource):
-
     def post(self, gid: int):
         """Actually settle the group, return img of graph, 201 if succeeded"""
         # note: will require priv key to sign all of group's outstanding transactions
@@ -316,4 +323,3 @@ class Debt(Resource):
 class GroupDebt(Resource):
     def get(self, id, email):
         """Return amount of debt that a user has in a group"""
-

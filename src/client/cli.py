@@ -96,11 +96,10 @@ def debt(email, group):
     client.debt(email, group)
 
 
-
 @click.option("--password", prompt=True, hide_input=True)
 @click.option("--email", prompt="Your email")
 @click.option("--group", "-g", prompt=True)
-@click.option('--reference')
+@click.option("--reference")
 @click.option("--amount", prompt="Amount (in GBP)")
 @click.option("--dest_email", prompt="Email of payee")
 @settle.command(name="new-transaction")

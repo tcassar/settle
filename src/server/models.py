@@ -63,9 +63,11 @@ class PrettyTransaction:
     verified: bool
 
     def __str__(self):
-        return f'{self.src} owes {self.dest} £{round(self.amount / 100, 2):02}' \
-               f'\nReference: {self.reference}' \
-               f'\nAgreed upon at {self.time}'
+        return (
+            f"{self.src} owes {self.dest} £{round(self.amount / 100, 2):02}"
+            f"\nReference: {self.reference}"
+            f"\nAgreed upon at {self.time}"
+        )
 
 
 @dataclass
