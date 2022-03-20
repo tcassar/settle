@@ -1,5 +1,11 @@
 # Design
 
+QUESTIONS
+1) Ask about need to add data integrity (i have and its all sorted, does it need to go in here?)
+2) Enough on HCI?
+3) Enough on client side?
+
+
 ## High Level System Design
 
 On a high level, the system is decomposed into 5 separate modules, each accounting for a main component of the system. These are `crypto`, `simplify`, `transactions`, `client` and `server`.  Three of these modules,  `crypto`, `simplify`, and `transactions` will all have a folder of unit tests associated with them. 
@@ -90,7 +96,6 @@ On a high level, the system is decomposed into 5 separate modules, each accounti
 The interactions of different classes are shown diagrammatically below
 
 ## Class Diagrams by Module
-
 ### Cryptography (`crypto`) Module
 
 ![[crypto.jpg]]
@@ -532,3 +537,135 @@ WHERE transactions.group_id = ?;
 to get all of the data needed to build a `transaction.ledger.Ledger` of `transaction.transaction.Transaction` objects. Once those objects are build, all that needs to happen is I write `ledger.simplify_ledger()`. This will then invoke all of the logic discussed in the `simplify` module section, as well as handle the verification of signatures, as discussed in the `crypto` module section.  This will be wrapped in a `try: ... except: ...` clause, and any errors will be returned with a 40X error code and reason for failure.
 
 ### Client-side (`client`) module
+As aforementioned,  the client is a thin client, meaning it does not have many responsibilities in the overarching structure of the program. Thus, this section will mainly be examples and mock ups of the elements of Human-Computer Interaction.
+
+To show this, I will provide screenshots of an output to STDOUT of how I would like certain outputs to look. Here I will provide mainly ancillary outputs. and how I would like certain prompts to appear upon a command being run
+
+* Upon a user registering a new account
+![[Pasted image 20220320220345.png]]
+
+The program should prompt the user with the details that they need to enter to create their account. Password entering should be hidden, as it is commonly in CLIs.
+Passwords should be confirmed through asking for confirmation, as above. If the passwords entered do not match, the program should ask to user re enter thir password. The program should report a failure if an invalid path to a key is given, as here
+
+* Upon creating & joining a group
+![[Pasted image 20220320221811.png]]
+
+* An example of how a failed attempt at an action should look is
+![[Pasted image 20220320222431.png]]
+
++ Finally, viewing existing transactions should look like this
+
+![[Pasted image 20220320223545.png]]
+
+This is not an exhaustive list, but is the general blueprint of how interaction should look. Every possible actions will end up looking like one of these above templates, be it something like simplifying or signing a transaction, which will just result in a confirmation, or seeing all of the open transactions in the group, which will look the same as seeing all of your open transactions. 
+
+The full list of commands that I would like the user to be able to enter is below
+
+```
+Usage: settle register [OPTIONS]  
+
+	Registers a new user
+
+Options:  
+ --name TEXT  
+ --email TEXT  
+ --password TEXT  
+ --pub_key PATH  
+ --help           Show this message and exit.
+```
+
+```
+Usage: settle whois [OPTIONS] EMAIL  
+
+	Returns a user's public key info given their email
+
+Options:  
+ --help  Show this message and exit.
+```
+
+```
+Usage: settle show [OPTIONS]  
+  
+ Shows all of your open transactions / groups along with IDs  
+  
+Options:  
+ --email TEXT  
+ -t, --transactions  
+ -g, --groups  
+ --help              Show this message and exit.
+
+```
+
+```
+Usage: settle sign [OPTIONS] TRANSACTION_ID KEY_PATH  
+  
+ Signs a transaction  
+  
+Options:  
+ --email TEXT  
+ --password TEXT  
+ --help           Show this message and exit.
+
+```
+
+```
+Usage: settle verify [OPTIONS]  
+  
+ Will verify a transaction if given a transaction ID or an entire group if  
+ given a group ID  
+  
+Options:  
+ -t, --transactions  
+ -g, --groups  
+ --help              Show this message and exit.
+```
+
+```
+Usage: settle new-group [OPTIONS]  
+
+	Creates a new group
+
+Options:  
+ --name TEXT  
+ --password TEXT  
+ --help           Show this message and exit.
+ ```
+
+```
+Usage: settle join [OPTIONS] GROUP_ID  
+  
+ Joins a group given an ID  
+  
+Options:  
+ --email TEXT  
+ --password TEXT  
+ --group_password TEXT  
+ --help                 Show this message and exit.
+```
+
+```
+Usage: settle simplify [OPTIONS] GROUP_ID  
+  
+ Simplifies debt of a group  
+  
+Options:  
+ --password TEXT  
+ --help           Show this message and exit.
+```
+
+```
+Usage: settle new-transaction [OPTIONS]  
+  
+ Generates a new transaction  
+  
+Options:  
+ --dest_email TEXT  
+ --amount TEXT  
+ --reference TEXT  
+ -g, --group TEXT  
+ --email TEXT  
+ --password TEXT  
+ --help             Show this message and exit.
+```
+
+This text should also be displayed when the `--help` flag is called after any of the commands.  

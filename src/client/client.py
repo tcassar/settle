@@ -134,18 +134,18 @@ def show(transactions, groups, email):
                     f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}',
                     fg="yellow",
                 )
-                unverified_running += pretty["amount"]
 
                 click.secho(
                     f'\nReference: {pretty["time"]}'
                     + f'\nAgreed upon at {pretty["reference"]}'
                 )
 
-                if pretty["verified"] is True:
+                if pretty["verified"] == 1:
                     click.secho("Verified", fg="green")
-                    verified_running += 0
+                    verified_running += pretty["amount"]
                 else:
                     click.secho("Unverified", fg="red")
+                    unverified_running += pretty["amount"]
 
             for pretty in transactions_data.json()["dest_list"]:
                 click.secho(
@@ -159,11 +159,12 @@ def show(transactions, groups, email):
                     + f'\nAgreed upon at {pretty["reference"]}'
                 )
 
-                if pretty["verified"] is True:
+                if pretty["verified"] == 1:
                     click.secho("Verified", fg="green")
-                    verified_running -= 0
+                    verified_running -= pretty["amount"]
                 else:
                     click.secho("Unverified", fg="red")
+                    unverified_running -= pretty["amount"]
 
             click.echo("----------\n")
 
@@ -171,7 +172,7 @@ def show(transactions, groups, email):
             verified_running = round(verified_running / 100, 2)
 
             if verified_running > 0:
-                click.secho(f"You owe a total of{verified_running:02}", fg="red")
+                click.secho(f"You owe a total of £{verified_running:02}", fg="red")
             elif verified_running < 0:
                 click.secho(
                     f"You are owed a total of £{verified_running:02}", fg="blue"
@@ -183,12 +184,12 @@ def show(transactions, groups, email):
 
             if unverified_running > 0:
                 click.secho(
-                    f"Your unverified totals => you owe {verified_running:02}",
+                    f"Your unverified totals => you owe £{verified_running:02}",
                     fg="yellow",
                 )
             elif unverified_running < 0:
                 click.secho(
-                    f"Your unverified totals => you are owed {verified_running:02}",
+                    f"Your unverified totals => you are owed £{verified_running:02}",
                     fg="yellow",
                 )
             else:
@@ -293,9 +294,11 @@ def new_transaction(email, password, dest_email, amount, group, reference):
 
 # TODO: simplify
 @trap
-def simplify(group_id):
+def simplify(group_id, password):
     """Will settle the group; can be done by anyone at anytime;
     everyone signs newly generated transactions if new transactions are generated"""
+
+    # TODO: auth
 
     response = requests.post(helpers.url(f"/simplify/{group_id}"))
 
@@ -306,7 +309,7 @@ def simplify(group_id):
 
 
 # TODO: sign
-def sign(transaction_id, key_path):
+def sign(transaction_id, key_path, email):
     """Signs a transaction given an ID and a path to key"""
     # load private key
 

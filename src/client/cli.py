@@ -44,18 +44,21 @@ def show(transactions, groups, email):
     client.show(transactions, groups, email)
 
 
+@click.option('--password', prompt=True, hide_input=True)
+@click.option("--email", prompt=True)
 @click.argument("key_path")
 @click.argument("transaction_id")
 @settle.command()
-def sign(transaction_id, key_path):
-
-    client.sign(transaction_id, key_path)
+def sign(transaction_id, key_path, email):
+    """Signs a transaction"""
+    client.sign(transaction_id, key_path, email)
 
 
 @click.option("-g", "--groups", flag_value="groups", default=False)
 @click.option("-t", "--transactions", flag_value="transactions", default=False)
 @settle.command()
 def verify(groups, transactions):
+    """Will verify a transaction if given a transaction ID or an entire group if given a group ID"""
     client.verify(groups, transactions)
 
 
@@ -80,20 +83,16 @@ def new_group(name, password):
 @click.argument("group_id")
 @settle.command()
 def join(email, password, group_id, group_password):
+    """Joins a group given an ID"""
     client.join(email, password, group_id, group_password)
 
 
+@click.option("--password", prompt='Group Password', hide_input=True)
 @click.argument("group_id")
 @settle.command()
-def simplify(group_id):
-    client.simplify(group_id)
-
-
-@click.option("--email", prompt=True)
-@click.option("-g", "--group", flag_value=True)
-@settle.command()
-def debt(email, group):
-    client.debt(email, group)
+def simplify(group_id, password):
+    """Simplifies debt of a group"""
+    client.simplify(group_id, password)
 
 
 @click.option("--password", prompt=True, hide_input=True)
@@ -104,4 +103,5 @@ def debt(email, group):
 @click.option("--dest_email", prompt="Email of payee")
 @settle.command(name="new-transaction")
 def new_transaction(email, password, dest_email, amount, group, reference):
+    """Generates a new transaction"""
     client.new_transaction(email, password, dest_email, amount, group, reference)
