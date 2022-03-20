@@ -10,3 +10,4 @@ tests/graph_renders
 !/src/graph_renders/
 /src/graph_renders/
 /graph_renders/
+!/*.uml

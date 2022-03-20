@@ -87,8 +87,6 @@ class Simplify:
 
         d_cache = copy.deepcopy(debt)
 
-        # TODO: optimise for starting with nodes with least incoming edges
-
         # iterate through edges in graph:
         while not not debt:
             edge: FlowEdge  # type: ignore

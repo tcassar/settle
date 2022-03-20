@@ -209,7 +209,7 @@ class PrettyTransaction(Resource):
 
         cursor = get_db().cursor()
 
-        # TODO: make you just who you owe money to
+        # TODO: change verif to be done every time we pull
 
         src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
@@ -298,10 +298,10 @@ class PrettyTransaction(Resource):
 
 class TransactionSigVerif(Resource):
     def get(self, id):
-        """Verify a transaction"""
+        """Verify a transaction, returning copy of verified transaction"""
         return request.json, 200
 
-    def post(self, id):
+    def patch(self, id):
         """Sign a transaction"""
         return request.json, 201
 

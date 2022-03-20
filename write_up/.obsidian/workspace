@@ -53,7 +53,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "29e3ec5e167cdd30",
@@ -90,14 +91,14 @@
   "active": "2236675a1844b00e",
   "lastOpenFiles": [
     "Design.md",
-    "Design.pdf",
     "Analysis.md",
-    "images/Transaction class diagram.jpg",
-    "crypto.jpg",
+    "Evaluation.md",
+    "Testing.md",
+    "images/server high level.jpg",
     "images/Sign Flow Diagram.png",
-    "Drafts/Analysis Draft 2.pdf",
-    "notes.md",
-    "images/main settle eg.png",
-    "Pasted image 20220318131850.png"
+    "images/simplify.jpg",
+    "images/Simplify Flow Diagram.png",
+    "Design.pdf",
+    "images/Transaction class diagram.jpg"
   ]
 }

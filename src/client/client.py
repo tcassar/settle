@@ -239,6 +239,10 @@ def new_group(name, password):
 
 # TODO: New transaction
 # TODO: new transaction
+##############
+# FUNCTIONAL #
+##############
+
 @trap
 def new_transaction(email, password, dest_email, amount, group, reference):
     # 1. verify src credentials
@@ -272,7 +276,7 @@ def new_transaction(email, password, dest_email, amount, group, reference):
         amount=amount,
         src_pub=src_key,
         dest_pub=dest_key,
-        msg=reference,
+        reference=reference,
         group=group,
     )
 
@@ -313,5 +317,6 @@ def verify(transactions):
 
 
 # TODO: debt
-def debt(email, group):
+def debt(group):
+    """Groups get groups transactions"""
     ...

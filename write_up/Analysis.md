@@ -85,8 +85,6 @@ In terms of flaws, Splitwise requires a £2.99 per month subscription to unlock 
 
 The interesting part of these apps is in the debt simplification process. Since neither are open source, one cannot know for sure how the debt simplification is done. However, after much investigation, I found a few possible options.
 
-==Add another research==
-
 ---
 ### Givers and Receivers
 
@@ -259,7 +257,6 @@ The 'clean' graph that is generated will therefore look like this
 Notice that initially, Alice owed the group £15. Now she owes the group £20. Similarly, Charlie was owed a total of £15 pounds by the group, and is now owed £20. 
 
 Thus, this algorithm is incorrect.
-
 
 The reason why is because it does not account for how max-flow is generated. In the case of the first edge we just considered, we calculated a max-flow of 15. This was achieved by pushing 5 units of flow down the Alice -> Bob -> Charlie path, and 10 units of flow directly from Alice -> Charlie. 
 

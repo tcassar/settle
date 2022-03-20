@@ -87,29 +87,6 @@ On a high level, the system is decomposed into 5 separate modules, each accounti
        └── test_transaction.py
 ```
 
-### System Module's Interaction
- The best way to show how different parts of the system interact is to consider two operations - `settle sign <transaction>` and `settle simplify <group>`, using a mixture of data flow diagrams and explanation in prose. Between these two commands, every component of my system will be used
-
-#### Sign Flow Diagram 
-![[Sign Flow Diagram.png]]
-
-This diagram shows the various processes that should run as a result of the user asking to sign a transaction. 
-
-All client-server communication is done with JavaScript Object Notation (JSON) for this project.
-
-For clarity, the diagram omits an argument to `sign`; `sign` also requires the user's email so that data can be kept in order in the database (more on this when the database design is discussed).
-
-Here, 4 of the 5 modules are used. The `client` and `server` modules are clearly shown. The `transaction` module is used when constructing, signing and verifying transactions.
-
-The `crypto` module is used in the `transaction` object, and provides the methods to be able to sign and verify the `transaction` object. It is also used to load keys on the client side.
-
-#### Simplify Flow Diagram
-![[Simplify Flow Diagram.png]]
-
-Everything mentioned in the sign sub-section holds here. However, in the `simplify` command, the `simplify` module is also used. 
-
-The `simplify` module uses elements of the `transaction` module for converting to and from flow graphs and transactions. 
-
 The interactions of different classes are shown diagrammatically below
 
 ## Class Diagrams by Module
@@ -121,7 +98,7 @@ Key for this, and all following class diagrams: red m indicates a method, yellow
 
 Above is a class diagram for the `crypto` module.
 
-The primary objective of this module is to handle all of the security needed by the application. This mainly involves a consistent way to ensure the validity of transactions, as well as their origin. It also will take care of hashing the passwords of users and groups so that they are not stored in plaintext. This is a more minor role, however.
+The primary objective of this module is to handle all the security needed by the application. This mainly involves a consistent way to ensure the validity of transactions, as well as their origin. It also will take care of hashing the passwords of users and groups so that they are not stored in plaintext. This is a more minor role, however.
 
 The `RSAPublicKey` and `RSAPrivateKey` objects are lightweight. Their only field is a dictionary, which stores parts of the key, and an identifier. Since an RSA key needs three components to work (when implemented, as it is here, with modular exponentiation encryption/decryption), each component is stored separately in this dictionary. The `__getattr__` method will be overwritten from the `object` parent class so that it is possible to access parts of the key as one would access an attribute (i.e. for the modulus `RSAPublicKey.n`)
 
@@ -136,7 +113,7 @@ In public key cryptography, everyone has access to the modulus and public expone
 
 To create digital signatures, the process is similar. First, a hash of the message is generated. This is done by the `Hasher` object above. Then, equation $(2)$ is used, with $c$ representing the hash of the message in integer form, as opposed to the ciphertext. Similarly, $p$ now represents the digital signature instead of the plaintext. The signature is then appended to the message. 
 
-To verify the digital signature, equation $(1)$ is used. If the signature is valid, the output of this equation should be the hash of the message. Thus, one hashes the messages and compares it to the outcome of equation $(1)$. If the two match, then the signature is valid. However if they don't match, either the message has been tampered with or the signature has been tampered with.
+To verify the digital signature, equation $(1)$ is used. If the signature is valid, the output of this equation should be the hash of the message. Thus, one hashes the messages and compares it to the outcome of equation $(1)$. If the two match, then the signature is valid. However, if they don't match, either the message has been tampered with or the signature has been tampered with.
 
 Thus, it is possible to ensure validity, and verify the origin, of messages.
 
@@ -158,7 +135,7 @@ The task of debt simplification is decomposed into four key areas: The flow grap
 ##### The Flow Graph Data Structure
 As I outlined in the project critical path, I wanted to have a basic unweighted digraph data structure, which I could perform breadth first searches (BFS) on before I started to consider flow. To do this, I started with just a `GenericDigraph` class. The graph has only two fields: the `graph`, and the protected field `_backwards_graph`, to aid with the deletion of nodes. 
 
-The graph is effectively represented as an adjacency matrix. I use a dictionary, which maps a node to a list of `edges` ==add edge to class diagram==. `edge` objects contain a `node` field, which represents the destination node, i.e. where the edge is pointing. 
+The graph is effectively represented as an adjacency matrix. I use a dictionary, which maps a node to a list of `edges` ==TODO: add edge to class diagram==. `edge` objects contain a `node` field, which represents the destination node, i.e. where the edge is pointing. 
 
 The base graph then has various bookkeeping methods such as checking if nodes are in the graph, checking if a node is associated a list of edges (and vice versa). You can also add and remove nodes and edges.
 
@@ -198,7 +175,7 @@ I also need a data structure to keep track of the nodes that had been previously
 
 Since the BFS will end up being used in more than one way (searching through the standard graph, or searching for augmenting paths as part of the maxflow algorithm), it is important to describe to it how to look for neighbours. Since functions are first class objects in Python, this is done by passing in the function as and when it is needed.
 
-Similarly with do_to_neighbour, different algorithms that use the BFS will require different things to be done to the neighbours of a node. Hence, this is specified when the function is called, as opposed to when it is defined. 
+Similarly, with do_to_neighbour, different algorithms that use the BFS will require different things to be done to the neighbours of a node. Hence, this is specified when the function is called, as opposed to when it is defined. 
 
 Here is a python mock-up of how I intend to implement the BFS
 
@@ -266,15 +243,17 @@ The key changes to the edges (in a new class `FlowEdge`) will be:
 	2) Edges will need a new method: `unused_capacity()`	which will return `capacity` -`flow`
 	3) Flow graphs contain a residual edge, as discussed in the Analysis phase. This will be accounted for with a field `residual: bool`. Residual edges will be treated as such.
 	4) In order to ease transaction integration later, I will also have edges explicitly track their `src` and their destination (`dest`). This will allow me to build a list of transactions just from a list of edges, but will be discussed further later on.
-	5) An `__eq__` function is needed, allowing differentiation between residual edges ^[the `__eq__` function in the base `Edge` class was generated by the `@dataclass` decorater. However, this would fail to differentiate residual edges due to the way that `dataclasses` generates special methods]
+	5) An `__eq__` function is needed, allowing differentiation between residual edges ^[the `__eq__` function in the base `Edge` class was generated by the `@dataclass` decorator. However, this would fail to differentiate residual edges due to the way that `dataclasses` generates special methods]
+
 
 The key changes to the graph, in the new class `FlowGraph`, will be:
 	1) A backwards graph is no longer needed, instead it will be possible to utilise residual edges to traverse the structure the wrong way when deleting nodes
 	2) Adding edges now entails adding a residual edge counterpart, as discussed in the Analysis section. Thus, when edges are removed, their residual edge also needs to be removed. Hence, the `add_edge` and `pop_edge` functions need to be overwritten to work with `FlowEdge` objects.
 	3) A `flow_neighbour()` method needs to be introduced, as valid neighbours in the max-flow algorithm are any edges with unused capacity. This is different to a valid neighbour in the BFS, which is any forward-pointing non-residual edge. 
 	4) A function is also needed to adjust the edges in the flow graph to become an edge with no flow, and only unused capacity remaining. This is added under the identifier `adjust_edges()`
+	5) A way of verifying that the settling has resulted in a fair graph, where people owe and are owed the same (net) amount of money as they originally were. This is done with the `net_debt` field, which is a `dict[Vertex, int]`
 
-In the analysis section, I detailed how the Edmonds-Karp max-flow algorithm works. I will implement it exactly as described in the analysis section. All of the methods which are involved in finding the max-flow through a flow graph will be contained in the `flow_algorithms.MaxFlow` object. I will decompose the task of finding the max_flow into 5 functions. Their signatures are listed below
+In the analysis section, I detailed how the Edmonds-Karp max-flow algorithm works. I will implement it exactly as described in the analysis section. All the methods which are involved in finding the max-flow through a flow graph will be contained in the `flow_algorithms.MaxFlow` object. I will decompose the task of finding the max_flow into 5 functions. Their signatures are listed below
 
 ```python
 class MaxFlow:  
@@ -316,11 +295,11 @@ def edmonds_karp(graph: FlowGraph, src: Vertex, sink: Vertex) -> int:
 ```
 
 
-With all of the components having been designed, it is possible to integrate the process entirely. The `Simplify` class has one method: `simplify_debt(graph: FlowGraph)`. This combines all of what is above into my user-defined algorithm to simplify the graph as a whole. Again, this algorithm works exactly as laid out in the analysis section. 
+With all the components having been designed, it is possible to integrate the process entirely. The `Simplify` class has one method: `simplify_debt(graph: FlowGraph)`. This combines all of what is above into my user-defined algorithm to simplify the graph as a whole. Again, this algorithm works exactly as laid out in the analysis section. 
 
 For every edge in the graph, a max-flow is run between the nodes at either end of the edge. This changes the state of the graph, as augmenting the flow through the graph has the possibility of changing the flow on each edge / residual edge. 
 
-After the max-flow is run, an edge is added to the clean graph with a weight of the max-flow, and the `adjust_edges()` method is run on the 'initial' graph (initial in inverted commas because, of course, its state will have been changed by the algorithm. Calling it 'initial' just differentiates it from the clean graph that I building along the way).  
+After the max-flow is run, an edge is added to the clean graph with a weight of the max-flow, and the `adjust_edges()` method is run on the 'initial' graph (initial in inverted commas because, of course, its state will have been changed by the algorithm. Calling it 'initial' just differentiates it from the clean graph that I'm building along the way).  
 
 This process should continue until there are no more edges in the 'initial' graph. 
 
@@ -332,7 +311,224 @@ for edge(u, v) in graph:
 		messy.adjust_edges()
 ```
 
+Once the simplification has concluded, the net debts of the new graph should be compared with the (cached) net debts of how the graph was initially. These should always be identical, and the simplification process will raise an error if this is not the case, indicating that simplification should be aborted and retried.
 
 ### Transaction integration (`transactions`) module
 
+![[Transaction class diagram.jpg]]
 
+==TODO: add flow graph composition to ledger.Ledger==
+
+The purpose of the `transactions` module is to combine the `crypto`  and `simplify` module,  to allow transactions between people to be created, signed and verified. A `Ledger` object will also be introduced to represent a group of transactions, and with the ability to simplify them, ensuring that they are all verified before doing so. 
+
+Since this module is effectively the assembly through aggregation and composition of the `crypto` and `simplify` modules, it does not have much in the way of complex data structures or algorithms. 
+
+Signatures are stored as bytes inside the transaction object. Time is stored as a `datetime.datetime` object, and keys are stores as `crypto.keys.RSAPublicKey` objects (as per class diagram). 
+
+Ledger's `ledger` field is a list of `transaction` objects. Its `nodes` field is a list of all the people in the ledger, used to generate the flow graph that it creates to simplify transactions. `key_map` keeps track of which key belongs to which user ID. 
+
+The `Transaction` class inherits from the `Signable` class. This happens due to the order in which I intend to implement the project. The `crypto` module comes first, and I need to be able to test signing objects before I have transactions in place. This is also advantageous to me in case I decide to continue this project in the future and want to differentiate between different things that each need signing. 
+
+### Server-side (`server`) module
+![[server high level.jpg|400]]
+![[server schemas and models with fields and methods.png]]
+
+#### API Endpoints and Resources 
+
+A lot of the work of the server is in serialising and deserialising objects / JSON. I will do this using the `marshmallow` library for Python. This requires that schema objects are set up with the same fields as the objects you want to serialise from / deserialise to.
+
+This means that a lot of boilerplate code is needed, so I will not talk to much about that here as it is not particularly interesting, and does not prevent me from having a fully considered design of my problem.
+
+I thought it more important to discuss the resources and endpoints that I would need to serve over my API. My resources are listed in the class diagrams above, and all serve an important purpose.
+
+```python
+Group, "/group/<int:id>", "/group"
+PrettyTransaction, "/transaction", "/transaction/<string:email>"
+User, "/user/<string:email>", "/user"
+UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>"
+TransactionSigVerif, "/transaction/auth/<int:id>"
+Simplifier, "/simplify/<int:gid>"
+Debt, "/user/debt/<string:email>"
+GroupDebt, "/user/debt/<string:email>/<int:id>"
+```
+
+This shows the `Resource` child classes as shown in the class diagram above with their endpoints. 
+
+A lot of the above resources implement GET and POST, which are self-explanatory by design in most cases (i.e. GET "user/<string:email> will return user data for a given email"). I will discuss certain less obvious resources and enpoints.
+
+`PrettyTransaction` is a transaction object that is intended for being viewed on the front end by a user. It has people saved as emails as opposed to IDs, an association with a group, no keys involved, the time of creation, reference, and verification status. It also has the transaction ID. The POST method of pretty transaction is used to post new transactions to the database. This is because the details entered by the user about new transactions line up exactly with the pretty transaction schema. All processing such as adding public keys and user IDs is done by the server. 
+
+`UserGroupBridge` also warrants discussion. The resource implements POST and GET. POST will add a user to a group, and GET will get all groups associated with a given user. 
+
+`TransactionSigVerif` implements GET and PATCH. GET will verify a transaction, returning copy of verified transaction. PATCH will, upon receiving a signature, check that the signature is valid with data from the database (public key data, etc), and if the signature is valid, the signature will be inserted into the database on the given transaction ID. 
+
+
+I intend to run the API using `flask` and `flask_restful`; two commonly used Python libraries for such purpose. During testing, I will run the server on a Raspberry Pi 
+
+
+---
+#### Database Access
+
+The server module will handle all interactions with the sqlite3 database (entity relationship diagram below)
+
+![[ER Diagram.png]]
+
+Here is the same database's DDL
+
+```sqlite
+create table groups
+(
+    id       INTEGER
+        primary key autoincrement,
+    name     TEXT not null,
+    password TEXT not null
+);
+
+create unique index groups_group_id_uindex
+    on groups (id);
+
+create table keys
+(
+    id INTEGER
+        primary key autoincrement,
+    n  TEXT,
+    e  TEXT
+);
+
+create table sqlite_master
+(
+    type     text,
+    name     text,
+    tbl_name text,
+    rootpage int,
+    sql      text
+);
+
+create table sqlite_sequence
+(
+    name,
+    seq
+);
+
+create table users
+(
+    id       INTEGER
+        primary key autoincrement,
+    name     TEXT,
+    email    TEXT,
+    password TEXT,
+    key_id   INTEGER
+        references keys (key_id)
+);
+
+create table group_link
+(
+    id       INTEGER
+        primary key autoincrement,
+    group_id INTEGER
+        references groups (group_id),
+    usr_id   INTEGER
+        references users (usr_id)
+);
+
+create table pairs
+(
+    id      INTEGER
+        primary key autoincrement,
+    src_id  INTEGER
+        references users (usr_id),
+    dest_id INTEGER
+        references users (usr_id)
+);
+
+create unique index uniq_pair
+    on pairs (src_id, dest_id);
+
+create table transactions
+(
+    id               INTEGER
+        primary key autoincrement,
+    pair_id          INTEGER not null
+        references pairs,
+    group_id         INTEGER not null
+        references groups,
+    amount           INTEGER,
+    src_key          INTEGER not null
+        references keys,
+    dest_key         INTEGER not null
+        references keys,
+    reference        TEXT,
+    time_of_creation TEXT,
+    src_sig          TEXT    default '',
+    dest_sig         TEXT    default '',
+    settled          INTEGER default 0 not null,
+    verified         integer default 0 not null
+);
+```
+
+
+Since this is a fairly complex relational database system, I put some thought into the queries that I would use to select data. Below is an example of such a query.
+
+```sqlite
+
+SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified 
+FROM transactions  
+INNER JOIN pairs p on p.id = transactions.pair_id 
+INNER JOIN users u on u.id = p.src_id 
+INNER JOIN users u2 on u2.id = p.dest_id 
+WHERE transactions.settled = 0 AND u.email = ?;
+   
+SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified 
+FROM transactions  
+INNER JOIN pairs p on p.id = transactions.pair_id 
+INNER JOIN users u on u.id = p.dest_id 
+INNER JOIN users u2 on u2.id = p.src_id 
+WHERE transactions.settled = 0 AND u.email = ?;
+
+```
+
+These are two separate queries intended to retrieve two separate things from the database - they are to return rows of data that can be used to build a `models.PrettyTransaction` object. In the first case, data is fetched where the user's email provided is the source of the transaction - i.e. it will retrieve a user's outgoing transactions. The second query returns the transactions in which the user is owed money. 
+
+These statements are not group specific, but will return all transactions that have not been settled. 
+
+#### Server Logic
+The server is, of course, more than just an API and database access - it will carry out the vast majority of the data processing. In that sense, my client server models is effectively thick server, thin client.
+
+As with the endpoints, a lot of the logic is minimal and self explanatory by design. Thus, here I will discuss two of the more intensive processes that the server can be asked to do. 
+
+##### Signing a transaction
+Below is a swim lane diagram to aid my explanation of how a transaction is signed
+
+![[Sign Flow Diagram.png]]
+
+This diagram shows the various processes that should run as a result of the user asking to sign a transaction. 
+
+All client-server communication is done with JavaScript Object Notation (JSON) for this project.
+
+For clarity, the diagram omits an argument to `sign`; `sign` also requires the user's email so that data can be kept in order in the database (more on this when the database design is discussed).
+
+Here, 4 of the 5 modules are used. The `client` and `server` modules are clearly shown. The `transaction` module is used when constructing, signing and verifying transactions.
+
+The `crypto` module is used in the `transaction` object, and provides the methods to be able to sign and verify the `transaction` object. It is also used to load keys on the client side.
+
+##### Simplifying a group of transactions
+
+![[Simplify Flow Diagram.png]]
+
+This is in many ways the most important process in the project. Upon being asked to settle a group, every part of the project will be used. 
+
+In the implementation, all I will need to do is query the database with a query such as 
+```sqlite
+SELECT transactions.id, src_id, dest_id, src_sig, dest_sig,  
+ amount, reference, time_of_creation, group_id, k.e, k.n,  
+ k2.e, k2.n  
+FROM transactions  
+JOIN keys k on k.id = transactions.src_key  
+JOIN keys k2 on k2.id = transactions.dest_key  
+JOIN pairs p on p.id = transactions.pair_id  
+WHERE transactions.group_id = ?;
+```
+
+to get all of the data needed to build a `transaction.ledger.Ledger` of `transaction.transaction.Transaction` objects. Once those objects are build, all that needs to happen is I write `ledger.simplify_ledger()`. This will then invoke all of the logic discussed in the `simplify` module section, as well as handle the verification of signatures, as discussed in the `crypto` module section.  This will be wrapped in a `try: ... except: ...` clause, and any errors will be returned with a 40X error code and reason for failure.
+
+### Client-side (`client`) module
