@@ -261,8 +261,8 @@ def verify(groups, transactions: int):
         raise helpers.InvalidResponseError(f"Error in getting transaction, {ire}")
 
     schema = schemas.PrettyTransactionSchema()
+    schema.make_pretty_transaction(response.json()).secho()
 
-    print(schema.make_pretty_transaction(response.json()))
 
 # TODO: debt
 def group_debt(group: int, email: str):

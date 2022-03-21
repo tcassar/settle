@@ -2,6 +2,8 @@
 import datetime
 from dataclasses import dataclass
 
+import click
+
 
 @dataclass
 class User:
@@ -61,6 +63,20 @@ class PrettyTransaction:
     reference: str
     other: str
     verified: bool
+
+    def secho(self):
+        click.secho('\n----')
+        click.secho(f"Transaction ID = {self.id}\nGroup: {self.group}", bold=True)
+        click.secho(f"{self.other}, £{(int(self.amount) / 100):02}", fg='blue')
+        click.secho(self.reference)
+        click.secho(f"at {self.time}")
+
+        if self.verified:
+            click.secho('Verified: True\n', fg='green')
+
+        else:
+            click.secho('Verified: False\n', fg='red', blink=True, bold=True)
+
 
 
 @dataclass
