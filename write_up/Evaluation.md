@@ -7,7 +7,7 @@ Here is the list of High Level Requirements that I suggested in the Analysis sec
 
 ## 1) An RSA implementation that will allow the signing, and verification, of transactions
 
-To attempt to demonstrate that I had met this requirement to my end user, I decided to show him an example of message tampering within the app. I had him register for an account, and create a transaction in which he owed me money
+To attempt to demonstrate that I had met this requirement to my end user, I decided to show him an example of message tampering within the app. I had him register for an account, and create a transaction in which he owed me £10
 
 
 ## 2) A way to settle the debts of the group in as few as possible (heuristically speaking) monetary transfers

@@ -152,7 +152,6 @@ def show(transactions, groups, email):
                     f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}',
                     fg="yellow",
                 )
-                unverified_running -= pretty["amount"]
 
                 click.secho(
                     f'\nReference: {pretty["time"]}'
@@ -175,7 +174,7 @@ def show(transactions, groups, email):
                 click.secho(f"You owe a total of £{verified_running:02}", fg="red")
             elif verified_running < 0:
                 click.secho(
-                    f"You are owed a total of £{verified_running:02}", fg="blue"
+                    f"You are owed a total of £{verified_running * -1 :02}", fg="blue"
                 )
             else:
                 click.secho(
@@ -184,12 +183,12 @@ def show(transactions, groups, email):
 
             if unverified_running > 0:
                 click.secho(
-                    f"Your unverified totals => you owe £{verified_running:02}",
+                    f"Your unverified totals => you owe £{unverified_running:02}",
                     fg="yellow",
                 )
             elif unverified_running < 0:
                 click.secho(
-                    f"Your unverified totals => you are owed £{verified_running:02}",
+                    f"Your unverified totals => you are owed £{unverified_running * -1 :02}",
                     fg="yellow",
                 )
             else:
