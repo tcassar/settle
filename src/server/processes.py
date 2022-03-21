@@ -5,7 +5,7 @@ from flask import g
 
 import src.server.models as models
 import src.transactions.transaction
-from src.crypto import keys as keys, rsa as rsa
+from src.crypto import keys as keys
 
 DATABASE = "/home/tcassar/projects/settle/settle_db.sqlite"
 
@@ -36,27 +36,37 @@ def build_args(data_from_cursor: list | tuple) -> list:
 
 
 def build_transactions(
-    src_sql: str, dest_sql: str, cursor: sqlite3.Cursor, email: str
+        src_sql: str, dest_sql: str, cursor: sqlite3.Cursor, email: str
 ) -> models.PrettyList:
-    # TODO: add transaction ids to received json (should already be in schemas and models)
+    """Returns pretty list of unchecked transactions"""
+    # TODO: add transaction verification
 
     pretty_src_transaction_data = cursor.execute(src_sql, [email])
-    src_transactions = []
-    for row in pretty_src_transaction_data:
-        src_transactions.append(models.PrettyTransaction(*build_args(row)))
 
-    pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
+    src_transactions: list[models.PrettyTransaction] = []
+    dest_transactions: list[models.PrettyTransaction] = []
 
-    dest_transactions = []
-    for row in pretty_dest_transaction_data:
-        trn = models.PrettyTransaction(*build_args(row))
-        dest_transactions.append(trn)
+    src_data = cursor.execute(src_sql, [email])
+
+    for row in src_data.fetchall():
+        pretty = models.PrettyTransaction(*build_args(row))
+        print(f'Checking id {pretty.id}')
+        verify_pretty(pretty, cursor)
+        src_transactions.append(pretty)
+
+    dest_data = cursor.execute(dest_sql, [email])
+
+    for row in dest_data.fetchall():
+        pretty = models.PrettyTransaction(*build_args(row))
+        print(f'Checking id {pretty.id}')
+        verify_pretty(pretty, cursor)
+        dest_transactions.append(pretty)
 
     return models.PrettyList(src_transactions, dest_transactions)
 
 
-def get_transaction_by_id(
-    id: int, cursor: sqlite3.Cursor
+def get_verified_transaction_by_id(
+        id: int, cursor: sqlite3.Cursor
 ) -> src.transactions.transaction.Transaction:
     """Gets transaction object from id
     raises ResourceNotFoundError if nothing is returned"""
@@ -71,7 +81,6 @@ WHERE transactions.id = ?;
 
     raw_transaction_data = cursor.execute(sql, [id]).fetchone()
     if not raw_transaction_data:
-        print(raw_transaction_data)
         raise ResourceNotFoundError(f"No transaction with ID={id}")
 
     else:
@@ -141,3 +150,28 @@ def user_exists(email: str, cursor: sqlite3.Cursor) -> bool:
     return not not cursor.execute(
         """SELECT COUNT(*) FROM users WHERE email = ?""", [email]
     ).fetchone()[0]
+
+
+def transaction_to_pretty(emails, transaction, verified):
+    pretty = models.PrettyTransaction(
+        transaction.ID,
+        transaction.group,
+        transaction.amount,
+        transaction.time,
+        transaction.reference,
+        f"{emails[0]} -> {emails[1]}",
+        verified,
+    )
+    return pretty
+
+
+def verify_pretty(pretty: models.PrettyTransaction, cursor: sqlite3.Cursor) -> models.PrettyTransaction:
+    """Update the verification status of pretty depending on signatures"""
+    try:
+        get_verified_transaction_by_id(pretty.id, cursor).verify()
+        pretty.verified = True
+    except src.transactions.transaction.VerificationError:
+        pretty.verified = False
+        print(f'Signature of {pretty.id} invalid')
+
+    return pretty

@@ -1,5 +1,4 @@
 # coding=utf-8
-import datetime
 from dataclasses import dataclass
 
 import click
@@ -76,7 +75,6 @@ class PrettyTransaction:
 
         else:
             click.secho('Verified: False\n', fg='red', blink=True, bold=True)
-
 
 
 @dataclass

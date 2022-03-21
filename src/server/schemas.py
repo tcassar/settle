@@ -3,8 +3,8 @@
 from marshmallow import Schema, fields, post_load
 
 import models  # type: ignore
-import src.transactions.transaction
 import src.transactions.ledger
+import src.transactions.transaction
 
 
 class UserSchema(Schema):

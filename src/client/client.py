@@ -249,7 +249,6 @@ def sign(transaction_id, key_path, email):
     # load private key
 
 
-# TODO: verify
 @trap
 def verify(groups, transactions: int):
     """Verifies either given transaction or a group; pass in by ID"""

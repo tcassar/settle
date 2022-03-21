@@ -5,6 +5,7 @@ import click
 from flask import Flask, g
 from flask_restful import Resource, Api, abort  # type: ignore
 
+from processes import get_db
 from src.server.resources import (
     Group,
     User,
@@ -14,7 +15,6 @@ from src.server.resources import (
     Simplifier,
     GroupDebt,
 )
-from processes import get_db
 
 app = Flask(__name__)
 api = Api(app)

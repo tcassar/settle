@@ -1,9 +1,10 @@
 # coding=utf-8
 
-from src.server import models as models, schemas as schemas, processes as processes
-import src.transactions.transaction as transactions
 from flask import request
 from flask_restful import Resource, abort  # type: ignore
+
+import src.transactions.transaction as transactions
+from src.server import models as models, schemas as schemas, processes as processes
 
 
 # Resources
@@ -281,9 +282,7 @@ class TransactionSigVerif(Resource):
         """Verify a transaction, returning copy of verified transaction"""
 
         try:
-            transaction = processes.get_transaction_by_id(
-                id, processes.get_db().cursor()
-            )
+            transaction = processes.get_verified_transaction_by_id(id, processes.get_db().cursor())
         except processes.ResourceNotFoundError as rnfe:
             return str(rnfe), 404
 
@@ -312,19 +311,12 @@ class TransactionSigVerif(Resource):
 
         # build pretty transaction to send back to the user
 
-        pretty = models.PrettyTransaction(
-            transaction.ID,
-            transaction.group,
-            transaction.amount,
-            transaction.time,
-            transaction.reference,
-            f"{emails[0]} -> {emails[1]}",
-            verified,
-        )
+        pretty = processes.transaction_to_pretty(emails, transaction, verified)
 
         schema = schemas.PrettyTransactionSchema()
 
         return schema.dump(pretty), 200
+
 
     def patch(self, id):
         """Sign a transaction"""
