@@ -69,7 +69,7 @@ class TransactionSchema(Schema):
 
 
 class PrettyTransactionSchema(Schema):
-    ID = fields.Int()
+    id = fields.Int()
     other = fields.Str()
     group = fields.Int()
     amount = fields.Int()

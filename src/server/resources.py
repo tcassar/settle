@@ -290,7 +290,7 @@ class TransactionSigVerif(Resource):
         try:
             transaction.verify()
             verified = True
-        except transactions.VerificationError as ve:
+        except transactions.VerificationError:
             verified = False
 
         # get emails involved in transaction, check if user is src or dest

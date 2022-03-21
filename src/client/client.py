@@ -258,10 +258,11 @@ def verify(groups, transactions: int):
     try:
         helpers.validate_response(response)
     except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f"Error in signing transaction, {ire}")
+        raise helpers.InvalidResponseError(f"Error in getting transaction, {ire}")
 
-    print(response.text)
+    schema = schemas.PrettyTransactionSchema()
 
+    print(schema.make_pretty_transaction(response.json()))
 
 # TODO: debt
 def group_debt(group: int, email: str):
