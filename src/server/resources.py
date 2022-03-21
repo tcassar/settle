@@ -181,7 +181,7 @@ class PrettyTransaction(Resource):
             print("not found")
             return f"User by email {email} not found", 404
 
-        src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
+        src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.src_id
                 INNER JOIN users u2 on u2.id = p.dest_id
@@ -189,7 +189,7 @@ class PrettyTransaction(Resource):
         """
 
         dest_sql = """
-        SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
+        SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.dest_id
                 INNER JOIN users u2 on u2.id = p.src_id

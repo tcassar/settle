@@ -41,15 +41,13 @@ def build_transactions(
     """Returns pretty list of unchecked transactions"""
     # TODO: add transaction verification
 
-    pretty_src_transaction_data = cursor.execute(src_sql, [email])
-
     src_transactions: list[models.PrettyTransaction] = []
     dest_transactions: list[models.PrettyTransaction] = []
 
     src_data = cursor.execute(src_sql, [email])
 
     for row in src_data.fetchall():
-        pretty = models.PrettyTransaction(*build_args(row))
+        pretty = models.PrettyTransaction(*build_args(row), False)
         print(f'Checking id {pretty.id}')
         verify_pretty(pretty, cursor)
         src_transactions.append(pretty)
@@ -57,7 +55,7 @@ def build_transactions(
     dest_data = cursor.execute(dest_sql, [email])
 
     for row in dest_data.fetchall():
-        pretty = models.PrettyTransaction(*build_args(row))
+        pretty = models.PrettyTransaction(*build_args(row), False)
         print(f'Checking id {pretty.id}')
         verify_pretty(pretty, cursor)
         dest_transactions.append(pretty)
@@ -121,7 +119,7 @@ WHERE transactions.id = ?;
         src_ldr = keys.RSAKeyLoaderFromNumbers()
         dest_ldr = keys.RSAKeyLoaderFromNumbers()
 
-        src_ldr.load(*src_key_data)
+        src_ldr.load(*src_key_data)  # type: ignore
         dest_ldr.load(*dest_key_data)
 
         # add keys to transaction data in the right place so that they can be unpacked as positional arguments
