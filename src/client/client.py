@@ -287,7 +287,15 @@ def new_transaction(email, password, dest_email, amount, group, reference):
         helpers.url("transaction"), json=trn_schema.dump(transaction)
     )
 
-    click.echo(response.text)
+    try:
+        helpers.validate_response(response)
+    except helpers.InvalidResponseError as ire:
+        raise helpers.InvalidResponseError(f'Failed to add transaction\n{ire}')
+
+    # TODO: fix getting IDs
+
+    click.secho(f'Transaction generated with ID={response.json()}', fg='green')
+    click.echo(f'Sign with `settle sign {response.json()}`')
 
 
 # TODO: simplify

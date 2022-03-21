@@ -253,9 +253,22 @@ class PrettyTransaction(Resource):
 
         # load transaction object into schema from request
         trn_json = request.json
-        print(trn_json)
         trn_schema = schemas.TransactionSchema()
         transaction = trn_schema.make_transaction(trn_json)
+
+
+        # check that both people involvled in transaction are members of transaction group
+        sql = """SELECT count(*) FROM groups
+                 INNER JOIN group_link gl on groups.id = gl.group_id
+                 INNER JOIN users u
+                 INNER JOIN users u2
+                 WHERE group_id = ? and u.id = ? and u2.id = ?
+         """
+
+        users_in_group = cursor.execute(sql, [transaction.group, transaction.src, transaction.dest])
+        if users_in_group.fetchone()[0] == 0:
+            return f'Users are not both members of group {transaction.group}', 409
+
 
         insert_to_pairs = """INSERT INTO pairs (src_id, dest_id)
                             VALUES (?, ?) ON CONFLICT DO NOTHING """
@@ -277,7 +290,7 @@ class PrettyTransaction(Resource):
         src_key_id = cursor.execute(key_id_query, [transaction.src]).fetchone()[0]
         dest_key_id = cursor.execute(key_id_query, [transaction.dest]).fetchone()[0]
 
-        print(  pair_id,
+        print(pair_id,
                 transaction.group,
                 transaction.amount,
                 src_key_id,
@@ -302,7 +315,7 @@ class PrettyTransaction(Resource):
 
         get_db().commit()
 
-        return request.json, 201
+        return cursor.lastrowid, 201
 
 
 class TransactionSigVerif(Resource):
