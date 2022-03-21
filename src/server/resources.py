@@ -253,6 +253,7 @@ class PrettyTransaction(Resource):
 
         # load transaction object into schema from request
         trn_json = request.json
+        print(trn_json)
         trn_schema = schemas.TransactionSchema()
         transaction = trn_schema.make_transaction(trn_json)
 
@@ -275,6 +276,14 @@ class PrettyTransaction(Resource):
 
         src_key_id = cursor.execute(key_id_query, [transaction.src]).fetchone()[0]
         dest_key_id = cursor.execute(key_id_query, [transaction.dest]).fetchone()[0]
+
+        print(  pair_id,
+                transaction.group,
+                transaction.amount,
+                src_key_id,
+                dest_key_id,
+                transaction.reference,
+                transaction.time,)
 
         cursor.execute(
             """INSERT INTO transactions 

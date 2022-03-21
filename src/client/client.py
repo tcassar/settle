@@ -252,6 +252,7 @@ def new_transaction(email, password, dest_email, amount, group, reference):
     dest = helpers.get_user(dest_email)
 
     # convert amount into pence
+    amount = int(amount)
     amount *= 100
     if type(amount) == float:
         amount //= 1

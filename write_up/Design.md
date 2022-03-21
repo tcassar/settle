@@ -1,10 +1,9 @@
 # Design
 
 QUESTIONS
-1) Ask about need to add data integrity (i have and its all sorted, does it need to go in here?)
-2) Enough on HCI?
-3) Enough on client side?
-
+1) Ask about need to add data integrity (i have and its all sorted, does it need to go in here?) 
+1) Enough on HCI?
+2) Enough on client side? add error handling
 
 ## High Level System Design
 
@@ -535,12 +534,13 @@ WHERE transactions.group_id = ?;
 to get all of the data needed to build a `transaction.ledger.Ledger` of `transaction.transaction.Transaction` objects. Once those objects are build, all that needs to happen is I write `ledger.simplify_ledger()`. This will then invoke all of the logic discussed in the `simplify` module section, as well as handle the verification of signatures, as discussed in the `crypto` module section.  This will be wrapped in a `try: ... except: ...` clause, and any errors will be returned with a 40X error code and reason for failure.
 
 ### Client-side (`client`) module
-As aforementioned,  the client is a thin client, meaning it does not have many responsibilities in the overarching structure of the program. Thus, this section will mainly be examples and mock ups of the elements of Human-Computer Interaction.
+As aforementioned, the client is a thin client, meaning it does not have many responsibilities in the overarching structure of the program. Thus, this section will mainly be examples and mock ups of the elements of Human-Computer Interaction.
 
 To show this, I will provide screenshots of an output to STDOUT of how I would like certain outputs to look. Here I will provide mainly ancillary outputs. and how I would like certain prompts to appear upon a command being run
 
 * Upon a user registering a new account
 ![[Pasted image 20220320220345.png]]
+
 
 The program should prompt the user with the details that they need to enter to create their account. Password entering should be hidden, as it is commonly in CLIs.
 Passwords should be confirmed through asking for confirmation, as above. If the passwords entered do not match, the program should ask to user re enter thir password. The program should report a failure if an invalid path to a key is given, as here
