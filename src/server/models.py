@@ -93,3 +93,10 @@ class PrettyList:
             trn.secho()
         for trn in self.dest_list:
             trn.secho()
+
+
+@dataclass
+class Signature:
+    transaction_id: int
+    signature: str  # store as hex
+    origin: int  # id of person who is signing

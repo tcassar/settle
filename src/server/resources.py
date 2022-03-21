@@ -281,7 +281,7 @@ class PrettyTransaction(Resource):
 
 class TransactionSigVerif(Resource):
     def get(self, id):
-        """Verify a transaction, returning copy of verified transaction"""
+        """Verify a transaction, returning pretty copy of verified transaction"""
 
         try:
             transaction = processes.get_verified_transaction_by_id(
@@ -363,3 +363,18 @@ class GroupDebt(Resource):
 
         schema = schemas.PrettyListSchema()
         return schema.dump(models.PrettyList(trns, [])), 200
+
+
+class SignableTransaction(Resource):
+    def get(self, id):
+        """Returns a fully signable transaction object"""
+
+        try:
+            transaction = processes.get_verified_transaction_by_id(
+                id, processes.get_db().cursor()
+            )
+        except processes.ResourceNotFoundError as rnfe:
+            return str(rnfe), 404
+
+        schema = schemas.TransactionSchema()
+        return schema.dump(transaction), 200

@@ -89,3 +89,9 @@ class PrettyListSchema(Schema):
     @post_load
     def make_pretty_list(self, data, **kwargs):
         return models.PrettyList(**data)
+
+
+class SignatureSchema(Schema):
+    transaction_id = fields.Int()
+    signature = fields.Str()  # store as hex
+    origin = fields.Int()  # id of person

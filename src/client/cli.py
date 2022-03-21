@@ -44,13 +44,17 @@ def show(transactions, groups, email):
     client.show(transactions, groups, email)
 
 
-@click.option("--password", prompt=True, hide_input=True)
-@click.option("--email", prompt=True)
-@click.argument("key_path")
-@click.argument("transaction_id")
+# @click.option("--password", prompt=True, hide_input=True)
+# @click.option("--email", prompt=True)
+# @click.argument("key_path")
+# @click.argument("transaction_id")
 @settle.command()
-def sign(transaction_id, key_path, email):
+# def sign(transaction_id, key_path, email, password):
+def sign():
     """Signs a transaction"""
+    key_path = '/home/tcassar/projects/settle/src/crypto/sample_keys/t_private-key.pem'
+    email = 'cassar.thomas.e@gmail.com'
+    transaction_id = 3
     client.sign(transaction_id, key_path, email)
 
 

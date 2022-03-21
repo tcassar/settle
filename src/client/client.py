@@ -43,7 +43,6 @@ def register(
         return
 
     password: str = helpers.hash_password(password)
-    n_as_bytes = pub_key.n.to_bytes(256, sys.byteorder)
 
     usr = models.User(
         name,
@@ -244,9 +243,73 @@ def simplify(group_id, password):
 
 
 # TODO: sign
+@trap
 def sign(transaction_id, key_path, email):
     """Signs a transaction given an ID and a path to key"""
     # load private key
+
+    ldr = keys.RSAKeyLoader()
+    try:
+        ldr.load(key_path)
+        ldr.parse()
+        key: keys.RSAPrivateKey = keys.RSAPrivateKey(ldr)
+    except keys.RSAParserError as rsa_err:
+        click.secho(
+            f"Failed to sign transaction - issue with given RSA key;\n{rsa_err}",
+            fg="red",
+            bold=True,
+        )
+        return
+
+    # pull signable transaction
+    response = requests.get(helpers.url(f"transaction/signable/{transaction_id}"))
+
+    try:
+        helpers.validate_response(response)
+    except helpers.InvalidResponseError as ire:
+        raise helpers.InvalidResponseError(f"Failed to fetch group data\n{ire}")
+
+    transaction = schemas.TransactionSchema().make_transaction(response.json())
+
+    # determine origin
+    usr_response: requests.Response = requests.get(helpers.url(f"user/{email}"))
+    helpers.validate_response(usr_response)
+
+    # build a user from received data
+    usr = schemas.UserSchema().make_user(usr_response.json())
+
+    key_as_str = f'n={key.n},\ne={key.e}'
+
+    if usr.id == transaction.src:
+        origin = 'src'
+        if transaction.src_pub.strip() != key_as_str.strip():
+            raise helpers.AuthError('Private key provided does not match the listing in the db')
+        else:
+            click.secho('\tKey validated against server', fg='green')
+
+    elif usr.id == transaction.dest:
+        origin = 'dest'
+        if transaction.dest_pub.strip() != key_as_str.strip():
+            print(key_as_str)
+            print(transaction.dest_pub)
+            raise helpers.AuthError('Private key provided does not match the listing in the db')
+        else:
+            click.secho('\tKey validated against server', fg='green')
+
+    else:
+        raise helpers.ResourceNotFoundError('Email provided doesn\'t match any of the users in the transaction')
+
+    try:
+        transaction.sign(key, origin=origin)
+        click.secho('\tsuccessfully signed transaction', fg='green')
+    except trn.TransactionError as te:
+        raise helpers.AuthError(f'Failed to sign transaction: {transaction.ID}\n{te}')
+
+    # push signed transaction to db
+
+    # sign with key
+
+    # patch signature
 
 
 @trap
@@ -284,7 +347,8 @@ def verify(groups, transactions: int):
         for trn in pretty_list.src_list + pretty_list.dest_list:
             trn_schema.make_pretty_transaction(trn).secho()
 
-# TODO: debt
+
+@trap
 def group_debt(group: int, email: str):
     """Groups get groups transactions"""
     response = requests.get(helpers.url(f"user/debt/{email}/{group}"))

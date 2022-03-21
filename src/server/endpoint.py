@@ -14,6 +14,7 @@ from src.server.resources import (
     TransactionSigVerif,
     Simplifier,
     GroupDebt,
+    SignableTransaction
 )
 
 app = Flask(__name__)
@@ -26,6 +27,20 @@ def close_connection(exception):
     db = getattr(g, "_database", None)
     if db is not None:
         db.close()
+
+
+@click.group()
+def settle_server():
+    ...
+
+
+@click.option("-d", "--debug", is_flag=True, default=False)
+@click.option("-h", "--host", default="127.0.0.1")
+@settle_server.command()
+def start(host, debug):
+    os.chdir("/home/tcassar/projects/settle")
+    app.run(debug=debug, host=host)
+    db = get_db()
 
 
 api.add_resource(Group, "/group/<int:id>", "/group")
@@ -44,16 +59,4 @@ api.add_resource(Simplifier, "/simplify/<int:gid>")
 
 api.add_resource(GroupDebt, "/group/debt/<int:id>")
 
-
-@click.group()
-def settle_server():
-    ...
-
-
-@click.option("-d", "--debug", is_flag=True, default=False)
-@click.option("-h", "--host", default="127.0.0.1")
-@settle_server.command()
-def start(host, debug):
-    os.chdir("/home/tcassar/projects/settle")
-    app.run(debug=debug, host=host)
-    db = get_db()
+api.add_resource(SignableTransaction, "/transaction/signable/<int:id>")
