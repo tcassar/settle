@@ -1,6 +1,6 @@
 # coding=utf-8
 import processes
-from src.server.processes import get_db, build_args, build_transactions, ResourceError
+from src.server.processes import get_db, build_args, build_transactions, ResourceNotFoundError
 from src.server import models as models, schemas as schemas
 
 from flask import request
@@ -138,7 +138,7 @@ class UserGroupBridge(Resource):
         try:
             print("making group")
             glink = models.GroupLink(*build_args(glink_data.fetchone()))
-        except ResourceError as re:
+        except ResourceNotFoundError as re:
             return 404, f"{re}, failed"
 
         schema = schemas.GroupLinkSchema()
@@ -280,6 +280,9 @@ class PrettyTransaction(Resource):
 class TransactionSigVerif(Resource):
     def get(self, id):
         """Verify a transaction, returning copy of verified transaction"""
+
+        print(processes.get_transaction_by_id(id, processes.get_db().cursor()))
+
         return request.json, 200
 
     def patch(self, id):

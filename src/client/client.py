@@ -248,9 +248,11 @@ def sign(transaction_id, key_path, email):
 
 
 # TODO: verify
-def verify(transactions):
+def verify(groups, transactions: int):
     """Verifies either given transaction or a group; pass in by ID"""
+    response = requests.get(helpers.url(f'transaction/auth/{transactions}'))
 
+    print(response.text)
 
 # TODO: debt
 def group_debt(group: int, email: str):

@@ -98,8 +98,8 @@ def trap(func) -> object:
 
 def show_transactions(transactions_data: requests.Response):
     try:
-        unverified_running = 0
-        verified_running = 0
+        unverified_running = 0.0
+        verified_running = 0.0
         for pretty in transactions_data.json()["src_list"]:
 
             click.secho(
@@ -110,6 +110,7 @@ def show_transactions(transactions_data: requests.Response):
             click.secho(
                 f'\nReference: {pretty["time"]}'
                 + f'\nAgreed upon at {pretty["reference"]}'
+                + f'ID: {pretty["id"]}'
             )
 
             if pretty["verified"] == 1:
@@ -128,6 +129,8 @@ def show_transactions(transactions_data: requests.Response):
             click.secho(
                 f'\nReference: {pretty["time"]}'
                 + f'\nAgreed upon at {pretty["reference"]}'
+                + f'ID: {pretty["id"]}'
+
             )
 
             if pretty["verified"] == 1:

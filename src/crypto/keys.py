@@ -128,7 +128,7 @@ class RSAPublicKey:
 class RSAKeyLoaderFromNumbers:  # type: ignore
     lookup: dict[str, int] = field(default_factory=lambda: {})
 
-    def load(self, *, n: int, e: int, d: int = 0) -> None:
+    def load(self, n: int, e: int, d: int = 0) -> None:
         self.lookup["n"] = n
         self.lookup["e"] = e
         if d:
