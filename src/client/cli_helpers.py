@@ -2,6 +2,7 @@
 import click
 import requests
 
+import schemas
 from src.crypto import hashes as hasher
 from src.server import models
 
@@ -180,3 +181,9 @@ def show_transactions(transactions_data: requests.Response):
         if transactions_data.json() is None:
             click.secho("No open transactions", fg="green")
             click.echo(te)
+
+
+def show_group(transaction_data: requests.Response):
+    schema = schemas.PrettyListSchema()
+    pretty_list: models.PrettyList = schema.make_pretty_list(transaction_data.json())
+    print(pretty_list)

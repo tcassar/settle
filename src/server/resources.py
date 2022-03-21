@@ -195,7 +195,9 @@ class PrettyTransaction(Resource):
                 INNER JOIN users u2 on u2.id = p.src_id
                 WHERE transactions.settled = 0 AND u.email = ?"""
 
-        pretty_list = processes.build_transactions(src_sql, dest_sql, cursor, email)
+        pretty_list = processes.build_pretty_transactions(
+            src_sql, dest_sql, cursor, [email]
+        )
 
         pretty_list_schema = schemas.PrettyListSchema()
         if not pretty_list:
@@ -282,7 +284,9 @@ class TransactionSigVerif(Resource):
         """Verify a transaction, returning copy of verified transaction"""
 
         try:
-            transaction = processes.get_verified_transaction_by_id(id, processes.get_db().cursor())
+            transaction = processes.get_verified_transaction_by_id(
+                id, processes.get_db().cursor()
+            )
         except processes.ResourceNotFoundError as rnfe:
             return str(rnfe), 404
 
@@ -317,7 +321,6 @@ class TransactionSigVerif(Resource):
 
         return schema.dump(pretty), 200
 
-
     def patch(self, id):
         """Sign a transaction"""
         return request.json, 201
@@ -333,7 +336,30 @@ class Simplifier(Resource):
 
 
 class GroupDebt(Resource):
-    def get(self, id, email):
+    def get(self, id):
         """Return open transactions of a user in a group"""
 
-        print(request.data)
+        cursor = processes.get_db()
+
+        sql = """SELECT transactions.id, group_id, amount, time_of_creation, reference, u.email, u2.email
+                    FROM transactions
+                    INNER JOIN pairs p on p.id = transactions.pair_id
+                    INNER JOIN users u on u.id = p.src_id
+                    INNER JOIN users u2 on u2.id = p.dest_id
+                    WHERE group_id = 3
+    
+            """
+
+        trns: list[models.PrettyTransaction] = []
+        for row in cursor.execute(sql, [id]).fetchall():
+            dest = row.pop()
+            src = row.pop()
+            row.append(f"{src} -> {dest}")
+
+            pretty = models.PrettyTransaction(*processes.build_args(row))
+            pretty = processes.verify_pretty(pretty, cursor)
+
+            trns.append(pretty)
+
+        schema = schemas.PrettyListSchema()
+        return schema.dump(models.PrettyList(trns, [])), 200

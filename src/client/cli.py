@@ -54,8 +54,8 @@ def sign(transaction_id, key_path, email):
     client.sign(transaction_id, key_path, email)
 
 
-@click.option("-g", "--group")
-@click.option("-t", "--transaction")
+@click.option("-g", "--group", default=0)
+@click.option("-t", "--transaction", default=0)
 @settle.command()
 def verify(group, transaction):
     """Will verify a transaction if given a transaction ID or an entire group if given a group ID"""

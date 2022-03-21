@@ -64,17 +64,17 @@ class PrettyTransaction:
     verified: bool
 
     def secho(self):
-        click.secho('\n----')
+        click.secho("\n----")
         click.secho(f"Transaction ID = {self.id}\nGroup: {self.group}", bold=True)
-        click.secho(f"{self.other}, £{(int(self.amount) / 100):02}", fg='blue')
+        click.secho(f"{self.other}, £{(int(self.amount) / 100):02}", fg="blue")
         click.secho(self.reference)
         click.secho(f"at {self.time}")
 
         if self.verified:
-            click.secho('Verified: True\n', fg='green')
+            click.secho("Verified: True\n", fg="green")
 
         else:
-            click.secho('Verified: False\n', fg='red', blink=True, bold=True)
+            click.secho("Verified: False\n", fg="red", blink=True, bold=True)
 
 
 @dataclass
@@ -84,3 +84,12 @@ class PrettyList:
 
     def __bool__(self):
         return True if (self.src_list or self.dest_list) else False
+
+    def __repr__(self):
+        return f'{self.src_list}'
+
+    def secho(self):
+        for trn in self.src_list:
+            trn.secho()
+        for trn in self.dest_list:
+            trn.secho()

@@ -252,16 +252,37 @@ def sign(transaction_id, key_path, email):
 @trap
 def verify(groups, transactions: int):
     """Verifies either given transaction or a group; pass in by ID"""
-    response = requests.get(helpers.url(f"transaction/auth/{transactions}"))
 
-    try:
-        helpers.validate_response(response)
-    except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f"Error in getting transaction, {ire}")
+    if not groups and not transactions:
+        click.secho("Please provide a groups ID or transaction ID", fg="yellow")
+        return
 
-    schema = schemas.PrettyTransactionSchema()
-    schema.make_pretty_transaction(response.json()).secho()
+    if transactions:
+        response = requests.get(helpers.url(f"transaction/auth/{transactions}"))
 
+        try:
+            helpers.validate_response(response)
+        except helpers.InvalidResponseError as ire:
+            raise helpers.InvalidResponseError(f"Error in getting transaction, {ire}")
+
+        schema = schemas.PrettyTransactionSchema()
+        schema.make_pretty_transaction(response.json()).secho()
+
+    if groups:
+        try:
+            transactions_data = requests.get(helpers.url(f"group/debt/{groups}"))
+            helpers.validate_response(transactions_data)
+        except helpers.ResourceNotFoundError as ire:
+            raise helpers.ResourceNotFoundError(
+                f"Problem with fetching your transactions...\n{ire}"
+            )
+
+        pretty_schema = schemas.PrettyListSchema()
+        pretty_list: models.PrettyList = pretty_schema.make_pretty_list(transactions_data.json())
+        trn_schema = schemas.PrettyTransactionSchema()
+
+        for trn in pretty_list.src_list + pretty_list.dest_list:
+            trn_schema.make_pretty_transaction(trn).secho()
 
 # TODO: debt
 def group_debt(group: int, email: str):

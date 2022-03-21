@@ -5,6 +5,7 @@ Handles transaction object
 """
 
 import datetime
+
 # coding=utf-8
 import sys
 from abc import ABC, abstractmethod

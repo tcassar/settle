@@ -5,7 +5,7 @@ import click
 from flask import Flask, g
 from flask_restful import Resource, Api, abort  # type: ignore
 
-from processes import get_db
+from src.server.processes import get_db
 from src.server.resources import (
     Group,
     User,
@@ -42,7 +42,7 @@ api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>")
 
 api.add_resource(Simplifier, "/simplify/<int:gid>")
 
-api.add_resource(GroupDebt, "/user/debt/<string:email>/<int:id>")
+api.add_resource(GroupDebt, "/group/debt/<int:id>")
 
 
 @click.group()
