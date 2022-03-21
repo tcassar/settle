@@ -36,7 +36,7 @@ def build_args(data_from_cursor: list | tuple) -> list:
 
 
 def build_transactions(
-        src_sql: str, dest_sql: str, cursor: sqlite3.Cursor, email: str
+    src_sql: str, dest_sql: str, cursor: sqlite3.Cursor, email: str
 ) -> models.PrettyList:
     # TODO: add transaction ids to received json (should already be in schemas and models)
 
@@ -55,7 +55,9 @@ def build_transactions(
     return models.PrettyList(src_transactions, dest_transactions)
 
 
-def get_transaction_by_id(id: int, cursor: sqlite3.Cursor) -> src.transactions.transaction.Transaction:
+def get_transaction_by_id(
+    id: int, cursor: sqlite3.Cursor
+) -> src.transactions.transaction.Transaction:
     """Gets transaction object from id
     raises ResourceNotFoundError if nothing is returned"""
 
@@ -70,22 +72,36 @@ WHERE transactions.id = ?;
     raw_transaction_data = cursor.execute(sql, [id]).fetchone()
     if not raw_transaction_data:
         print(raw_transaction_data)
-        raise ResourceNotFoundError(f'No transaction with ID={id}')
+        raise ResourceNotFoundError(f"No transaction with ID={id}")
 
     else:
         src_key_data = raw_transaction_data[2:4]
         dest_key_data = raw_transaction_data[4:6]
-        transaction_data = list(raw_transaction_data[:2]) + list(raw_transaction_data[6:])
+        transaction_data = list(raw_transaction_data[:2]) + list(
+            raw_transaction_data[6:]
+        )
 
-        src_id, dest_id, amount, t_id, ref, time, src_sig, dest_sig, group = transaction_data
+        (
+            src_id,
+            dest_id,
+            amount,
+            t_id,
+            ref,
+            time,
+            src_sig,
+            dest_sig,
+            group,
+        ) = transaction_data
 
-        print(f'amount: {amount}\n'
-              f'tran id: {t_id}\n'
-              f'ref: {ref}\n'
-              f'time: {time}\n'
-              f'src_sig: {src_sig}\n'
-              f'dest_sig: {dest_sig}\n'
-              f'group: {group}\n')
+        print(
+            f"amount: {amount}\n"
+            f"tran id: {t_id}\n"
+            f"ref: {ref}\n"
+            f"time: {time}\n"
+            f"src_sig: {src_sig}\n"
+            f"dest_sig: {dest_sig}\n"
+            f"group: {group}\n"
+        )
 
         # build keys
         # convert hex -> ints
@@ -122,4 +138,6 @@ WHERE transactions.id = ?;
 
 
 def user_exists(email: str, cursor: sqlite3.Cursor) -> bool:
-    return not not cursor.execute("""SELECT COUNT(*) FROM users WHERE email = ?""", [email]).fetchone()[0]
+    return not not cursor.execute(
+        """SELECT COUNT(*) FROM users WHERE email = ?""", [email]
+    ).fetchone()[0]

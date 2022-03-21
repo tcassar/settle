@@ -32,11 +32,15 @@ def validate_response(response: requests.Response) -> None:
     """Raises InvalidResponseError if response is invalid"""
     e = response.text
     if response.status_code == 404:
-        raise ResourceNotFoundError("ERROR: Could not find requested resource on server")
+        raise ResourceNotFoundError(
+            f"ERROR: Could not find requested resource on server, {e}"
+        )
     elif response.status_code == 409:
-        raise ResourceNotFoundError("The resource that you are trying to create already exists")
+        raise ResourceNotFoundError(
+            f"The resource that you are trying to create already exists, {e}"
+        )
     elif response.status_code == 403:
-        raise ResourceNotFoundError("This action was not allowed by the server")
+        raise ResourceNotFoundError(f"This action was not allowed by the server, {e}")
 
 
 def _auth(resource: str, password: str):
@@ -136,7 +140,6 @@ def show_transactions(transactions_data: requests.Response):
                 f'\nReference: {pretty["time"]}'
                 + f'\nAgreed upon at {pretty["reference"]}'
                 + f'ID: {pretty["id"]}'
-
             )
 
             if pretty["verified"] == 1:

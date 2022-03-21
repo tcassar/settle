@@ -177,8 +177,8 @@ class PrettyTransaction(Resource):
         cursor = processes.get_db().cursor()
 
         if not processes.user_exists(email, cursor):
-            print('not found')
-            return f'User by email {email} not found', 404
+            print("not found")
+            return f"User by email {email} not found", 404
 
         src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
@@ -281,16 +281,50 @@ class TransactionSigVerif(Resource):
         """Verify a transaction, returning copy of verified transaction"""
 
         try:
-            transaction = processes.get_transaction_by_id(id, processes.get_db().cursor())
+            transaction = processes.get_transaction_by_id(
+                id, processes.get_db().cursor()
+            )
         except processes.ResourceNotFoundError as rnfe:
             return str(rnfe), 404
 
         try:
             transaction.verify()
+            verified = True
         except transactions.VerificationError as ve:
-            return str(ve), 403
+            verified = False
 
-        return request.json, 200
+        # get emails involved in transaction, check if user is src or dest
+        emails = (
+            processes.get_db()
+            .cursor()
+            .execute(
+                """
+                    SELECT u.email, u2.email FROM transactions 
+                    JOIN pairs p on transactions.pair_id = p.id
+                    JOIN users u on p.src_id = u.id
+                    JOIN users u2 on dest_id = u2.id
+                     WHERE transactions.id = ?
+                """,
+                [id],
+            )
+            .fetchone()
+        )
+
+        # build pretty transaction to send back to the user
+
+        pretty = models.PrettyTransaction(
+            transaction.ID,
+            transaction.group,
+            transaction.amount,
+            transaction.time,
+            transaction.reference,
+            f"{emails[0]} -> {emails[1]}",
+            verified,
+        )
+
+        schema = schemas.PrettyTransactionSchema()
+
+        return schema.dump(pretty), 200
 
     def patch(self, id):
         """Sign a transaction"""

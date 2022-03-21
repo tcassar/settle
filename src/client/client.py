@@ -100,7 +100,9 @@ def show(transactions, groups, email):
         try:
             groups_data = requests.get(helpers.url(f"group/{email}"))
         except helpers.ResourceNotFoundError as ire:
-            raise helpers.ResourceNotFoundError(f"Problem fetching your group...\n{ire}")
+            raise helpers.ResourceNotFoundError(
+                f"Problem fetching your group...\n{ire}"
+            )
 
         group_objs: list[models.Group] = []
         for group in groups_data.json()["groups"]:
@@ -251,14 +253,15 @@ def sign(transaction_id, key_path, email):
 @trap
 def verify(groups, transactions: int):
     """Verifies either given transaction or a group; pass in by ID"""
-    response = requests.get(helpers.url(f'transaction/auth/{transactions}'))
+    response = requests.get(helpers.url(f"transaction/auth/{transactions}"))
 
     try:
         helpers.validate_response(response)
     except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f'Error in signing transaction, {ire}')
+        raise helpers.InvalidResponseError(f"Error in signing transaction, {ire}")
 
     print(response.text)
+
 
 # TODO: debt
 def group_debt(group: int, email: str):
