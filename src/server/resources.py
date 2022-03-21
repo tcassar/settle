@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from src.server import models as models, schemas as schemas, processes as processes
-
+import src.transactions.transaction as transactions
 from flask import request
 from flask_restful import Resource, abort  # type: ignore
 
@@ -281,10 +281,14 @@ class TransactionSigVerif(Resource):
         """Verify a transaction, returning copy of verified transaction"""
 
         try:
-            processes.get_transaction_by_id(id, processes.get_db().cursor())
+            transaction = processes.get_transaction_by_id(id, processes.get_db().cursor())
         except processes.ResourceNotFoundError as rnfe:
             return str(rnfe), 404
 
+        try:
+            transaction.verify()
+        except transactions.VerificationError as ve:
+            return str(ve), 403
 
         return request.json, 200
 
