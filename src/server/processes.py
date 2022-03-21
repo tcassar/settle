@@ -51,3 +51,8 @@ def build_transactions(
         dest_transactions.append(trn)
 
     return models.PrettyList(src_transactions, dest_transactions)
+
+
+def user_exists(email: str, cursor: sqlite3.Cursor) -> bool:
+    return not not cursor.execute("""SELECT COUNT(*) FROM users WHERE email = ?""", [email]).fetchone()[0]
+

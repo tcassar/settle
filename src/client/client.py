@@ -114,18 +114,17 @@ def show(transactions, groups, email):
         # type: ignore
 
     if transactions:
-        click.secho("\nYour open transactions:\n", fg="blue")
 
         # transaction schema
 
         # receive list of transactions
         try:
             transactions_data = requests.get(helpers.url(f"/transaction/{email}"))
+            helpers.validate_response(transactions_data)
         except helpers.InvalidResponseError as ire:
             raise helpers.InvalidResponseError(
                 f"Problem with fetching your transactions...\n{ire}"
             )
-
         show_transactions(transactions_data)
 
 

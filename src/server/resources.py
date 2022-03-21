@@ -1,5 +1,5 @@
 # coding=utf-8
-
+import processes
 from src.server.processes import get_db, build_args, build_transactions, ResourceError
 from src.server import models as models, schemas as schemas
 
@@ -176,6 +176,10 @@ class PrettyTransaction(Resource):
         """Gets a user's unsigned transactions"""
 
         cursor = get_db().cursor()
+
+        if not processes.user_exists(email, cursor):
+            print('not found')
+            return f'User by email {email} not found', 404
 
         src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
