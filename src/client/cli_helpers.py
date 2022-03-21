@@ -149,9 +149,7 @@ def show_transactions(transactions_data: requests.Response):
                 f"You are owed a total of £{verified_running * -1 :02}", fg="blue"
             )
         else:
-            click.secho(
-                f"You owe and are owed nothing; all debts settled", fg="green"
-            )
+            click.secho(f"You owe and are owed nothing; all debts settled", fg="green")
 
         if unverified_running > 0:
             click.secho(

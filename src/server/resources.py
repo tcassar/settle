@@ -1,59 +1,10 @@
 # coding=utf-8
-import sqlite3
 
-from flask import request, g
-from flask_restful import Resource, abort  # type: ignore
-
+from src.server.processes import get_db, build_args, build_transactions, ResourceError
 from src.server import models as models, schemas as schemas
 
-
-DATABASE = "/home/tcassar/projects/settle/settle_db.sqlite"
-
-# connecting to and clearing up db
-
-# helpers
-
-
-class ResourceError(Exception):
-    ...
-
-
-def get_db():
-    """Returns current database connection"""
-    db = getattr(g, "_database", None)
-    if db is None:
-        # connect
-        db = g._database = sqlite3.connect(DATABASE)
-
-    return db
-
-
-def build_args(data_from_cursor: list | tuple) -> list:
-    """Given a ROW OF PARAMETERS FROM DB will return list as args"""
-    if args := data_from_cursor:
-        args = [item for item in args]
-        return args
-    else:
-        raise ResourceError(
-            "Database error: failed to build schema of object as nothing was retrieved"
-        )
-
-
-def build_transactions(src_sql: str, dest_sql: str, cursor: sqlite3.Cursor, email: str) -> models.PrettyList:
-
-    pretty_src_transaction_data = cursor.execute(src_sql, [email])
-    src_transactions = []
-    for row in pretty_src_transaction_data:
-        src_transactions.append(models.PrettyTransaction(*build_args(row)))
-
-    pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
-
-    dest_transactions = []
-    for row in pretty_dest_transaction_data:
-        trn = models.PrettyTransaction(*build_args(row))
-        dest_transactions.append(trn)
-
-    return models.PrettyList(src_transactions, dest_transactions)
+from flask import request
+from flask_restful import Resource, abort  # type: ignore
 
 
 # Resources
@@ -258,7 +209,6 @@ class PrettyTransaction(Resource):
         trn_schema = schemas.TransactionSchema()
         transaction = trn_schema.make_transaction(trn_json)
 
-
         # check that both people involvled in transaction are members of transaction group
         sql = """SELECT count(*) FROM groups
                  INNER JOIN group_link gl on groups.id = gl.group_id
@@ -267,10 +217,11 @@ class PrettyTransaction(Resource):
                  WHERE group_id = ? and u.id = ? and u2.id = ?
          """
 
-        users_in_group = cursor.execute(sql, [transaction.group, transaction.src, transaction.dest])
+        users_in_group = cursor.execute(
+            sql, [transaction.group, transaction.src, transaction.dest]
+        )
         if users_in_group.fetchone()[0] == 0:
-            return f'Users are not both members of group {transaction.group}', 409
-
+            return f"Users are not both members of group {transaction.group}", 409
 
         insert_to_pairs = """INSERT INTO pairs (src_id, dest_id)
                             VALUES (?, ?) ON CONFLICT DO NOTHING """
@@ -292,13 +243,15 @@ class PrettyTransaction(Resource):
         src_key_id = cursor.execute(key_id_query, [transaction.src]).fetchone()[0]
         dest_key_id = cursor.execute(key_id_query, [transaction.dest]).fetchone()[0]
 
-        print(pair_id,
-                transaction.group,
-                transaction.amount,
-                src_key_id,
-                dest_key_id,
-                transaction.reference,
-                transaction.time,)
+        print(
+            pair_id,
+            transaction.group,
+            transaction.amount,
+            src_key_id,
+            dest_key_id,
+            transaction.reference,
+            transaction.time,
+        )
 
         cursor.execute(
             """INSERT INTO transactions 

@@ -11,10 +11,10 @@ from src.server.resources import (
     UserGroupBridge,
     PrettyTransaction,
     TransactionSigVerif,
-    get_db,
     Simplifier,
     GroupDebt,
 )
+from processes import get_db
 
 app = Flask(__name__)
 api = Api(app)

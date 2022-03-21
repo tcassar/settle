@@ -44,7 +44,7 @@ def show(transactions, groups, email):
     client.show(transactions, groups, email)
 
 
-@click.option('--password', prompt=True, hide_input=True)
+@click.option("--password", prompt=True, hide_input=True)
 @click.option("--email", prompt=True)
 @click.argument("key_path")
 @click.argument("transaction_id")
@@ -87,7 +87,7 @@ def join(email, password, group_id, group_password):
     client.join(email, password, group_id, group_password)
 
 
-@click.option("--password", prompt='Group Password', hide_input=True)
+@click.option("--password", prompt="Group Password", hide_input=True)
 @click.argument("group_id")
 @settle.command()
 def simplify(group_id, password):
@@ -108,8 +108,7 @@ def new_transaction(email, password, dest_email, amount, group, reference):
 
 
 @click.option("--email", prompt=True)
-@click.option("--group_id", prompt='Group ID')
-@settle.command(name='show-group')
+@click.option("--group_id", prompt="Group ID")
+@settle.command(name="show-group")
 def show_group(email, id):
     client.group_debt(id, email)
-

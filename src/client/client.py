@@ -170,6 +170,7 @@ def new_group(name, password):
 # FUNCTIONAL #
 ##############
 
+
 @trap
 def new_transaction(email, password, dest_email, amount, group, reference):
     # 1. verify src credentials
@@ -219,10 +220,10 @@ def new_transaction(email, password, dest_email, amount, group, reference):
     try:
         helpers.validate_response(response)
     except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f'Failed to add transaction\n{ire}')
+        raise helpers.InvalidResponseError(f"Failed to add transaction\n{ire}")
 
-    click.secho(f'Transaction generated with ID={response.json()}', fg='green')
-    click.echo(f'Sign with `settle sign {response.json()}`')
+    click.secho(f"Transaction generated with ID={response.json()}", fg="green")
+    click.echo(f"Sign with `settle sign {response.json()}`")
 
 
 # TODO: simplify
@@ -255,12 +256,11 @@ def verify(transactions):
 # TODO: debt
 def group_debt(group: int, email: str):
     """Groups get groups transactions"""
-    response = requests.get(helpers.url(f'user/debt/{email}/{group}'))
+    response = requests.get(helpers.url(f"user/debt/{email}/{group}"))
 
     try:
         helpers.validate_response(response)
     except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f'Failed to fetch group data\n{ire}')
+        raise helpers.InvalidResponseError(f"Failed to fetch group data\n{ire}")
 
     show_transactions(response)
-
