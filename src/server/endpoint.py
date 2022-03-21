@@ -13,7 +13,6 @@ from src.server.resources import (
     TransactionSigVerif,
     get_db,
     Simplifier,
-    Debt,
     GroupDebt,
 )
 
@@ -42,8 +41,6 @@ api.add_resource(
 api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>")
 
 api.add_resource(Simplifier, "/simplify/<int:gid>")
-
-api.add_resource(Debt, "/user/debt/<string:email>")
 
 api.add_resource(GroupDebt, "/user/debt/<string:email>/<int:id>")
 

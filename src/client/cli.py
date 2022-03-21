@@ -105,3 +105,11 @@ def simplify(group_id, password):
 def new_transaction(email, password, dest_email, amount, group, reference):
     """Generates a new transaction"""
     client.new_transaction(email, password, dest_email, amount, group, reference)
+
+
+@click.option("--email", prompt=True)
+@click.option("--group_id", prompt='Group ID')
+@settle.command(name='show-group')
+def show_group(email, id):
+    client.group_debt(id, email)
+

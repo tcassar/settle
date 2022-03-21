@@ -62,15 +62,11 @@ class PrettyTransaction:
     other: str
     verified: bool
 
-    def __str__(self):
-        return (
-            f"{self.src} owes {self.dest} £{round(self.amount / 100, 2):02}"
-            f"\nReference: {self.reference}"
-            f"\nAgreed upon at {self.time}"
-        )
-
 
 @dataclass
 class PrettyList:
     src_list: list[PrettyTransaction]
     dest_list: list[PrettyTransaction]
+
+    def __bool__(self):
+        return True if (self.src_list or self.dest_list) else False

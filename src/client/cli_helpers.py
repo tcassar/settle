@@ -94,3 +94,79 @@ def trap(func) -> object:
             click.secho(nre, fg="red")
 
     return inner
+
+
+def show_transactions(transactions_data: requests.Response):
+    try:
+        unverified_running = 0
+        verified_running = 0
+        for pretty in transactions_data.json()["src_list"]:
+
+            click.secho(
+                f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}',
+                fg="yellow",
+            )
+
+            click.secho(
+                f'\nReference: {pretty["time"]}'
+                + f'\nAgreed upon at {pretty["reference"]}'
+            )
+
+            if pretty["verified"] == 1:
+                click.secho("Verified", fg="green")
+                verified_running += pretty["amount"]
+            else:
+                click.secho("Unverified", fg="red")
+                unverified_running += pretty["amount"]
+
+        for pretty in transactions_data.json()["dest_list"]:
+            click.secho(
+                f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}',
+                fg="yellow",
+            )
+
+            click.secho(
+                f'\nReference: {pretty["time"]}'
+                + f'\nAgreed upon at {pretty["reference"]}'
+            )
+
+            if pretty["verified"] == 1:
+                click.secho("Verified", fg="green")
+                verified_running -= pretty["amount"]
+            else:
+                click.secho("Unverified", fg="red")
+                unverified_running -= pretty["amount"]
+
+        click.echo("----------\n")
+
+        unverified_running = round(unverified_running / 100, 2)
+        verified_running = round(verified_running / 100, 2)
+
+        if verified_running > 0:
+            click.secho(f"You owe a total of £{verified_running:02}", fg="red")
+        elif verified_running < 0:
+            click.secho(
+                f"You are owed a total of £{verified_running * -1 :02}", fg="blue"
+            )
+        else:
+            click.secho(
+                f"You owe and are owed nothing; all debts settled", fg="green"
+            )
+
+        if unverified_running > 0:
+            click.secho(
+                f"Your unverified totals => you owe £{unverified_running:02}",
+                fg="yellow",
+            )
+        elif unverified_running < 0:
+            click.secho(
+                f"Your unverified totals => you are owed £{unverified_running * -1 :02}",
+                fg="yellow",
+            )
+        else:
+            click.secho(f"Your unverified totals => all debts settled", fg="yellow")
+
+    except TypeError as te:
+        if transactions_data.json() is None:
+            click.secho("No open transactions", fg="green")
+            click.echo(te)

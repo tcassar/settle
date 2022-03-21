@@ -39,6 +39,23 @@ def build_args(data_from_cursor: list | tuple) -> list:
         )
 
 
+def build_transactions(src_sql: str, dest_sql: str, cursor: sqlite3.Cursor, email: str) -> models.PrettyList:
+
+    pretty_src_transaction_data = cursor.execute(src_sql, [email])
+    src_transactions = []
+    for row in pretty_src_transaction_data:
+        src_transactions.append(models.PrettyTransaction(*build_args(row)))
+
+    pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
+
+    dest_transactions = []
+    for row in pretty_dest_transaction_data:
+        trn = models.PrettyTransaction(*build_args(row))
+        dest_transactions.append(trn)
+
+    return models.PrettyList(src_transactions, dest_transactions)
+
+
 # Resources
 
 
@@ -209,8 +226,6 @@ class PrettyTransaction(Resource):
 
         cursor = get_db().cursor()
 
-        # TODO: change verif to be done every time we pull
-
         src_sql = """SELECT transactions.id, group_id, amount, reference, time_of_creation, u2.email, verified FROM transactions
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.src_id
@@ -225,25 +240,12 @@ class PrettyTransaction(Resource):
                 INNER JOIN users u2 on u2.id = p.src_id
                 WHERE transactions.settled = 0 AND u.email = ?"""
 
-        pretty_src_transaction_data = cursor.execute(src_sql, [email])
-        src_transactions = []
-        for row in pretty_src_transaction_data:
-            src_transactions.append(models.PrettyTransaction(*build_args(row)))
-
-        pretty_dest_transaction_data = cursor.execute(dest_sql, [email])
-
-        dest_transactions = []
-        for row in pretty_dest_transaction_data:
-            trn = models.PrettyTransaction(*build_args(row))
-            dest_transactions.append(trn)
+        pretty_list = build_transactions(src_sql, dest_sql, cursor, email)
 
         pretty_list_schema = schemas.PrettyListSchema()
-
-        if not src_transactions and dest_transactions:
+        if not pretty_list:
             return "No open transactions", 200
         else:
-            pretty_list = models.PrettyList(src_transactions, dest_transactions)
-
             return pretty_list_schema.dump(pretty_list), 200
 
     def post(self):
@@ -337,11 +339,8 @@ class Simplifier(Resource):
         return request.json, 201
 
 
-class Debt(Resource):
-    def get(self, email):
-        """Return amount of debt that a user has"""
-
-
 class GroupDebt(Resource):
     def get(self, id, email):
-        """Return amount of debt that a user has in a group"""
+        """Return open transactions of a user in a group"""
+
+        print(request.data)
