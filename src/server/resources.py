@@ -224,7 +224,7 @@ class PrettyTransaction(Resource):
             sql, [transaction.group, transaction.src, transaction.dest]
         )
         if users_in_group.fetchone()[0] == 0:
-            return f"Users are not both members of group {transaction.group}", 409
+            return f"Users are not both members of group {transaction.group}", 403
 
         insert_to_pairs = """INSERT INTO pairs (src_id, dest_id)
                             VALUES (?, ?) ON CONFLICT DO NOTHING """

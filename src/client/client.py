@@ -99,8 +99,8 @@ def show(transactions, groups, email):
         # receive list of groups JSON;
         try:
             groups_data = requests.get(helpers.url(f"group/{email}"))
-        except helpers.InvalidResponseError as ire:
-            raise helpers.InvalidResponseError(f"Problem fetching your group...\n{ire}")
+        except helpers.ResourceNotFoundError as ire:
+            raise helpers.ResourceNotFoundError(f"Problem fetching your group...\n{ire}")
 
         group_objs: list[models.Group] = []
         for group in groups_data.json()["groups"]:
@@ -121,8 +121,8 @@ def show(transactions, groups, email):
         try:
             transactions_data = requests.get(helpers.url(f"/transaction/{email}"))
             helpers.validate_response(transactions_data)
-        except helpers.InvalidResponseError as ire:
-            raise helpers.InvalidResponseError(
+        except helpers.ResourceNotFoundError as ire:
+            raise helpers.ResourceNotFoundError(
                 f"Problem with fetching your transactions...\n{ire}"
             )
         show_transactions(transactions_data)
@@ -237,8 +237,8 @@ def simplify(group_id, password):
 
     try:
         helpers.validate_response(response)
-    except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f"Problem settling group... \n{ire}")
+    except helpers.ResourceNotFoundError as ire:
+        raise helpers.ResourceNotFoundError(f"Problem settling group... \n{ire}")
 
 
 # TODO: sign

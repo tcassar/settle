@@ -12,8 +12,12 @@ class AuthError(Exception):
     ...
 
 
+class ResourceNotFoundError(Exception):
+    """Resource could not be found on the server (404)"""
+
+
 class InvalidResponseError(Exception):
-    "Resource could not be found on the server"
+    """Requested action was understood but not allowed (403 / 409)"""
 
 
 def hash_password(password) -> str:
@@ -26,18 +30,21 @@ def url(query: str) -> str:
 
 def validate_response(response: requests.Response) -> None:
     """Raises InvalidResponseError if response is invalid"""
-    if str(response.status_code)[0] != "2":
-        e = response.json()
-        click.secho(f"ERROR: {e}", fg="red")
-        raise InvalidResponseError(response.text)
+    e = response.text
+    if response.status_code == 404:
+        raise ResourceNotFoundError("ERROR: Could not find requested resource on server")
+    elif response.status_code == 409:
+        raise ResourceNotFoundError("The resource that you are trying to create already exists")
+    elif response.status_code == 403:
+        raise ResourceNotFoundError("This action was not allowed by the server")
 
 
 def _auth(resource: str, password: str):
     usr_response: requests.Response = requests.get(url(resource))
     try:
         validate_response(usr_response)
-    except InvalidResponseError:
-        raise InvalidResponseError(
+    except ResourceNotFoundError:
+        raise ResourceNotFoundError(
             f"No {resource.split('/')[0]} with identifier {resource.split('/')[1]} found"
         )
 
@@ -63,8 +70,8 @@ def get_user(email: str) -> models.User:
 
     try:
         validate_response(usr_rep)
-    except InvalidResponseError:
-        raise InvalidResponseError(f"No user associated with email {email}")
+    except ResourceNotFoundError:
+        raise ResourceNotFoundError(f"No user associated with email {email}")
 
     usr = usr_rep.json()
 
@@ -86,12 +93,11 @@ def trap(func) -> object:
             click.secho("Authorisation Error; aborting...", fg="red")
             click.secho(ae, fg="red")
 
-        except InvalidResponseError as nre:
+        except ResourceNotFoundError as nre:
             click.secho(
-                f"Could not find requested resource on servers; aborting...",
-                fg="yellow",
+                nre,
+                fg="red",
             )
-            click.secho(nre, fg="red")
 
     return inner
 
