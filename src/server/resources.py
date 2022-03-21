@@ -1,7 +1,6 @@
 # coding=utf-8
-import processes
-from src.server.processes import get_db, build_args, build_transactions, ResourceNotFoundError
-from src.server import models as models, schemas as schemas
+
+from src.server import models as models, schemas as schemas, processes as processes
 
 from flask import request
 from flask_restful import Resource, abort  # type: ignore
@@ -12,7 +11,7 @@ from flask_restful import Resource, abort  # type: ignore
 
 class Group(Resource):
     def get(self, id: int):
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
         # check group exists and
         get_group = """SELECT id, name, password FROM groups
                  WHERE groups.id = ?"""
@@ -20,7 +19,7 @@ class Group(Resource):
             group_data = cursor.execute(get_group, [id])
             group_data = group_data.fetchall()
             # create group object
-            group = models.Group(*build_args(*group_data))
+            group = models.Group(*processes.build_args(*group_data))
         except IndexError:
             abort(404, message="Group ID does not exist")
             group = ""  # type: ignore
@@ -37,14 +36,14 @@ class Group(Resource):
         schema = schemas.GroupSchema()
         group = schema.load(request.json)
 
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
 
         cursor.execute(
             """INSERT INTO groups (name, password) VALUES (?, ?)""",
             [group.name, group.password],
         )
 
-        get_db().commit()
+        processes.get_db().commit()
 
         return f"Created group ID={cursor.lastrowid} named {group.name}", 201
 
@@ -52,7 +51,7 @@ class Group(Resource):
 class User(Resource):
     def get(self, email: str):
         # query db for all users
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
 
         query = """
                  SELECT users.name, users.email, keys.n, keys.e, users.password, users.id
@@ -82,7 +81,7 @@ class User(Resource):
 
     def post(self):
 
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
 
         # now is a user object
         schema = schemas.UserSchema()
@@ -107,7 +106,7 @@ class User(Resource):
 
         key_id = cursor.lastrowid
         cursor.execute(users_query, [usr.name, usr.email, usr.password, key_id])
-        get_db().commit()
+        processes.get_db().commit()
 
         return (schema.dump(usr),)
 
@@ -124,12 +123,12 @@ class UserGroupBridge(Resource):
         glink_sql = """INSERT INTO group_link (group_id, usr_id) 
                         VALUES (?, ?)"""  # group id then user id
 
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
         uid = cursor.execute(uid_sql, [email]).fetchone()[0]
 
         cursor.execute(glink_sql, [id, uid])
 
-        get_db().commit()
+        processes.get_db().commit()
 
         glink_data = cursor.execute(
             """SELECT * from group_link WHERE id = ?""", [cursor.lastrowid]
@@ -137,8 +136,8 @@ class UserGroupBridge(Resource):
 
         try:
             print("making group")
-            glink = models.GroupLink(*build_args(glink_data.fetchone()))
-        except ResourceNotFoundError as re:
+            glink = models.GroupLink(*processes.build_args(glink_data.fetchone()))
+        except processes.ResourceNotFoundError as re:
             return 404, f"{re}, failed"
 
         schema = schemas.GroupLinkSchema()
@@ -158,12 +157,12 @@ class UserGroupBridge(Resource):
             );
         """
 
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
         group_data = cursor.execute(sql, [email])
         groups: list[models.Group] = []
 
         for row in group_data.fetchall():
-            groups.append(models.Group(*build_args(row)))
+            groups.append(models.Group(*processes.build_args(row)))
 
         groups_obj = models.GroupList(groups)
         groups_schema = schemas.GroupListSchema()
@@ -175,7 +174,7 @@ class PrettyTransaction(Resource):
     def get(self, email: str):
         """Gets a user's unsigned transactions"""
 
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
 
         if not processes.user_exists(email, cursor):
             print('not found')
@@ -195,7 +194,7 @@ class PrettyTransaction(Resource):
                 INNER JOIN users u2 on u2.id = p.src_id
                 WHERE transactions.settled = 0 AND u.email = ?"""
 
-        pretty_list = build_transactions(src_sql, dest_sql, cursor, email)
+        pretty_list = processes.build_transactions(src_sql, dest_sql, cursor, email)
 
         pretty_list_schema = schemas.PrettyListSchema()
         if not pretty_list:
@@ -204,7 +203,7 @@ class PrettyTransaction(Resource):
             return pretty_list_schema.dump(pretty_list), 200
 
     def post(self):
-        cursor = get_db().cursor()
+        cursor = processes.get_db().cursor()
 
         # note: IDs are ints
 
@@ -231,7 +230,7 @@ class PrettyTransaction(Resource):
                             VALUES (?, ?) ON CONFLICT DO NOTHING """
 
         cursor.execute(insert_to_pairs, [transaction.src, transaction.dest])
-        get_db().commit()
+        processes.get_db().commit()
 
         # get relevant info
         pair_id = cursor.execute(
@@ -272,7 +271,7 @@ class PrettyTransaction(Resource):
             ],
         )
 
-        get_db().commit()
+        processes.get_db().commit()
 
         return cursor.lastrowid, 201
 
@@ -281,7 +280,11 @@ class TransactionSigVerif(Resource):
     def get(self, id):
         """Verify a transaction, returning copy of verified transaction"""
 
-        print(processes.get_transaction_by_id(id, processes.get_db().cursor()))
+        try:
+            processes.get_transaction_by_id(id, processes.get_db().cursor())
+        except processes.ResourceNotFoundError as rnfe:
+            return str(rnfe), 404
+
 
         return request.json, 200
 
