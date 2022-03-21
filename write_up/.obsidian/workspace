@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Design.md",
+            "file": "Evaluation.md",
             "mode": "source",
             "source": false
           }
@@ -53,8 +53,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "29e3ec5e167cdd30",
@@ -70,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Design.md",
+                "file": "Evaluation.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -90,15 +89,15 @@
   },
   "active": "2236675a1844b00e",
   "lastOpenFiles": [
-    "Design.md",
-    "Analysis.md",
     "Evaluation.md",
     "Testing.md",
-    "images/server high level.jpg",
-    "images/Sign Flow Diagram.png",
-    "images/simplify.jpg",
-    "images/Simplify Flow Diagram.png",
-    "Design.pdf",
-    "images/Transaction class diagram.jpg"
+    "Analysis.md",
+    "images/Pasted image 20220321000412.png",
+    "Untitled.md",
+    "Design.md",
+    "Full.md",
+    "Drafts/Full.pdf",
+    "Drafts/analysis draft 1.pdf",
+    "Drafts/Design.pdf"
   ]
 }

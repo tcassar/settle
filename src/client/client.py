@@ -238,8 +238,6 @@ def new_group(name, password):
 # FUNCTIONAL #
 ##############
 
-# TODO: New transaction
-# TODO: new transaction
 ##############
 # FUNCTIONAL #
 ##############
@@ -320,6 +318,6 @@ def verify(transactions):
 
 
 # TODO: debt
-def debt(group):
+def group_debt(group):
     """Groups get groups transactions"""
     ...

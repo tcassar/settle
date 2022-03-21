@@ -370,8 +370,6 @@ A lot of the above resources implement GET and POST, which are self-explanatory 
 
 I intend to run the API using `flask` and `flask_restful`; two commonly used Python libraries for such purpose. During testing, I will run the server on a Raspberry Pi 
 
-
----
 #### Database Access
 
 The server module will handle all interactions with the sqlite3 database (entity relationship diagram below)
@@ -573,7 +571,7 @@ Options:
  --pub_key PATH  
  --help           Show this message and exit.
 ```
-
+---
 ```
 Usage: settle whois [OPTIONS] EMAIL  
 
@@ -582,7 +580,7 @@ Usage: settle whois [OPTIONS] EMAIL
 Options:  
  --help  Show this message and exit.
 ```
-
+---
 ```
 Usage: settle show [OPTIONS]  
   
@@ -595,7 +593,7 @@ Options:
  --help              Show this message and exit.
 
 ```
-
+---
 ```
 Usage: settle sign [OPTIONS] TRANSACTION_ID KEY_PATH  
   
@@ -607,7 +605,7 @@ Options:
  --help           Show this message and exit.
 
 ```
-
+---
 ```
 Usage: settle verify [OPTIONS]  
   
@@ -619,7 +617,7 @@ Options:
  -g, --groups  
  --help              Show this message and exit.
 ```
-
+---
 ```
 Usage: settle new-group [OPTIONS]  
 
@@ -630,7 +628,7 @@ Options:
  --password TEXT  
  --help           Show this message and exit.
  ```
-
+---
 ```
 Usage: settle join [OPTIONS] GROUP_ID  
   
@@ -642,7 +640,7 @@ Options:
  --group_password TEXT  
  --help                 Show this message and exit.
 ```
-
+---
 ```
 Usage: settle simplify [OPTIONS] GROUP_ID  
   
@@ -652,7 +650,7 @@ Options:
  --password TEXT  
  --help           Show this message and exit.
 ```
-
+---
 ```
 Usage: settle new-transaction [OPTIONS]  
   

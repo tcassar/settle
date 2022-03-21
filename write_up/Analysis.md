@@ -329,44 +329,39 @@ For the purposes of testing, these are low level requirements that I would like 
 	 1) Algorithm to convert an object to a hash in a reproducible way, minimising the chance of hash collisions
 	 2) Ability to sign a class of object with RSA sig scheme
 	 3) Ability to verify a signed object with RSA verif scheme, raising an error if signature is invalid
-	 4) The server is able to use a master key to sign settled transactions
 
 #### Debt Simplification (B)
 1) A reliable digraph structure, with operations to `transactions.graph.GenericDigraph`
 	1) Get the nodes in the graph `nodes()`
-	2)  Check if a node is in a graph (`is_node(v: Vertex)`)
-	3) Check if an edge exists between two nodes
-	4) Nodes can be added
-	5) Nodes can be removed
-	6) Edges can be added
-	7) Edges can be removed
-	8) Neighbours of a node should be easily accessed (neighbours for the purposes of a breadth first search)
-2) A reliable weighted graph structure `transactions.graph.WeightedDigraph`
-	1) All of the operations listed in B.1.1
-	2) Adding an edge should have different functionality: edge should be able to be added with a weight
-3) A reliable flow graph structure
+	2) Check if an edge exists between two nodes
+	3) Nodes can be added
+	4) Nodes can be removed
+	5) Edges can be added
+	6) Edges can be removed
+	7) Neighbours of a node should be easily accessed (neighbours for the purposes of a breadth first search)
+
+2) A reliable flow graph structure
 	1) All of the operations listed in B.1.1
 	2)  Adding an edge should have different functionality: edge should be able to be added with a capacity, and edges should have a notion of flow and unused capacity
 	3) Be able to return neighbours of nodes in the residual graph (i.e. edges, including residual edges, that have unused capacity)
 	4) A way to get the bottleneck value of a path, given a path of nodes
 
-4) A reliable recursive BFS that works on
+3) A reliable recursive BFS that works on
 	1) Digraphs
-	2) Weighted Digraphs ==ask if keep in and say was unneeded in eval==
 	3) Flow Graphs
-	4) BFS should also be able to be used to operate on edges in a graph
 
-==talk about combination, passing function into recursive bfs==
-5) Implementation of Edmonds-Karp
+4) Implementation of Edmonds-Karp
 	1) Way to find shortest augmenting path between two nodes
 	2) Way to find bottleneck value of a path
 	3) Finding max flow along a flow graph from source node to sink node
 
-6) Simplifying an entire graph using Edmonds Karp, using the method laid out in [[#Settling a graph using a Max Flow algorithm]]. 
+5) Simplifying an entire graph using Edmonds Karp, using the method laid out in [[#Settling a graph using a Max Flow algorithm]]. 
 
-7) Be able to convert a list of valid transactions into a flow graph 
-8) Be able to convert a digraph into a list of transactions, signed by the server ==ask if keep in and say was unneeded in eval==
+6) Be able to convert a list of valid transactions into a flow graph 
 
+7) Be able to convert a flow graph into a list of transactions, signed by the server 
+
+8) Be able to simplify a group of transactions, having each transaction individually verified before settling
 
 #### Client / Server Structure (C)
 1) The server should be accessible to the client via a REST API
@@ -390,8 +385,6 @@ For the purposes of testing, these are low level requirements that I would like 
 	   2) A `whois` function, allowing you to see people's user info (name, email, public key)
 	   3) Create groups with a name and password
 	   4) Join groups by ID
-	   5) Leave groups given you owe 0 debt to the group
-	   6) Delete your account given you have no debts to anyone
 
 
 #### Command Line Interface (D)

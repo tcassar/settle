@@ -11,20 +11,6 @@ from src.crypto import rsa
 from src.transactions.transaction import Signable
 
 
-class TestTransaction(Signable):
-    """Signable mock transaction"""
-
-    def __init__(self, msg: str):
-        self.msg = msg
-        self.signature: None | bytes = None
-
-    def sign(self, key: bytes):
-        self.signature = key
-
-    def __str__(self):
-        return self.msg
-
-
 def setUpModule():
     os.chdir("/home/tcassar/projects/settle/src")
 
