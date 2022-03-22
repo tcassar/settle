@@ -22,8 +22,8 @@ The list of requirements low level requirements, identical to that in the Analys
 	 3) Ability to verify a signed object with RSA verif scheme, raising an error if signature is invalid 
 
 #### Debt Simplification (B)
-1) A reliable digraph structure, with operations to `transactions.graph.GenericDigraph`
-	1) Get the nodes in the graph `nodes()`
+1) A reliable digraph structure, with operations to 
+	1) Get the nodes in the graph 
 	2) Check if an edge exists between two nodes
 	3) Nodes can be added
 	4) Nodes can be removed
@@ -59,7 +59,7 @@ The list of requirements low level requirements, identical to that in the Analys
 4) The client should have a clear, easy to use command line interface
 
 
-#### 'Integrated' requriements for how the end system should behave (D)
+#### 'Integrated' requirements for how the end system should behave (D)
 1) Ensuring the validity of transactions
 	1) If a transaction is tampered with in the database, it should be classed as unverified
     2) A user should not be able to sign an already signed transaction
@@ -281,8 +281,12 @@ Evidence for **D3.6**:
 ### Evidence of Meeting Requirements - Section E
 To show that I have implemented the database structure that I laid out in my requriements, I will screenshot the the database tables, and briefly comment on which requirements each table fulfills.
 
+Not only does this show the structure of the data being stored, it also proves that I am storing data as per my requirements.
+
 **Transactions**
 This table fulfills **E2.1 -> E2.8** in conjunction with the `pairs` table and the `keys` table. It also satisfies **E3.4**
+
+![[Pasted image 20220322202710.png]]
 
 **Pairs**
 
@@ -299,4 +303,3 @@ The final outstanding requirements in Section E are met by the `groups` table an
 ![[Pasted image 20220322202041.png]]
 
 Hence, I have entirely fulfilled every requirement I outlined in Section E, and have thus completed my project entirely.
-

@@ -46,7 +46,7 @@ In short, the problems identified here are as follows:
 + How to settle debt across large graphs efficiently (here meaning few transactions per person)
 + How to make a CLI that is as simple as possible
 
-This is not an exhaustive list - it leaves out all of the technical problems I will likely face, which are discussed in the next two sections
+This is not an exhaustive list - it leaves out all of the technical problems I will likely face, which are discussed in the next two subsections
 
 ---
 ## Research of existing solutions
@@ -367,7 +367,7 @@ For the purposes of testing, these are low level requirements that I would like 
 4) The client should have a clear, easy to use command line interface
 
 
-#### 'Integrated' requriements for how the end system should behave (D)
+#### 'Integrated' requirements for how the end system should behave (D)
 1) Ensuring the validity of transactions
 	1) If a transaction is tampered with in the database, it should be classed as unverified
     2) A user should not be able to sign an already signed transaction
