@@ -298,8 +298,6 @@ def sign(transaction_id, key_path, email, password):
     elif usr.id == transaction.dest:
         origin = "dest"
         if transaction.dest_pub.strip() != key_as_str.strip():
-            print(key_as_str)
-            print(transaction.dest_pub)
             raise helpers.AuthError(
                 "Private key provided does not match the listing in the db"
             )
@@ -366,7 +364,7 @@ def verify(groups, transactions: int):
             )
 
         pretty_schema = schemas.PrettyListSchema()
-        print(transactions_data.json())
+        # print(transactions_data.json())
         pretty_list: models.PrettyList = pretty_schema.make_pretty_list(
             transactions_data.json()
         )
