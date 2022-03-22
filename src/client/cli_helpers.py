@@ -21,6 +21,9 @@ class InvalidResponseError(Exception):
     """Requested action was understood but not allowed (403 / 409)"""
 
 
+class ServerError(Exception): ...
+
+
 def hash_password(password) -> str:
     return str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
 
@@ -42,6 +45,8 @@ def validate_response(response: requests.Response) -> None:
         )
     elif response.status_code == 403:
         raise ResourceNotFoundError(f"This action was not allowed by the server, {e}")
+    elif response.status_code // 100 == 5:
+        raise ServerError(f"Error {response.status_code}: {response.json()['message']}")
 
 
 def _auth(resource: str, password: str):
@@ -103,6 +108,9 @@ def trap(func) -> object:
                 nre,
                 fg="red",
             )
+
+        except ServerError as se:
+            click.secho(se, fg='red')
 
     return inner
 

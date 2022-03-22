@@ -53,7 +53,7 @@ api.add_resource(
     UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>"
 )
 
-api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>")
+api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>", "/transaction/auth/")
 
 api.add_resource(Simplifier, "/simplify/<int:gid>")
 

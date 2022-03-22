@@ -185,7 +185,7 @@ class PrettyTransaction(Resource):
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.src_id
                 INNER JOIN users u2 on u2.id = p.dest_id
-                WHERE transactions.settled = 0 AND u.email = ?
+                WHERE transactions.src_settled = 0 AND u.email = ?
         """
 
         dest_sql = """
@@ -193,7 +193,7 @@ class PrettyTransaction(Resource):
                 INNER JOIN pairs p on p.id = transactions.pair_id
                 INNER JOIN users u on u.id = p.dest_id
                 INNER JOIN users u2 on u2.id = p.src_id
-                WHERE transactions.settled = 0 AND u.email = ?"""
+                WHERE transactions.src_settled = 0 AND u.email = ?"""
 
         pretty_list = processes.build_pretty_transactions(
             src_sql, dest_sql, cursor, [email]
@@ -321,8 +321,9 @@ class TransactionSigVerif(Resource):
 
         return schema.dump(pretty), 200
 
-    def patch(self, id):
-        """Sign a transaction"""
+    def patch(self):
+        """Append a signature to a transaction"""
+
         return request.json, 201
 
 
@@ -346,17 +347,17 @@ class GroupDebt(Resource):
                     INNER JOIN pairs p on p.id = transactions.pair_id
                     INNER JOIN users u on u.id = p.src_id
                     INNER JOIN users u2 on u2.id = p.dest_id
-                    WHERE group_id = 3
-    
+                    WHERE group_id = ?;
             """
 
         trns: list[models.PrettyTransaction] = []
         for row in cursor.execute(sql, [id]).fetchall():
+            row = list(row)
             dest = row.pop()
             src = row.pop()
             row.append(f"{src} -> {dest}")
 
-            pretty = models.PrettyTransaction(*processes.build_args(row))
+            pretty = models.PrettyTransaction(*processes.build_args(row), False)
             pretty = processes.verify_pretty(pretty, cursor)
 
             trns.append(pretty)

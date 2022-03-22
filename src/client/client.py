@@ -269,7 +269,7 @@ def sign(transaction_id, key_path, email):
     except helpers.InvalidResponseError as ire:
         raise helpers.InvalidResponseError(f"Failed to fetch group data\n{ire}")
 
-    transaction = schemas.TransactionSchema().make_transaction(response.json())
+    transaction: trn.Transaction = schemas.TransactionSchema().make_transaction(response.json())
 
     # determine origin
     usr_response: requests.Response = requests.get(helpers.url(f"user/{email}"))
@@ -278,6 +278,7 @@ def sign(transaction_id, key_path, email):
     # build a user from received data
     usr = schemas.UserSchema().make_user(usr_response.json())
 
+    # validate key in provided path against key from db
     key_as_str = f'n={key.n},\ne={key.e}'
 
     if usr.id == transaction.src:
@@ -305,7 +306,12 @@ def sign(transaction_id, key_path, email):
     except trn.TransactionError as te:
         raise helpers.AuthError(f'Failed to sign transaction: {transaction.ID}\n{te}')
 
-    # push signed transaction to db
+    # convert signature to hex
+    # todo: add sig_as_hex to transaction obj
+    sig_hex = hex(int.from_bytes(transaction.signatures[usr.id], sys.byteorder))
+
+    # push signature to server
+    signature = models.Signature(transaction_id, sig_hex, usr.id)
 
     # sign with key
 
@@ -341,6 +347,7 @@ def verify(groups, transactions: int):
             )
 
         pretty_schema = schemas.PrettyListSchema()
+        print(transactions_data.json())
         pretty_list: models.PrettyList = pretty_schema.make_pretty_list(transactions_data.json())
         trn_schema = schemas.PrettyTransactionSchema()
 
