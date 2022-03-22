@@ -94,4 +94,8 @@ class PrettyListSchema(Schema):
 class SignatureSchema(Schema):
     transaction_id = fields.Int()
     signature = fields.Str()  # store as hex
-    origin = fields.Int()  # id of person
+    origin = fields.Str()  # src or dest
+
+    @post_load
+    def make_signature(self, data, **kwargs):
+        return models.Signature(**data)

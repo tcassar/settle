@@ -286,7 +286,7 @@ def sign(transaction_id, key_path, email):
         if transaction.src_pub.strip() != key_as_str.strip():
             raise helpers.AuthError('Private key provided does not match the listing in the db')
         else:
-            click.secho('\tKey validated against server', fg='green')
+            click.secho('\tKey validated against server')
 
     elif usr.id == transaction.dest:
         origin = 'dest'
@@ -310,12 +310,15 @@ def sign(transaction_id, key_path, email):
     # todo: add sig_as_hex to transaction obj
     sig_hex = hex(int.from_bytes(transaction.signatures[usr.id], sys.byteorder))
 
-    # push signature to server
-    signature = models.Signature(transaction_id, sig_hex, usr.id)
-
-    # sign with key
-
     # patch signature
+    schema = schemas.SignatureSchema()
+    signature = models.Signature(transaction_id, sig_hex, origin)
+    rep = requests.patch(helpers.url('transaction/auth/'), json=schema.dump(signature))
+
+    if rep.status_code == 201:
+        click.secho('\tSuccessfully appended signature in database!', fg='green')
+
+
 
 
 @trap

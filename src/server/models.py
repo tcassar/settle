@@ -99,4 +99,4 @@ class PrettyList:
 class Signature:
     transaction_id: int
     signature: str  # store as hex
-    origin: int  # id of person who is signing
+    origin: str  # src or dest

@@ -324,7 +324,26 @@ class TransactionSigVerif(Resource):
     def patch(self):
         """Append a signature to a transaction"""
 
-        return request.json, 201
+        schema = schemas.SignatureSchema()
+        sig = schema.make_signature(request.json)
+        if request.json is None:
+            return 'Invalid Request', 404
+
+        if sig.origin == 'dest':
+            sql = """ UPDATE transactions
+                      SET dest_sig = ?
+                      WHERE id = ?"""
+        else:
+            sql = """UPDATE transactions
+            SET dest_sig = ? 
+            WHERE id = ?"""
+
+        cursor = processes.get_db()
+        cursor.execute(sql, [sig.signature, sig.transaction_id])
+
+        processes.get_db().commit()
+
+        return 'Successfully added signature to transaction', 201
 
 
 class Simplifier(Resource):

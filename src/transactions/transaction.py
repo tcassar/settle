@@ -80,6 +80,20 @@ class Transaction(Signable):
         # initialise sigs dict if it doesn't already exist
         if not self.signatures:
             self.signatures = {self.src: b"", self.dest: b""}
+        else:
+
+            try:
+                self.signatures[self.src]
+            except KeyError:
+                self.signatures[self.src] = b''
+
+            try:
+                self.signatures[self.dest]
+            except KeyError:
+                self.signatures[self.dest] = b''
+
+        # check that, if only one signature exists, the other is created as null
+
 
         # accept origin as src or dest;
         # check for overwrite, raise error if case
