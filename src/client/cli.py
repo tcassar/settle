@@ -50,11 +50,7 @@ def show(transactions, groups, email):
 @click.argument("transaction_id")
 @settle.command()
 def sign(transaction_id, key_path, email, password):
-    # def sign():
     """Signs a transaction"""
-    # key_path = "/home/tcassar/projects/settle/src/crypto/sample_keys/t_private-key.pem"
-    # email = "cassar.thomas.e@gmail.com"
-    # transaction_id = 3
     client.sign(transaction_id, key_path, email, password)
 
 
@@ -114,5 +110,5 @@ def new_transaction(email, password, dest_email, amount, group, reference):
 @click.option("--email", prompt=True)
 @click.option("--group_id", prompt="Group ID")
 @settle.command(name="show-group")
-def show_group(email, id):
-    client.group_debt(id, email)
+def show_group(email, group_id):
+    client.group_debt(group_id, email)

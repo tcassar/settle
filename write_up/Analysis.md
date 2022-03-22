@@ -367,14 +367,17 @@ For the purposes of testing, these are low level requirements that I would like 
 1) The server should be accessible to the client via a REST API
 2) The client should be relatively thin, only dealing with input from user and handling error 400 and 500 codes gracefully.
 3) The server should be able to pull a group's transactions from a database, run the settling, and handle any requests from the client 
-4) The client should be able to request 
+
+
+4) The client should be able to 
 	1) See their own user information
 		1) Total debt across all groups
-		2) Open transactions
-		3) Closed transactions
-	2) Open transactions / closed transactions
+		2) Open transactions in a specific group
+		3) This information should be up to date i.e. verification should take place every time the transactions are requested
+	2) See the name, email, and public key information of all registered users, as transparency is at the forefront of private key infrastructure
+	
 	3) Mark a transaction as settled
-	4) Make / invite people /  leave groups
+	4) Create new groups
 	5) Settle a group
 	6) Create a transaction
 	7) Sign an open transaction

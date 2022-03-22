@@ -250,16 +250,6 @@ class PrettyTransaction(Resource):
         src_key_id = cursor.execute(key_id_query, [transaction.src]).fetchone()[0]
         dest_key_id = cursor.execute(key_id_query, [transaction.dest]).fetchone()[0]
 
-        print(
-            pair_id,
-            transaction.group,
-            transaction.amount,
-            src_key_id,
-            dest_key_id,
-            transaction.reference,
-            transaction.time,
-        )
-
         cursor.execute(
             """INSERT INTO transactions 
         (pair_id, group_id, amount, src_key, dest_key, reference, time_of_creation)
@@ -363,8 +353,11 @@ class Simplifier(Resource):
 
         print(gid)
 
-        ids = cursor.execute("""SELECT transactions.id from transactions
-                                WHERE group_id = ?""", [gid]).fetchall()
+        ids = cursor.execute(
+            """SELECT transactions.id from transactions
+                                WHERE group_id = ?""",
+            [gid],
+        ).fetchall()
 
         unfiltered_transactions: list[transactions.Transaction] = []
         for id in ids:
@@ -375,18 +368,35 @@ class Simplifier(Resource):
         for transaction in unfiltered_transactions:
             ledger.append(transaction)
 
+        # TODO: simplify transactions down
+
+        # simplify debt system
         try:
             ledger.simplify_ledger()
         except ledgers.NoFutherSimplifications:
-            return 'No changes made to debt structure - heuristic did not find anywhere to simplify', 202
+            return (
+                "No changes made to debt structure - heuristic did not find anywhere to simplify",
+                202,
+            )
         except ledgers.VerificationError:
-            return 'Couldn\'t simplify group - unverified transactions in group', 403
+            return "Couldn't simplify group - unverified transactions in group", 403
 
+        # mark old transactions as settled
 
+        # otherwise, group debt is now simplified
+        # thus, mark off all old transactions and push in new ones
+        cursor.execute(
+            """UPDATE transactions 
+        SET src_settled = 1, dest_settled = 1 
+        WHERE group_id = ? """,
+            [gid],
+        )
 
+        # push transactions to db
+        for transaction in ledger.ledger:
+            processes.push_transaction(transaction, cursor)
 
-        # return a ledger schema
-        return request.json, 201
+        return 'success', 201
 
 
 class GroupDebt(Resource):

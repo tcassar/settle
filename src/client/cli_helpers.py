@@ -2,9 +2,8 @@
 import click
 import requests
 
-import schemas
 from src.crypto import hashes as hasher
-from src.server import models
+from src.server import models as models, schemas as schemas
 
 SERVER = "http://127.0.0.1:5000/"
 
@@ -25,7 +24,8 @@ class ServerError(Exception):
     ...
 
 
-class NoChanges(Exception): ...
+class NoChanges(Exception):
+    ...
 
 
 def hash_password(password) -> str:
@@ -110,17 +110,19 @@ def trap(func) -> object:
             click.secho(ae, fg="red")
 
         except ResourceNotFoundError as nre:
-            nre = str(nre).split('\n')
+            nre = str(nre).split("\n")
             click.secho(
-                f'{nre[0]}', fg='red',
+                f"{nre[0]}",
+                fg="red",
             )
-            click.secho(f'\t{nre[1]}', fg='yellow')
+
+            click.secho(f"\t{nre[1]}", fg="yellow")
 
         except ServerError as se:
             click.secho(se, fg="red")
 
         except NoChanges as nc:
-            click.secho(f'No changes were made\n{nc}', fg='yellow')
+            click.secho(f"No changes were made\n{nc}", fg="yellow")
 
     return inner
 

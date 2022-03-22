@@ -185,3 +185,56 @@ def verify_pretty(
         print(f"Signature of {pretty.id} invalid")
 
     return pretty
+
+
+def push_transaction(
+    transaction: src.transactions.transaction.Transaction, cursor: sqlite3.Cursor
+):
+
+    # check pair exists; append if not
+    pair_id: int = cursor.execute(
+        """SELECT pairs.id FROM pairs WHERE src_id = ? and dest_id = ?""",
+        [
+            transaction.src,
+            transaction.dest,
+        ],
+    ).fetchone()
+
+    if not pair_id:
+        cursor.execute(
+            """INSERT INTO pairs (src_id, dest_id) VALUES (?, ?)""",
+            [
+                transaction.src,
+                transaction.dest,
+            ],
+        )
+        get_db().commit()
+
+    # get key ids of users
+    key_ids = cursor.execute(
+        """SELECT keys.id FROM keys 
+                        JOIN users u on keys.id = u.key_id
+                        JOIN users u2 on keys.id = u2.key_id
+                        WHERE u.id = ? OR u2.id = ?""",
+        [transaction.src, transaction.dest],
+    ).fetchall()
+
+    sql = """INSERT INTO transactions 
+    (pair_id, group_id, amount, src_key, dest_key, reference, time_of_creation) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)"""
+
+    # append unsigned transactions
+    cursor.execute(
+        sql,
+        [
+            pair_id,
+            transaction.group,
+            transaction.amount,
+            key_ids[0],
+            key_ids[1],
+            transaction.reference,
+            transaction.time
+        ],
+    )
+
+    get_db().commit()

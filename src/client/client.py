@@ -238,10 +238,12 @@ def simplify(group_id, password):
 
     try:
         helpers.validate_response(response)
+
     except helpers.ResourceNotFoundError as ire:
         raise helpers.ResourceNotFoundError(f"Problem settling group... \n{ire}")
 
-    print(response)
+    except helpers.NoChanges as nc:
+        raise nc
 
 
 @trap
@@ -339,7 +341,7 @@ def sign(transaction_id, key_path, email, password):
 
 @trap
 def verify(groups, transactions: int):
-    """Verifies either given transaction or a group; pass in by ID"""
+    """Will show you the transactions of a group, or verify a transaction passed in by ID"""
 
     if not groups and not transactions:
         click.secho("Please provide a groups ID or transaction ID", fg="yellow")
@@ -374,16 +376,3 @@ def verify(groups, transactions: int):
 
         for trn in pretty_list.src_list + pretty_list.dest_list:
             trn_schema.make_pretty_transaction(trn).secho()
-
-
-@trap
-def group_debt(group: int, email: str):
-    """Groups get groups transactions"""
-    response = requests.get(helpers.url(f"user/debt/{email}/{group}"))
-
-    try:
-        helpers.validate_response(response)
-    except helpers.InvalidResponseError as ire:
-        raise helpers.InvalidResponseError(f"Failed to fetch group data\n{ire}")
-
-    show_transactions(response)

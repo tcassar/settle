@@ -126,12 +126,31 @@ class FlowGraph(GenericDigraph):
             # make sure nodes in graph
             self.sanitize(src, dest)
 
-            # add normal edge
-            self[src].append(FlowEdge(src, dest, capacity))
-            # add residual edge
-            self[dest].append(FlowEdge(dest, src, 0))
+            # no existing edge between two nodes
+            if not (self.is_edge(src, dest) or self.is_edge(dest, src)):
+                # add normal edge
+                self[src].append(FlowEdge(src, dest, capacity))
+                # add residual edge
+                self[dest].append(FlowEdge(dest, src, 0))
 
-            self[src].sort(reverse=True)
+                self[src].sort(reverse=True)
+
+            # edge going in direction of edge being added
+            elif self.is_edge(src, dest):
+                self.get_edge(src, dest).capacity += capacity
+
+            elif self.is_edge(dest, src, residual=False):
+                new_cap = self.get_edge(dest, src).capacity - capacity
+                # if new capacity is 0 pop edge
+
+                if new_cap > 0:
+                    self.get_edge(dest, src).capacity = new_cap
+                if new_cap < 0:
+                    self.pop_edge(dest, src)
+                    self.add_edge(src, (dest, new_cap * -1))
+                if new_cap == 0:
+                    self.pop_edge(dest, src)
+
 
             if update_debt:
                 # handle net_debt;

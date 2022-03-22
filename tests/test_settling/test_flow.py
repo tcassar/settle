@@ -156,6 +156,29 @@ class TestFlowGraph(TestCase):
         a, b, c, d, e = self.nodes
         self.graph.add_edge(a, (b, 10))
 
+    def test_add_existing(self):
+        a, b, c, d, e = self.graph.nodes()
+        self.graph.add_edge(a, (b, 5))
+        self.graph.add_edge(a, (b, 5))
+        print(self.graph)
+        self.assertEqual(self.graph.get_edge(a, b).capacity, 10)
+
+    def test_pop_existing(self):
+        a, b, c, d, e = self.graph.nodes()
+        self.graph.add_edge(a, (b, 5))
+        self.graph.add_edge(b, (a, 5))
+
+        self.assertFalse(self.graph.is_edge(a, b))
+        
+    def test_add_edge_reverses_new_edge(self):
+        a, b, c, d, e = self.graph.nodes()
+        self.graph.add_edge(a, (b, 5))
+        self.graph.add_edge(b, (a, 10))
+
+        self.assertFalse(self.graph.is_edge(a, b))
+        self.assertEqual(self.graph.get_edge(b, a).capacity, 5)
+
+
 
 class TestMaxFlow(TestCase):
     def setUp(self) -> None:

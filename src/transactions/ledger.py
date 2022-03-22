@@ -4,6 +4,7 @@ import csv
 import os
 from dataclasses import dataclass, field
 
+import src.simplify.flow_algorithms
 import src.simplify.flow_graph as flow
 from src.crypto import keys
 from src.simplify.flow_algorithms import Simplify, SettleError
@@ -126,7 +127,9 @@ class Ledger:
             # print(
             #     "Graph already at few transactions per person; no optimisations found"
             # )
+            raise SettleError('Failed to settle graph... aborted')
 
+        except src.simplify.flow_algorithms.NoOptimisations:
             raise NoFutherSimplifications(
                 "Graph already at few transactions per person; no optimisations found"
             )

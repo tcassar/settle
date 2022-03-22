@@ -1,0 +1,4 @@
+digraph { d -> t [label="  0/10  "]
+m
+t -> d [label="  0/0  ", color=red]
+ }
