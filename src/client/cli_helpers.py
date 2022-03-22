@@ -129,12 +129,12 @@ def trap(func) -> object:
 
 def show_transactions(transactions_data: requests.Response):
     try:
-        unverified_running = 0.0
-        verified_running = 0.0
+        unverified_running = 0.00
+        verified_running = 0.00
         for pretty in transactions_data.json()["src_list"]:
 
             click.secho(
-                f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):02}',
+                f'\nYou owe {pretty["other"]} £{round(pretty["amount"] / 100, 2):.2f}',
                 fg="yellow",
             )
 
@@ -153,7 +153,7 @@ def show_transactions(transactions_data: requests.Response):
 
         for pretty in transactions_data.json()["dest_list"]:
             click.secho(
-                f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):02}',
+                f'\n{pretty["other"]} owes you £{round(pretty["amount"] / 100, 2):.2f}',
                 fg="yellow",
             )
 
@@ -176,7 +176,7 @@ def show_transactions(transactions_data: requests.Response):
         verified_running = round(verified_running / 100, 2)
 
         if verified_running > 0:
-            click.secho(f"You owe a total of £{verified_running:02}", fg="red")
+            click.secho(f"You owe a total of £{verified_running:.2f}", fg="red")
         elif verified_running < 0:
             click.secho(
                 f"You are owed a total of £{verified_running * -1 :02}", fg="blue"
@@ -186,7 +186,7 @@ def show_transactions(transactions_data: requests.Response):
 
         if unverified_running > 0:
             click.secho(
-                f"Your unverified totals => you owe £{unverified_running:02}",
+                f"Your unverified totals => you owe £{unverified_running:.2f}",
                 fg="yellow",
             )
         elif unverified_running < 0:

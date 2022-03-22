@@ -66,7 +66,7 @@ class PrettyTransaction:
     def secho(self):
         click.secho("\n----")
         click.secho(f"Transaction ID = {self.id}\nGroup: {self.group}", bold=True)
-        click.secho(f"{self.other}, £{(int(self.amount) / 100):02}", fg="blue")
+        click.secho(f"{self.other}, £{(int(self.amount) / 100):.2f}", fg="blue")
         click.secho(self.reference)
         click.secho(f"at {self.time}")
 
