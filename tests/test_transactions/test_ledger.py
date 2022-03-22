@@ -20,6 +20,9 @@ def key_path(usr: str, keytype="private") -> str:
 
 class TestLedger(unittest.TestCase):
     def setUp(self) -> None:
+
+        """Load in sample data from mock db"""
+
         self.valid: Ledger
         self.missing_key: Ledger
         self.invalid: Ledger
@@ -39,10 +42,11 @@ class TestLedger(unittest.TestCase):
         self.d_priv, self.m_priv, self.t_priv = self.d_m_t_keys.values()
 
         self.valid, self.missing_key, self.invalid = LedgerLoader.load_from_csv(
-            "./tests/test_transactions/database.csv"
+            "./tests/test_transactions/mock_db.csv"
         )
 
     def test_add(self):
+        """test adding transactions to a ledger"""
 
         with self.subTest("Add"):
             ledger = Ledger()
@@ -54,8 +58,9 @@ class TestLedger(unittest.TestCase):
             ledger.append(6)  # type: ignore
 
     def test_load_from_csv(self):
+        """Test loading from mock db works as expected"""
         ledger_list = LedgerLoader.load_from_csv(
-            "./tests/test_transactions/database.csv"
+            "./tests/test_transactions/mock_db.csv"
         )
         self.assertEqual(len(ledger_list), 3)
 
@@ -85,6 +90,7 @@ class TestLedger(unittest.TestCase):
             self.invalid._verify_transactions()
 
     def test_as_flow(self):
+        """Test that we build flow graphs from ledgers as expected"""
         # sign ledger
         self.sign()
 
@@ -106,6 +112,7 @@ class TestLedger(unittest.TestCase):
             self.assertEqual(exp, as_flow)
 
     def sign(self):
+        """Checks that signing a ledger is a reliable process"""
         for trn in self.valid.ledger:
             trn.sign(self.d_m_t_keys[trn.src], origin="src")
             trn.sign(self.d_m_t_keys[trn.dest], origin="dest")
@@ -114,6 +121,7 @@ class TestLedger(unittest.TestCase):
             print("verified")
 
     def test_flow_to_transactions(self):
+        """Checks that flow graph data structures can be effectively converted to ledgers"""
         self.maxDiff = None
         self.sign()
         as_flow = self.valid._as_flow()
@@ -132,6 +140,7 @@ class TestLedger(unittest.TestCase):
             self.assertEqual(calc, self.valid.ledger)
 
     def test_simplify_ledger(self):
+        """Integration test, checks that calling simplify() on a ledger displays expected behaviour"""
         self.sign()
         self.valid.simplify_ledger()
 

@@ -100,6 +100,7 @@ class TestPath(TestCase):
         )
 
     def test_find_target(self):
+        """Checks that BFS can stop when its given target is found"""
         graph = self.flow_graph
         a, b, c, *_ = graph.nodes()
 
@@ -120,6 +121,7 @@ class TestPath(TestCase):
         self.assertEqual(expected, calculated)
 
     def test_build_bfs_struct(self):
+        """Checks that structures that are built for BFS are built correctly"""
         with self.subTest("with initial value"):
             queue, disc, prev = Path.build_bfs_structs(
                 self.flow_graph, self.vertices[0]

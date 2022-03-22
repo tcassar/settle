@@ -293,9 +293,8 @@ In the worst case scenario, only 1 edge is removed from the graph each time `gra
 Note: **Implications to security**
 Since the server that is settling a group of transactions is creating and destroying new transactions that haven't happened in the real world, the signatures that transactions were initialised with will no longer be valid after settling.
 
-The solution to extend security through the settling process is to have the server be able to sign the new transactions. There may be a security risk here in that the server's private key can act as a master key, validating any transaction.
+Thus, the user should resign any transactions in the group that they are involved in after the settling has happened. This allows the solution to remain secure, and also lets the user see exactly what has happened to their debt.
 
-However, as with all private key cryptography, private keys need to be kept secret. Thus, while this is something that needs to be kept in mind, it does not require large redesigns of the security software.
 
 
 ## High Level Objectives for the Solution
@@ -309,7 +308,7 @@ On a high level, my objectives are as follows:
 5) A database that should be able to store user and transaction information
 
 ## Low Level Requirements
-For the purposes of testing, these are low level requirements that I would like to fulfil.
+For the purposes of testing, these are low level requirements that I would like to fulfil. The first three sections are very low level, and as such may be hard to understand in context of the project. Section D paints a picture of how achieving my aims in sections A, B and C will apply to my project. 
 
 #### RSA Implementation (A)
  1) A reliable interface to a hashing module
@@ -328,7 +327,7 @@ For the purposes of testing, these are low level requirements that I would like 
  4) Object Signing
 	 1) Algorithm to convert an object to a hash in a reproducible way, minimising the chance of hash collisions
 	 2) Ability to sign a class of object with RSA sig scheme
-	 3) Ability to verify a signed object with RSA verif scheme, raising an error if signature is invalid
+	 3) Ability to verify a signed object with RSA verif scheme, raising an error if signature is invalid 
 
 #### Debt Simplification (B)
 1) A reliable digraph structure, with operations to `transactions.graph.GenericDigraph`
@@ -346,9 +345,7 @@ For the purposes of testing, these are low level requirements that I would like 
 	3) Be able to return neighbours of nodes in the residual graph (i.e. edges, including residual edges, that have unused capacity)
 	4) A way to get the bottleneck value of a path, given a path of nodes
 
-3) A reliable recursive BFS that works on
-	1) Digraphs
-	3) Flow Graphs
+3) A reliable recursive BFS that works on flow graphs
 
 4) Implementation of Edmonds-Karp
 	1) Way to find shortest augmenting path between two nodes
@@ -366,32 +363,39 @@ For the purposes of testing, these are low level requirements that I would like 
 #### Client / Server Structure (C)
 1) The server should be accessible to the client via a REST API
 2) The client should be relatively thin, only dealing with input from user and handling error 400 and 500 codes gracefully.
-3) The server should be able to pull a group's transactions from a database, run the settling, and handle any requests from the client 
+3) Client and Server should communicate over HTTP, using JSON as an information interchange format
+4) The client should have a clear, easy to use command line interface
 
 
-4) The client should be able to 
-	1) See their own user information
-		1) Total debt across all groups
-		2) Open transactions in a specific group
-		3) This information should be up to date i.e. verification should take place every time the transactions are requested
-	2) See the name, email, and public key information of all registered users, as transparency is at the forefront of private key infrastructure
-	
-	3) Mark a transaction as settled
-	4) Create new groups
-	5) Settle a group
-	6) Create a transaction
-	7) Sign an open transaction
-	8) Mark a transaction as settled
+#### 'Integrated' requriements for how the end system should behave (D)
+1) Ensuring the validity of transactions
+	1) If a transaction is tampered with in the database, it should be classed as unverified
+    2) A user should not be able to sign an already signed transaction
+    3) A user should not be able to sign a transaction where they are not one of the listed members
+    4) A user should not be able to sign a transaction with a key that is not associated to their account
+    5) A user should not be able to sign a transaction without entering their password correctly
+    6) Every time a transaction is pulled from the database and sent to the user, it should be verified by the server using the RSA sig/verif scheme from section A
+    8) A user should not be able to link a transaction to a group which either party is not a part of
 
-5) Ancillary functions should allow users to:
-	   1) Register for an account, giving email, name RSA private key in PEM format and a password
-	   2) A `whois` function, allowing you to see people's user info (name, email, public key)
-	   3) Create groups with a name and password
-	   4) Join groups by ID
+2) Ensuring that the debt simplification feature works
+	1) All transactions in the group being settled should be verified upon being pulled from the database
+	2) It should not be possible to simplify a group if there are unverified transactions in the group
+	3) If the transaction structure of the group does not change, the user should be notified
+	4) The simplification should accurately simplify a system of debts such that no one is owed / owes a different amount of money after simplification
+	5) The simplifying process should result in unverified transactions being produced, able to be signed by the user
 
+3) Ancilliary features
+	1) Users should be able to register for an account, providing name, email, password and a PEM formatted private key
+	2) Users should be able to create transactions where they are the party owing money; these transactions should be created as unsigned
+	3) Users should be able to create a group with a name and password
+	4) Users should be able to join a group by group ID
+	6) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
+	7) Users should be able to see which groups they are a member of
+	8) Users should be able to see all of their open transactions.
+	9) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
+	10) Users should be able to see the public key information of any user on the system
+	11) Users should be able to see individual transactions by passing in a transaction ID
 
-#### Command Line Interface (D)
-1) Everything listed in C.3
 
 #### Database Architecture (E)
 1) User information

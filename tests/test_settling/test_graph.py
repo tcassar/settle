@@ -79,6 +79,7 @@ class TestDigraph(TestCase):
 
 
 class TestWeightedDigraph(TestCase):
+    """Artefact of prototyping process"""
     def setUp(self) -> None:
         """Build basic graph"""
         labels = ["u", "v", "w"]

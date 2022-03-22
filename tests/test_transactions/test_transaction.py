@@ -20,6 +20,7 @@ class TestTransaction(unittest.TestCase):
         self.trn.time = 0  # type: ignore
 
     def test_hash(self):
+        """Tests that calling .hash() on a Transaction displays expected behaviour"""
         self.assertEqual(
             self.trn.hash(),
             b"\xb9y\x8f\xe6\xdeo\x08\xd4\x1f\xdd\x01\xa3\xb4\xc5\x1d\x98\xd4\xac\x1bJ\x02\xd3\xa0\x01!\xf3\x99\xdf\xd5\\\x85v",
@@ -31,7 +32,9 @@ class TestTransaction(unittest.TestCase):
         )
 
     def test_sign(self):
-        """Working on assumption that rsa.Notary is working; tested in settle/tests/test_crypto"""
+        """
+        Checks that signing a Transaction displays expected behaviour
+        Working on assumption that rsa.Notary is working; tested in settle/tests/test_crypto"""
 
         self.trn.sign(self.key, origin="src")
 
@@ -52,6 +55,7 @@ class TestTransaction(unittest.TestCase):
             )
 
     def test_verify(self):
+        """Checks that we are able to verify transactions"""
         # check that we are complained at if no valid keys are passed in
         with self.subTest("catch invalid keys"), self.assertRaises(VerificationError):
             self.trn.verify()

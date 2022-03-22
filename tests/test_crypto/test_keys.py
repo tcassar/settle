@@ -30,6 +30,7 @@ class TestRSAKeyLoading(TestCase):
         self.assertEqual(expected_start, received_start[:7])
 
     def test_parsing(self):
+        """Checks that keys are parsed correctly and that errors are raised when inputs are incorrect"""
         loader = self.loader
 
         loader.load(self.key_path)
@@ -96,11 +97,13 @@ class TestRSAKeyLoading(TestCase):
             _ = key.asdf
 
     def test_unloaded_key(self):
+        """Checks that error is raised if parse() is called on a loader object which has not yet loaded a key"""
         ldr = self.loader
         with self.assertRaises(keys.RSAParserError):
             ldr.parse()
 
     def test_public_key(self):
+        """Checks that public keys will raise an exception if they are used for signing"""
         ldr = self.loader
         ldr.load(self.key_path)
         ldr.parse()

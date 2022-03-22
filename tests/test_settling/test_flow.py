@@ -34,6 +34,9 @@ class TestFlowEdge(TestCase):
             self.edges[1].push_flow(3)
 
     def test_adjust_edge(self):
+        """Tests that the adjust_edges function works as expected
+        i.e when adjust is called, edges in the graph morph to edges with a flow equal to their unused capacity
+        and all edges of weight 0 are deleted"""
         (
             res,
             fwd,
@@ -133,7 +136,8 @@ class TestFlowGraph(TestCase):
             self.assertFalse(self.graph.is_edge(b, a, residual=True))
 
     def test_flow_neighbours(self):
-        """Checks we get edges that have unused capacity, including residual"""
+        """Checks we get edges that have unused capacity, including residual
+        These edges count as valid paths to neighbouring nodes in Edmonds-Karp"""
         graph = self.graph
         a, b, c, d, *_ = graph.nodes()
         graph.add_edge(a, (b, 10))
@@ -148,6 +152,7 @@ class TestFlowGraph(TestCase):
         self.assertEqual([d, b], GenericDigraph.nodes_from_edges(c_flow_neighbours))
 
     def test_bool(self):
+        """Tests that dunder bool method returns true when there are edges in the graph"""
         # empty
         print(self.graph.graph)
         self.assertFalse(bool(self.graph))
@@ -157,6 +162,8 @@ class TestFlowGraph(TestCase):
         self.graph.add_edge(a, (b, 10))
 
     def test_add_existing(self):
+        """Tests that adding an existing edge will add capacity onto the existing edge,
+        as opposed to adding a new distinct edge from src -> dest"""
         a, b, c, d, e = self.graph.nodes()
         self.graph.add_edge(a, (b, 5))
         self.graph.add_edge(a, (b, 5))
@@ -164,6 +171,8 @@ class TestFlowGraph(TestCase):
         self.assertEqual(self.graph.get_edge(a, b).capacity, 10)
 
     def test_pop_existing(self):
+        """Tests that if an edge A -> B of weight [5] exists, adding B -> A [5] will remove
+        any edges between A and B, as there is net 0 between the two"""
         a, b, c, d, e = self.graph.nodes()
         self.graph.add_edge(a, (b, 5))
         self.graph.add_edge(b, (a, 5))
@@ -171,13 +180,14 @@ class TestFlowGraph(TestCase):
         self.assertFalse(self.graph.is_edge(a, b))
 
     def test_add_edge_reverses_new_edge(self):
+        """Checks that if there exists an edge A -> B of weight [5] exists, adding B -> A [10] will
+        reverse the direction of the edge such that now an edge B -> A [5] exists"""
         a, b, c, d, e = self.graph.nodes()
         self.graph.add_edge(a, (b, 5))
         self.graph.add_edge(b, (a, 10))
 
         self.assertFalse(self.graph.is_edge(a, b))
         self.assertEqual(self.graph.get_edge(b, a).capacity, 5)
-
 
 
 class TestMaxFlow(TestCase):
@@ -192,6 +202,7 @@ class TestMaxFlow(TestCase):
         self.graph = graph
 
     def test_bottleneck(self):
+        """Checks we get the correct bottleneck value on a path"""
         # build a chain with an obvious bottleneck on normal graphs
         graph = self.graph
         a, b, c, d, *_ = graph.nodes()
@@ -203,6 +214,7 @@ class TestMaxFlow(TestCase):
         self.assertEqual(2, MaxFlow.bottleneck(graph, aug_path))
 
     def test_nodes_to_path(self):
+        """Checks that we can build a path of edges from nodes"""
         a, b, c, d, *_ = self.graph.nodes()
         edges = MaxFlow.nodes_to_path(self.graph, [a, b, c, d])
 
@@ -211,10 +223,12 @@ class TestMaxFlow(TestCase):
         )
 
     def test_augmenting_path(self):
+        """Tests that we find valid augmenting paths"""
         a, b, c, d, *_ = self.graph.nodes()
         MaxFlow.augmenting_path(self.graph, a, d)
 
     def test_augment_flow(self):
+        """Checks that augmenting flow works exactly as described in Analysis"""
         a, b, c, d, *_ = self.graph.nodes()
 
         MaxFlow.augment_flow(self.graph, [a, b, c, d], 2)
@@ -233,6 +247,7 @@ class TestMaxFlow(TestCase):
             flow *= -1
 
     def test_edmonds_karp(self):
+        """Integration test for edmonds-karp, ensures that max flow is correct"""
         # build slightly more involved graph
         nodes = [Vertex(0, label="src"), Vertex(10, label="sink")]
         nodes += [Vertex(n, label=chr(n + 96)) for n in range(1, 10)]
@@ -257,6 +272,7 @@ class TestMaxFlow(TestCase):
         self.assertEqual(max_flow, 20)
 
     def test_old_edmonds(self):
+        """Tests a more complex graph for correct maxflow"""
         labels = ["a", "b", "c", "d", "e", "f"]
         self.vertices = [Vertex(ID, label=label) for ID, label in enumerate(labels)]
         a, b, c, d, e, f = self.vertices
@@ -285,6 +301,9 @@ class TestSimplify(TestCase):  # type: ignore
         self.graph.add_edge(m, (t, 5))
 
     def test_simplify_debt(self):
+        """Uses graph from analysis to test that the debt simplifying algorithm simplifies debt, does not create or
+        destroy debt"""
+
         print(self.graph.net_debt)
 
         people = ["dad", "tom", "maia"]
@@ -303,6 +322,9 @@ class TestSimplify(TestCase):  # type: ignore
         self.assertEqual(debt.net_debt, clean.net_debt)
 
     def test_adjust_edges(self):
+
+        """Checks that edges are adjusted accordingly, generate graphs before and after"""
+
         # saturate d -> m -> t
         self.graph.to_dot(n=0)
         d, m, t = self.graph.nodes()
@@ -319,10 +341,9 @@ class TestSimplify(TestCase):  # type: ignore
         self.assertEqual(self.graph[d], [FlowEdge(d, t, 10)])
         self.assertEqual(self.graph[t], [FlowEdge(t, d, 0)])
 
-    def test_netflow(self):
-        """Checking people owed same before and after"""
-
     def test_mithun_simplify(self):
+
+        """Checks more complex example, ensures that graph is settled and that no debt is created / destroyed"""
 
         # gen vertices
         people: list[Vertex] = []
