@@ -1,0 +1,106 @@
+WARNING:werkzeug: * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+INFO:werkzeug: * Running on http://192.168.109.142:5000/ (Press CTRL+C to quit)
+ERROR:endpoint:Exception on /group/debt/3 [GET]
+Traceback (most recent call last):
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 467, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 582, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/tcassar/projects/settle/src/server/resources.py", line 424, in get
+    pretty = processes.verify_pretty(pretty, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 180, in verify_pretty
+    t = get_verified_transaction_by_id(pretty.id, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 85, in get_verified_transaction_by_id
+    raise ResourceNotFoundError(f"No transaction with ID={id}")
+src.server.processes.ResourceNotFoundError: No transaction with ID=5
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:09:40] "[35m[1mGET /group/debt/3 HTTP/1.1[0m" 500 -
+ERROR:endpoint:Exception on /group/debt/3 [GET]
+Traceback (most recent call last):
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 467, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 582, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/tcassar/projects/settle/src/server/resources.py", line 424, in get
+    pretty = processes.verify_pretty(pretty, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 180, in verify_pretty
+    t = get_verified_transaction_by_id(pretty.id, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 85, in get_verified_transaction_by_id
+    raise ResourceNotFoundError(f"No transaction with ID={id}")
+src.server.processes.ResourceNotFoundError: No transaction with ID=5
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:09:42] "[35m[1mGET /group/debt/3 HTTP/1.1[0m" 500 -
+ERROR:endpoint:Exception on /group/debt/3 [GET]
+Traceback (most recent call last):
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 467, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 582, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/tcassar/projects/settle/src/server/resources.py", line 424, in get
+    pretty = processes.verify_pretty(pretty, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 180, in verify_pretty
+    t = get_verified_transaction_by_id(pretty.id, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 85, in get_verified_transaction_by_id
+    raise ResourceNotFoundError(f"No transaction with ID={id}")
+src.server.processes.ResourceNotFoundError: No transaction with ID=5
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:09:44] "[35m[1mGET /group/debt/3 HTTP/1.1[0m" 500 -
+ERROR:endpoint:Exception on /group/debt/3 [GET]
+Traceback (most recent call last):
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 467, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 582, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/tcassar/projects/settle/src/server/resources.py", line 424, in get
+    pretty = processes.verify_pretty(pretty, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 180, in verify_pretty
+    t = get_verified_transaction_by_id(pretty.id, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 85, in get_verified_transaction_by_id
+    raise ResourceNotFoundError(f"No transaction with ID={id}")
+src.server.processes.ResourceNotFoundError: No transaction with ID=5
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:10:02] "[35m[1mGET /group/debt/3 HTTP/1.1[0m" 500 -
+ERROR:endpoint:Exception on /group/debt/3 [GET]
+Traceback (most recent call last):
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1516, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/app.py", line 1502, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 467, in wrapper
+    resp = resource(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask/views.py", line 84, in view
+    return current_app.ensure_sync(self.dispatch_request)(*args, **kwargs)
+  File "/home/tcassar/projects/settle/venv/lib/python3.10/site-packages/flask_restful/__init__.py", line 582, in dispatch_request
+    resp = meth(*args, **kwargs)
+  File "/home/tcassar/projects/settle/src/server/resources.py", line 424, in get
+    pretty = processes.verify_pretty(pretty, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 180, in verify_pretty
+    t = get_verified_transaction_by_id(pretty.id, cursor)
+  File "/home/tcassar/projects/settle/src/server/processes.py", line 85, in get_verified_transaction_by_id
+    raise ResourceNotFoundError(f"No transaction with ID={id}")
+src.server.processes.ResourceNotFoundError: No transaction with ID=5
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:10:04] "[35m[1mGET /group/debt/3 HTTP/1.1[0m" 500 -
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:werkzeug: * Restarting with stat

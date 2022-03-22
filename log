@@ -1,0 +1,16 @@
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 987-024-614
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:10:13] "GET /group/debt/3 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:10:16] "GET /group/debt/3 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:08] "GET /user/cassar.thomas.e@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:08] "PATCH /transaction/settle/2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:11] "GET /group/debt/3 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:35] "GET /group/debt/3 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:48] "GET /user/cassar.thomas.e@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:48] "PATCH /transaction/settle/2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:49] "GET /group/debt/3 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:58] "GET /user/keith@npl.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:11:58] "PATCH /transaction/settle/2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:12:00] "GET /group/debt/3 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:15:15] "GET /group/cassar.thomas.e@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Mar/2022 20:16:14] "GET /group/cassar.thomas.e@gmail.com HTTP/1.1" 200 -

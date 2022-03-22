@@ -375,7 +375,7 @@ For the purposes of testing, these are low level requirements that I would like 
     4) A user should not be able to sign a transaction with a key that is not associated to their account
     5) A user should not be able to sign a transaction without entering their password correctly
     6) Every time a transaction is pulled from the database and sent to the user, it should be verified by the server using the RSA sig/verif scheme from section A
-    8) A user should not be able to link a transaction to a group which either party is not a part of
+
 
 2) Ensuring that the debt simplification feature works
 	1) All transactions in the group being settled should be verified upon being pulled from the database
@@ -389,12 +389,12 @@ For the purposes of testing, these are low level requirements that I would like 
 	2) Users should be able to create transactions where they are the party owing money; these transactions should be created as unsigned
 	3) Users should be able to create a group with a name and password
 	4) Users should be able to join a group by group ID
-	6) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
-	7) Users should be able to see which groups they are a member of
-	8) Users should be able to see all of their open transactions.
-	9) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
-	10) Users should be able to see the public key information of any user on the system
-	11) Users should be able to see individual transactions by passing in a transaction ID
+	5) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
+	6) Users should be able to see which groups they are a member of
+	7) Users should be able to see all of their open transactions
+	8) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
+	9) Users should be able to see the public key information of any user on the system
+	10) Users should be able to see individual transactions by passing in a transaction ID
 
 
 #### Database Architecture (E)

@@ -383,6 +383,7 @@ def tick(email: str, password: str, t_id: int):
     # auth user
     helpers.auth_usr(email, password)
 
-    requests.patch(helpers.url(f"transaction/settle/{t_id}"), json=json.dumps({'email': email}, indent=4))
-
+    rep = requests.patch(helpers.url(f"transaction/settle/{t_id}"), json=json.dumps({'email': email}, indent=4))
+    helpers.validate_response(rep)
+    click.secho(f'Transaction {t_id} marked as settled!', fg='green')
 

@@ -401,7 +401,7 @@ class Simplifier(Resource):
 
 class GroupDebt(Resource):
     def get(self, id):
-        """Return open transactions of a user in a group"""
+        """Return open transactions in a group"""
 
         cursor = processes.get_db()
 
@@ -410,7 +410,7 @@ class GroupDebt(Resource):
                     INNER JOIN pairs p on p.id = transactions.pair_id
                     INNER JOIN users u on u.id = p.src_id
                     INNER JOIN users u2 on u2.id = p.dest_id
-                    WHERE group_id = ? AND transactions.src_settled = 0 AND transactions.dest_settled = 0;
+                    WHERE group_id = ? AND (transactions.src_settled = 0 OR transactions.dest_settled = 0);
             """
 
         trns: list[models.PrettyTransaction] = []

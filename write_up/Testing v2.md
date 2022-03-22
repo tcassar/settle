@@ -55,7 +55,8 @@ The list of requirements low level requirements, identical to that in the Analys
 #### Client / Server Structure (C)
 1) The server should be accessible to the client via a REST API
 2) The client should be relatively thin, only dealing with input from user and handling error 400 and 500 codes gracefully.
-3) The client should have a clear, easy to use command line interface
+3) Client and Server should communicate over HTTP, using JSON as an information interchange format
+4) The client should have a clear, easy to use command line interface
 
 
 #### 'Integrated' requriements for how the end system should behave (D)
@@ -66,7 +67,7 @@ The list of requirements low level requirements, identical to that in the Analys
     4) A user should not be able to sign a transaction with a key that is not associated to their account
     5) A user should not be able to sign a transaction without entering their password correctly
     6) Every time a transaction is pulled from the database and sent to the user, it should be verified by the server using the RSA sig/verif scheme from section A
-    8) A user should not be able to link a transaction to a group which either party is not a part of
+
 
 2) Ensuring that the debt simplification feature works
 	1) All transactions in the group being settled should be verified upon being pulled from the database
@@ -80,12 +81,12 @@ The list of requirements low level requirements, identical to that in the Analys
 	2) Users should be able to create transactions where they are the party owing money; these transactions should be created as unsigned
 	3) Users should be able to create a group with a name and password
 	4) Users should be able to join a group by group ID
-	6) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
-	7) Users should be able to see which groups they are a member of
-	8) Users should be able to see all of their open transactions.
-	9) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
-	10) Users should be able to see the public key information of any user on the system
-	11) Users should be able to see individual transactions by passing in a transaction ID
+	5) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
+	6) Users should be able to see which groups they are a member of
+	7) Users should be able to see all of their open transactions
+	8) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
+	9) Users should be able to see the public key information of any user on the system
+	10) Users should be able to see individual transactions by passing in a transaction ID
 
 
 #### Database Architecture (E)
@@ -132,8 +133,11 @@ The unit tests are provided at the end of this section.
 ![[Pasted image 20220321000346.png]]
 ![[Pasted image 20220321000412.png]]
 
+### Evidence of meeting Requirements - Section A & B
 
 ![[test plan.png]]
+
+I appreciate this table may not show information about the individual tests. Every unit test I wrote has an informative docstring. Thus, refer to the code at the end of this section for more clarification about the function of any given unittest
 
  ### Proof of simplification algorithm correctness (B5)
  In the analysis section, I provided a hand-trace of the expected graph structures involved in settling a system of debts. Having done this hand tracing, I decided to use the same graph to test my algorithm. 
@@ -165,4 +169,134 @@ The simplification process will then verify each transaction once more, and buil
 ![[Pasted image 20220322170900.png]]
 
 The transaction that is generated is marked as unverified. This is because the sever does not have access to the private keys of the users. If the server held private keys, it would not be a convincing security solution to say the least!
+
+This example fulfills requirements **D1.6**, **D2.1**, **D2.4**, and **D2.5**
+
+A note on UI: the verified flashes. This is hard to put in a screenshot.
+
+Hence, I can show that every requirement in setion A and B has been met.
+
+### Evidence of Meeting Requriements - Section C
+To show that my techincal solution does in fact communicate over a REST API, I will show a simple get request made by the client and the corresponding logs produced by the server.
+
+![[Pasted image 20220322181211.png]]
+Here, it is possible to see that I have configured the API to run on the  `http://192.168.109.142:5000`. 
+
+The `settle whois <email>` command returns a user's name and public/private keys given an email. This shows that the server is accessible to the client via a REST api. There is a visible `GET` request, followed by an endpoint of the API. This satisfies **C1**
+
+To show the program fulfilling **C2**, (handling exception codes gracefully), here is what happens when you attempt to `whois` an email that does not exist.
+
+![[Pasted image 20220322181619.png]]
+The server has responded with a 404 error code to the client's GET request. On the client side, this has been detected and raised. It has then been handled gracefully before showing the client the type of error (a resource not found), and what that might be (invalid usr info).
+
+This type of behaviour is implemented for all errors that are expected to be raised during the programs normal operation. More severe errors, such as the warning when the user attempts to double sign a transaction, are coloured in red.
+![[Pasted image 20220322182149.png]]
+
+Above, it was shown that the client connects to the API using HTTP. This partially fulfills requirement **C3**. To fulfill it, it must be shown that JSON is used to communicate between client and server. Thus, I have briefly modified the `whois` command to dump the raw server response to STDOUT so that I can prove that this objective has been met (it was reverted after the test)
+![[Pasted image 20220322182533.png]]
+This clearly shows that JSON is the information interchange format being used. 
+
+The screenshots of my CLI I have provided, I believe, effectively demonstrate a clear, easy to use command line interface. Thus, **C4** is also satisfied. Many more examples of output will be shown in the next section.
+
+I can therefore say I have completed all of my requirements in Section C.
+
+### Evidence of Meeting Requirements - Section D
+
+**Ensuring the validity of transactions**
+
+Upon inspecting transaction 13
+![[Pasted image 20220322190103.png]]
+
+Changing the amount owed in the database
+![[Pasted image 20220322190207.png]]
+
+(1287 -> 1490)
+
+Querying again (here, the output of the old query is included first)
+![[Pasted image 20220322190250.png]]
+
+Hence, **D1.1** is shown to be fulfilled. 
+
+
+Note that this transaction is signed. If I re-tamper with it to return the amount to 1287, it becomes valid again. I will show an attempt to re sign it.
+![[Pasted image 20220322190508.png]]
+
+To demonstrate how the CLI handles invalid arguments, I attempted to sign the transaction without a key. The CLI prompted me accordingly, and offered me the choice of using a `--help` flag. 
+
+**D1.2** is thus fulfilled
+
+![[Pasted image 20220322190829.png]]
+
+Here, I try to sign a transaction between `cassar.thomas.e@gmail.com` and `kezza@cherryactive.com` as a user on the account held by `mreymacia@gmail.com`. This is not allowed, fulfilling **D1.3**
+![[Pasted image 20220322191019.png]]
+
+Next, I try to sign the transaction as `cassar.thomas.e@gmail.com`, but with a different key to the one I registered my account with, fulfilling **D1.4**
+![[Pasted image 20220322191109.png]]
+
+I attempt to sign the transaction with my private key, but I mistype my password **D1.5**
+![[Pasted image 20220322191224.png]]
+
+**D1.6** was shown previously.
+
+**D2.1**, **D2.4** and **D2.5** were shown previously.
+
+To show that I have fulfilled **D2.2**, I will attempt to settle a group with unverified transactions
+![[Pasted image 20220322192725.png]]
+
+
+To show that I satisfy **D2.3**, **D3.2**, **D3.3**,  **D3.4**, and **D3.10** I will make a new group and add two users to it. I will then add a single transaction and attempt to settle. One transaction cannot be simplified, thus we should be warned that simplification cannot happen
+![[Pasted image 20220322192441.png]]
+**D3.3** and **D3.4** have been fulfilled
+
+Making a transaction, and showing it is unsigned (thus fulfilling **D3.2** and **D3.10**)
+![[Pasted image 20220322193201.png]]
+
+It is initially unsigned - I then sign it with both users
+![[Pasted image 20220322193437.png]]
+It is now verified. Next, I try to settle group 12. Since it only one transaction, I should be alerted that no changes were made
+![[Pasted image 20220322193540.png]]
+
+Indeed, I am.
+
+To show **D3.1**, I will register an account, first providing it with a public key. It should reject this, and I will then register the account with the correct key. I will confirm the creation of the account with the `settle whois` command, thus also fulfilling **D3.9**
+![[Pasted image 20220322194638.png]]
+
+Successful creation
+![[Pasted image 20220322195418.png]]
+
+To show fulfillment of **D3.5**, **D3.7**, and **D3.8**. I will find an open transaction and mark it as settled from an involved account at a time. It should no longer appear in a set of group debts after both parties mark it as settled.
+![[Pasted image 20220322195903.png]]
+I will now sign transaction 2 by both parties - this has already been documented and thus won't be shown again
+
+Showing group three (and fulfilling **D3.8**), we see two transactions. After one party marks it as settled, it is still classed as an open transaction. Once the second party has ticked it off it is counted as settled. Hence, it is no longer shown with the rest of the open group transactions.
+
+![[Pasted image 20220322201225.png]]
+
+**D3.5** and **D3.7** have been met.
+
+Evidence for **D3.6**:
+![[Pasted image 20220322201629.png]]
+
+
+### Evidence of Meeting Requirements - Section E
+To show that I have implemented the database structure that I laid out in my requriements, I will screenshot the the database tables, and briefly comment on which requirements each table fulfills.
+
+**Transactions**
+This table fulfills **E2.1 -> E2.8** in conjunction with the `pairs` table and the `keys` table. It also satisfies **E3.4**
+
+**Pairs**
+
+![[Pasted image 20220322201840.png]]
+**Keys**
+![[Pasted image 20220322201901.png]]
+
+**Users**
+The users table, along with the keys table above, fulfil requirements **E1.1 -> E1.5**
+![[Pasted image 20220322201948.png]]
+
+**Groups**
+The final outstanding requirements in Section E are met by the `groups` table and `groups_link` table, meeting **E3.1 -> E3.3**
+![[Pasted image 20220322202041.png]]
+
+Hence, I have entirely fulfilled every requirement I outlined in Section E, and have thus completed my project entirely.
 
