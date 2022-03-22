@@ -121,6 +121,9 @@ def trap(func) -> object:
         except NoChanges as nc:
             click.secho(f"No changes were made\n{nc}", fg="yellow")
 
+        except requests.exceptions.ConnectionError:
+            click.secho('ERROR: Could not connect to server', fg='red')
+
     return inner
 
 
