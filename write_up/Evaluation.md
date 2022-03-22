@@ -66,3 +66,4 @@ As was discussed with the end user, there are certain improvements that I could 
 **A database that should be able to store user and transaction information**
 
 Finally, I am happy with my database. However, as I became more comfortable with SQL during the project, having had absolutely no experience with it before, I realise that I have a redundant relationship in my database design. The transaction table references the keys table. Having learned about the join statement, I now see that this link is redundant and ought not to be there.
+
