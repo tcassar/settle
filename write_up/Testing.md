@@ -123,10 +123,68 @@ These are the same as in the Analysis section
 
 ![[test plan.png]]
 
+Hence, I am able to prove that not only have I achieved every requirement that I set out to under sections A & B, my extensive unit testing goes a long way to prove the robustness of my solution. 
+
+To show a visual proof of the correctness of my user-defined settling algorithm, I will provide some screenshots produced by test B5 (`test_flow.TestMaxFlow`). These graphs were generated during the running of the test - an artefact of the debugging process. However, I believe that they effectively show that I am able to simplify the chains of debt in a group.
+
+Pre setting: 
+![[pre_settle0.svg|500]]
+
+Post settling:
+![[settled0.svg|400]]
+
+This is the same example system that I presented in my analysis section.
+
+This is a debugging representation of a flow graph, hence the flows, capacities and residual edges (in red). However, it appropriately demonstrates that my technical solution is able to achieve its objective of simplifying groups of debt. 
+
+My unit tests, included at the end of this section, are more extensive than this one example. They are configured to check that flags are raised when the graph doesn't change, that it doesn't change when it shouldn't, and that the algorithm lends itself well to larger graphs.
+
+During testing, I discovered that this algorithm was more effective on densely populated graphs (more on this in the Evaluation). This solution ended up being an excellent heuristic model to solve my problem. 
 
 
 ## Evidence of fulfilling Section C & D
+![[Pasted image 20220322100924.png]]
 
 
 ## Evidence of fulfilling Section E
+
+To show that I am able to store everything that I wanted to, as outlined in Section E, I will insert screenshots of my working database tables. 
+
+#### E1 - User information
+USERS table (E1, E2, E3)
+![[Pasted image 20220322101214.png]]
+
+GROUP_LINK table (E4)
+![[Pasted image 20220322101712.png]]
+
+KEYS table (E5)
+![[Pasted image 20220322101248.png]]
+(note: all the public exponents (e) are the same. This is not an error - RSA guidelines state that the public exponent generated with keys is normally 65537 by convention. In hex, this is $0\ce{x}10001$).
+While no users here have multiple public keys, all key information has been normalised out to allow for this in the future while maintaining database integrity and a normalised structure
+
+#### E2 - Transaction Information
+The following two screenshots provides evidence for E2.1,  E2.4 -> E2.8
+![[Pasted image 20220322103531.png]] 
+![[Pasted image 20220322103551.png]]
+
+The evidence for E2.2 and E2.3 is provided below
+![[Pasted image 20220322103826.png]]
+
+This is a link table associating pairs of people together (order of a pair matters, i.e. the row 20, 21 is different from 21, 20)
+This was done to allow pairs of people to have multiple transactions, maintaining a normalised structure and ensuring data integrity.
+
+### E3 - Group Informaton
+Groups Table: This satisfies require E3.1, E3.2
+![[Pasted image 20220322104047.png]]
+Group Link Table: This satisfies E3.3
+![[Pasted image 20220322104009.png]]
+
+Requirement E3.4 is satisfied by this column in the transactions table
+![[Pasted image 20220322104241.png]]
+
+Thus, the entirety of my requirements under Section E have been achieved. 
+
+Test code source: 
+
+![[code_as_pdf/tests_code.pdf]]
 

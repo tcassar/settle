@@ -86,7 +86,7 @@ class PrettyList:
         return True if (self.src_list or self.dest_list) else False
 
     def __repr__(self):
-        return f'{self.src_list}'
+        return f"{self.src_list}"
 
     def secho(self):
         for trn in self.src_list:

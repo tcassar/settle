@@ -327,23 +327,25 @@ class TransactionSigVerif(Resource):
         schema = schemas.SignatureSchema()
         sig = schema.make_signature(request.json)
         if request.json is None:
-            return 'Invalid Request', 404
+            return "Invalid Request", 404
 
-        if sig.origin == 'dest':
+        if sig.origin == "dest":
             sql = """ UPDATE transactions
                       SET dest_sig = ?
                       WHERE id = ?"""
-        else:
+        elif sig.origin == "src":
             sql = """UPDATE transactions
-            SET dest_sig = ? 
+            SET src_sig = ? 
             WHERE id = ?"""
+        else:
+            return 'Signature does not originate from one of the parties in this transaction', 403
 
         cursor = processes.get_db()
         cursor.execute(sql, [sig.signature, sig.transaction_id])
 
         processes.get_db().commit()
 
-        return 'Successfully added signature to transaction', 201
+        return "Successfully added signature to transaction", 201
 
 
 class Simplifier(Resource):

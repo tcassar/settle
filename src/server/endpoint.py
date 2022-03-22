@@ -14,7 +14,7 @@ from src.server.resources import (
     TransactionSigVerif,
     Simplifier,
     GroupDebt,
-    SignableTransaction
+    SignableTransaction,
 )
 
 app = Flask(__name__)
@@ -53,7 +53,9 @@ api.add_resource(
     UserGroupBridge, "/group/<int:id>/<string:email>", "/group/<string:email>"
 )
 
-api.add_resource(TransactionSigVerif, "/transaction/auth/<int:id>", "/transaction/auth/")
+api.add_resource(
+    TransactionSigVerif, "/transaction/auth/<int:id>", "/transaction/auth/"
+)
 
 api.add_resource(Simplifier, "/simplify/<int:gid>")
 

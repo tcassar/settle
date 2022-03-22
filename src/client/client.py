@@ -242,10 +242,13 @@ def simplify(group_id, password):
         raise helpers.ResourceNotFoundError(f"Problem settling group... \n{ire}")
 
 
-# TODO: sign
 @trap
-def sign(transaction_id, key_path, email):
+def sign(transaction_id, key_path, email, password):
     """Signs a transaction given an ID and a path to key"""
+
+    # auth user
+    helpers.auth_usr(email, password)
+
     # load private key
 
     ldr = keys.RSAKeyLoader()
@@ -269,7 +272,9 @@ def sign(transaction_id, key_path, email):
     except helpers.InvalidResponseError as ire:
         raise helpers.InvalidResponseError(f"Failed to fetch group data\n{ire}")
 
-    transaction: trn.Transaction = schemas.TransactionSchema().make_transaction(response.json())
+    transaction: trn.Transaction = schemas.TransactionSchema().make_transaction(
+        response.json()
+    )
 
     # determine origin
     usr_response: requests.Response = requests.get(helpers.url(f"user/{email}"))
@@ -279,26 +284,32 @@ def sign(transaction_id, key_path, email):
     usr = schemas.UserSchema().make_user(usr_response.json())
 
     # validate key in provided path against key from db
-    key_as_str = f'n={key.n},\ne={key.e}'
+    key_as_str = f"n={key.n},\ne={key.e}"
 
     if usr.id == transaction.src:
-        origin = 'src'
+        origin = "src"
         if transaction.src_pub.strip() != key_as_str.strip():
-            raise helpers.AuthError('Private key provided does not match the listing in the db')
+            raise helpers.AuthError(
+                "Private key provided does not match the listing in the db"
+            )
         else:
-            click.secho('\tKey validated against server')
+            click.secho("\tKey validated against server")
 
     elif usr.id == transaction.dest:
-        origin = 'dest'
+        origin = "dest"
         if transaction.dest_pub.strip() != key_as_str.strip():
             print(key_as_str)
             print(transaction.dest_pub)
-            raise helpers.AuthError('Private key provided does not match the listing in the db')
+            raise helpers.AuthError(
+                "Private key provided does not match the listing in the db"
+            )
         else:
-            click.secho('\tKey validated against server', fg='green')
+            click.secho("\tKey validated against server", fg="green")
 
     else:
-        raise helpers.ResourceNotFoundError('Email provided doesn\'t match any of the users in the transaction')
+        raise helpers.ResourceNotFoundError(
+            "Email provided doesn't match any of the users in the transaction"
+        )
 
     try:
         # convert keys of sigs to ints to enable overwrite protection
@@ -309,9 +320,9 @@ def sign(transaction_id, key_path, email):
                 transaction.signatures[int(s_key)] = s_val
 
         transaction.sign(key, origin=origin)
-        click.secho('\tsuccessfully signed transaction', fg='green')
+        click.secho("\tsuccessfully signed transaction", fg="green")
     except trn.TransactionError as te:
-        raise helpers.AuthError(f'Failed to sign transaction: {transaction.ID}\n{te}')
+        raise helpers.AuthError(f"Failed to sign transaction: {transaction.ID}\n{te}")
 
     # convert signature to hex
     # todo: add sig_as_hex to transaction obj
@@ -320,10 +331,11 @@ def sign(transaction_id, key_path, email):
     # patch signature
     schema = schemas.SignatureSchema()
     signature = models.Signature(transaction_id, sig_hex, origin)
-    rep = requests.patch(helpers.url('transaction/auth/'), json=schema.dump(signature))
+    rep = requests.patch(helpers.url("transaction/auth/"), json=schema.dump(signature))
 
     if rep.status_code == 201:
-        click.secho('\tSuccessfully appended signature in database!', fg='green')
+        click.secho("\tSuccessfully appended signature in database!", fg="green")
+
 
 @trap
 def verify(groups, transactions: int):
@@ -355,7 +367,9 @@ def verify(groups, transactions: int):
 
         pretty_schema = schemas.PrettyListSchema()
         print(transactions_data.json())
-        pretty_list: models.PrettyList = pretty_schema.make_pretty_list(transactions_data.json())
+        pretty_list: models.PrettyList = pretty_schema.make_pretty_list(
+            transactions_data.json()
+        )
         trn_schema = schemas.PrettyTransactionSchema()
 
         for trn in pretty_list.src_list + pretty_list.dest_list:

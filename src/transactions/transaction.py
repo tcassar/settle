@@ -85,12 +85,12 @@ class Transaction(Signable):
             try:
                 self.signatures[self.src]
             except KeyError:
-                self.signatures[self.src] = b''
+                self.signatures[self.src] = b""
 
             try:
                 self.signatures[self.dest]
             except KeyError:
-                self.signatures[self.dest] = b''
+                self.signatures[self.dest] = b""
 
         # accept origin as src or dest;
         # check for overwrite, raise error if case
@@ -128,6 +128,11 @@ class Transaction(Signable):
             raise VerificationError("No valid keys were passed in")
 
         hash_from_obj: bytes = self.hash()
+
+        # note: if signature is a hex string convert to bytes
+        for s_key, val in self.signatures.items():
+            if type(val) is str:
+                self.signatures[s_key] = int(val, 16).to_bytes(256, sys.byteorder)
 
         for key, origin in zip(usr_keys, [self.src, self.dest]):
             hash_from_sig = rsa.RSA.inv_sig(self.signatures[origin], key)

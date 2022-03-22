@@ -177,7 +177,8 @@ def verify_pretty(
 ) -> models.PrettyTransaction:
     """Update the verification status of pretty depending on signatures"""
     try:
-        get_verified_transaction_by_id(pretty.id, cursor).verify()
+        t = get_verified_transaction_by_id(pretty.id, cursor)
+        t.verify()
         pretty.verified = True
     except src.transactions.transaction.VerificationError:
         pretty.verified = False

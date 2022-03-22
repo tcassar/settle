@@ -21,7 +21,8 @@ class InvalidResponseError(Exception):
     """Requested action was understood but not allowed (403 / 409)"""
 
 
-class ServerError(Exception): ...
+class ServerError(Exception):
+    ...
 
 
 def hash_password(password) -> str:
@@ -110,7 +111,7 @@ def trap(func) -> object:
             )
 
         except ServerError as se:
-            click.secho(se, fg='red')
+            click.secho(se, fg="red")
 
     return inner
 

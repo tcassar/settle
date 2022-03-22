@@ -73,11 +73,12 @@ class RSA(ABC):
         return RSA.int_to_bytes(cipher)
 
     @staticmethod
-    def inv_sig(sig: bytes, key: keys.RSAPublicKey) -> bytes:
+    def inv_sig(sig: bytes | int, key: keys.RSAPublicKey) -> bytes:
         """Will produce what was originally fed into sign() using public key
         used in verifying; if verified, should generate hash of obj"""
+        if type(sig) is bytes:
+            sig: int = int.from_bytes(sig, sys.byteorder)
 
-        sig = int.from_bytes(sig, sys.byteorder)
         de_sig = pow(sig, key.e, key.n)
 
         return RSA.int_to_bytes(de_sig)

@@ -394,8 +394,9 @@ For the purposes of testing, these are low level requirements that I would like 
 1) User information
 	1) User ID
 	2) Contact info
-	3) Associated Groups
-	4) Public Key
+	3) A hash of the user's password 
+	4) Associated Groups
+	5) Public Key (provisions for one or more)
 2) Transaction Information
 	1) Transaction ID
 	2) Payee
@@ -407,8 +408,9 @@ For the purposes of testing, these are low level requirements that I would like 
 	8) Whether or not transaction has been settled
 3)  Group information
 	1) Group name
-	2) People in the group
-	3) Transactions in the group
+	2) Group password
+	3) People in the group
+	4) Transactions in the group
 
 
 ## Project Critical Path
