@@ -15,6 +15,10 @@ class LedgerBuildError(Exception):
     """Error building ledger"""
 
 
+class NoFutherSimplifications(Exception):
+    ...
+
+
 @dataclass
 class Ledger:
     """Multiple transactions contained to one group (assumed from building);
@@ -119,7 +123,11 @@ class Ledger:
 
         except SettleError:
             # no changes made to graph, keep ledger as is, with sigs.
-            print(
+            # print(
+            #     "Graph already at few transactions per person; no optimisations found"
+            # )
+
+            raise NoFutherSimplifications(
                 "Graph already at few transactions per person; no optimisations found"
             )
 

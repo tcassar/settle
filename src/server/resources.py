@@ -4,6 +4,7 @@ from flask import request
 from flask_restful import Resource, abort  # type: ignore
 
 import src.transactions.transaction as transactions
+import src.transactions.ledger as ledgers
 from src.server import models as models, schemas as schemas, processes as processes
 
 
@@ -338,7 +339,10 @@ class TransactionSigVerif(Resource):
             SET src_sig = ? 
             WHERE id = ?"""
         else:
-            return 'Signature does not originate from one of the parties in this transaction', 403
+            return (
+                "Signature does not originate from one of the parties in this transaction",
+                403,
+            )
 
         cursor = processes.get_db()
         cursor.execute(sql, [sig.signature, sig.transaction_id])
@@ -350,8 +354,36 @@ class TransactionSigVerif(Resource):
 
 class Simplifier(Resource):
     def post(self, gid: int):
-        """Actually settle the group, return img of graph, 201 if succeeded"""
-        # note: will require priv key to sign all of group's outstanding transactions
+        """Actually settle the group, return ledger schema, 201 if succeeded"""
+
+        cursor = processes.get_db()
+
+        # build full transactions of group
+        # get list of IDs required
+
+        print(gid)
+
+        ids = cursor.execute("""SELECT transactions.id from transactions
+                                WHERE group_id = ?""", [gid]).fetchall()
+
+        unfiltered_transactions: list[transactions.Transaction] = []
+        for id in ids:
+            unfiltered_transactions.append(processes.get_verified_transaction_by_id(*id, cursor))  # type: ignore
+
+        # build ledger
+        ledger = ledgers.Ledger()
+        for transaction in unfiltered_transactions:
+            ledger.append(transaction)
+
+        try:
+            ledger.simplify_ledger()
+        except ledgers.NoFutherSimplifications:
+            return 'No changes made to debt structure - heuristic did not find anywhere to simplify', 202
+        except ledgers.VerificationError:
+            return 'Couldn\'t simplify group - unverified transactions in group', 403
+
+
+
 
         # return a ledger schema
         return request.json, 201

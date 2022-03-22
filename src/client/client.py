@@ -232,7 +232,7 @@ def simplify(group_id, password):
     """Will settle the group; can be done by anyone at anytime;
     everyone signs newly generated transactions if new transactions are generated"""
 
-    # TODO: auth
+    helpers.auth_group(group_id, password)
 
     response = requests.post(helpers.url(f"/simplify/{group_id}"))
 
@@ -240,6 +240,8 @@ def simplify(group_id, password):
         helpers.validate_response(response)
     except helpers.ResourceNotFoundError as ire:
         raise helpers.ResourceNotFoundError(f"Problem settling group... \n{ire}")
+
+    print(response)
 
 
 @trap

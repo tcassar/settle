@@ -25,6 +25,9 @@ class ServerError(Exception):
     ...
 
 
+class NoChanges(Exception): ...
+
+
 def hash_password(password) -> str:
     return str(hasher.Hasher(password.encode(encoding="utf8")).digest().h)
 
@@ -48,6 +51,8 @@ def validate_response(response: requests.Response) -> None:
         raise ResourceNotFoundError(f"This action was not allowed by the server, {e}")
     elif response.status_code // 100 == 5:
         raise ServerError(f"Error {response.status_code}: {response.json()['message']}")
+    elif response.status_code == 202:
+        raise NoChanges(response.text)
 
 
 def _auth(resource: str, password: str):
@@ -105,13 +110,17 @@ def trap(func) -> object:
             click.secho(ae, fg="red")
 
         except ResourceNotFoundError as nre:
+            nre = str(nre).split('\n')
             click.secho(
-                nre,
-                fg="red",
+                f'{nre[0]}', fg='red',
             )
+            click.secho(f'\t{nre[1]}', fg='yellow')
 
         except ServerError as se:
             click.secho(se, fg="red")
+
+        except NoChanges as nc:
+            click.secho(f'No changes were made\n{nc}', fg='yellow')
 
     return inner
 
