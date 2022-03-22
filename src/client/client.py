@@ -1,5 +1,5 @@
 # coding=utf-8
-
+import copy
 import sys
 
 import click
@@ -301,6 +301,13 @@ def sign(transaction_id, key_path, email):
         raise helpers.ResourceNotFoundError('Email provided doesn\'t match any of the users in the transaction')
 
     try:
+        # convert keys of sigs to ints to enable overwrite protection
+        as_strs = copy.deepcopy(transaction.signatures)
+        transaction.signatures = {}
+        for s_key, s_val in as_strs.items():
+            if type(s_key) is str:
+                transaction.signatures[int(s_key)] = s_val
+
         transaction.sign(key, origin=origin)
         click.secho('\tsuccessfully signed transaction', fg='green')
     except trn.TransactionError as te:
@@ -317,9 +324,6 @@ def sign(transaction_id, key_path, email):
 
     if rep.status_code == 201:
         click.secho('\tSuccessfully appended signature in database!', fg='green')
-
-
-
 
 @trap
 def verify(groups, transactions: int):

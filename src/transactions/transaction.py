@@ -81,7 +81,7 @@ class Transaction(Signable):
         if not self.signatures:
             self.signatures = {self.src: b"", self.dest: b""}
         else:
-
+            # check that, if only one signature exists, the other is created as null
             try:
                 self.signatures[self.src]
             except KeyError:
@@ -91,9 +91,6 @@ class Transaction(Signable):
                 self.signatures[self.dest]
             except KeyError:
                 self.signatures[self.dest] = b''
-
-        # check that, if only one signature exists, the other is created as null
-
 
         # accept origin as src or dest;
         # check for overwrite, raise error if case
