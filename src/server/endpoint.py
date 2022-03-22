@@ -61,4 +61,4 @@ api.add_resource(Simplifier, "/simplify/<int:gid>")
 
 api.add_resource(GroupDebt, "/group/debt/<int:id>")
 
-api.add_resource(SignableTransaction, "/transaction/signable/<int:id>")
+api.add_resource(SignableTransaction, "/transaction/settle/<int:t_id>", "/transaction/signable/<int:id>")

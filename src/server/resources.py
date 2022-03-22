@@ -1,4 +1,5 @@
 # coding=utf-8
+import json
 
 from flask import request
 from flask_restful import Resource, abort  # type: ignore
@@ -368,8 +369,6 @@ class Simplifier(Resource):
         for transaction in unfiltered_transactions:
             ledger.append(transaction)
 
-        # TODO: simplify transactions down
-
         # simplify debt system
         try:
             ledger.simplify_ledger()
@@ -442,3 +441,25 @@ class SignableTransaction(Resource):
 
         schema = schemas.TransactionSchema()
         return schema.dump(transaction), 200
+
+    def patch(self, t_id):
+        cursor = processes.get_db()
+        email: dict = json.loads(request.json)['email']
+
+        # determine if user is src or dest
+        emails = cursor.execute("""SELECT u.email, u2.email FROM transactions
+        JOIN pairs p on transactions.pair_id = p.id
+        JOIN users u on p.src_id = u.id
+        JOIN users u2 on p.dest_id = u2.id
+        WHERE transactions.id = ? """, [t_id]).fetchone()
+
+        if email == emails[0]:
+            # usr is src thus append src_settled
+            sql = """UPDATE transactions SET src_settled = 1 WHERE id = ?"""
+        elif email == emails[1]:
+            sql = """UPDATE transactions SET dest_settled = 1 WHERE id = ?"""
+        else:
+            return f'Email provided is not involved in transaction {t_id}', 403
+
+        cursor.execute(sql, [t_id])
+        cursor.commit()

@@ -110,13 +110,10 @@ def trap(func) -> object:
             click.secho(ae, fg="red")
 
         except ResourceNotFoundError as nre:
-            nre = str(nre).split("\n")
             click.secho(
-                f"{nre[0]}",
-                fg="red",
+                f"{nre}",
+                fg="yellow",
             )
-
-            click.secho(f"\t{nre[1]}", fg="yellow")
 
         except ServerError as se:
             click.secho(se, fg="red")

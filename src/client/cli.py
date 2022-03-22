@@ -112,3 +112,16 @@ def new_transaction(email, password, dest_email, amount, group, reference):
 @settle.command(name="show-group")
 def show_group(email, group_id):
     client.group_debt(group_id, email)
+
+
+@click.option("--password", prompt=True, hide_input=True)
+@click.option('--email', prompt=True)
+@click.option('--transaction', '-t')
+@settle.command()
+def tick(email, transaction, password):
+    """Ticks off a transaction as settled up in the real world"""
+    if transaction is None:
+        click.secho('Please provide a transaction with the -t flag (--help for help)', fg='red')
+        return
+
+    client.tick(email, password, transaction)

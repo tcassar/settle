@@ -169,7 +169,7 @@ class TestFlowGraph(TestCase):
         self.graph.add_edge(b, (a, 5))
 
         self.assertFalse(self.graph.is_edge(a, b))
-        
+
     def test_add_edge_reverses_new_edge(self):
         a, b, c, d, e = self.graph.nodes()
         self.graph.add_edge(a, (b, 5))

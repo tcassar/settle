@@ -3,6 +3,7 @@ import copy
 import sys
 
 import click
+import json
 import requests
 
 import src.client.cli_helpers as helpers
@@ -226,7 +227,6 @@ def new_transaction(email, password, dest_email, amount, group, reference):
     click.echo(f"Sign with `settle sign {response.json()}`")
 
 
-# TODO: simplify
 @trap
 def simplify(group_id, password):
     """Will settle the group; can be done by anyone at anytime;
@@ -376,3 +376,13 @@ def verify(groups, transactions: int):
 
         for trn in pretty_list.src_list + pretty_list.dest_list:
             trn_schema.make_pretty_transaction(trn).secho()
+
+
+@trap
+def tick(email: str, password: str, t_id: int):
+    # auth user
+    helpers.auth_usr(email, password)
+
+    requests.patch(helpers.url(f"transaction/settle/{t_id}"), json=json.dumps({'email': email}, indent=4))
+
+
