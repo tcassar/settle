@@ -116,7 +116,7 @@ def show_group(email, group_id):
 
 @click.option("--password", prompt=True, hide_input=True)
 @click.option('--email', prompt=True)
-@click.option('--transaction', '-t')
+@click.argument('transaction')
 @settle.command()
 def tick(email, transaction, password):
     """Ticks off a transaction as settled up in the real world"""

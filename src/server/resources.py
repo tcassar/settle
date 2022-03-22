@@ -356,7 +356,7 @@ class Simplifier(Resource):
 
         ids = cursor.execute(
             """SELECT transactions.id from transactions
-                                WHERE group_id = ?""",
+                                WHERE group_id = ? AND src_settled = 0 AND dest_settled = 0""",
             [gid],
         ).fetchall()
 
@@ -393,6 +393,7 @@ class Simplifier(Resource):
 
         # push transactions to db
         for transaction in ledger.ledger:
+            transaction.group = gid
             processes.push_transaction(transaction, cursor)
 
         return 'success', 201
@@ -409,7 +410,7 @@ class GroupDebt(Resource):
                     INNER JOIN pairs p on p.id = transactions.pair_id
                     INNER JOIN users u on u.id = p.src_id
                     INNER JOIN users u2 on u2.id = p.dest_id
-                    WHERE group_id = ?;
+                    WHERE group_id = ? AND transactions.src_settled = 0 AND transactions.dest_settled = 0;
             """
 
         trns: list[models.PrettyTransaction] = []

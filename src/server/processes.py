@@ -198,7 +198,7 @@ def push_transaction(
             transaction.src,
             transaction.dest,
         ],
-    ).fetchone()
+    ).fetchone()[0]
 
     if not pair_id:
         cursor.execute(
@@ -223,6 +223,8 @@ def push_transaction(
     (pair_id, group_id, amount, src_key, dest_key, reference, time_of_creation) 
             VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
+    print(key_ids[0][0], key_ids[1][0])
+
     # append unsigned transactions
     cursor.execute(
         sql,
@@ -230,8 +232,8 @@ def push_transaction(
             pair_id,
             transaction.group,
             transaction.amount,
-            key_ids[0],
-            key_ids[1],
+            key_ids[0][0],
+            key_ids[1][0],
             transaction.reference,
             transaction.time
         ],
