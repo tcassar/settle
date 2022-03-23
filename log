@@ -1,0 +1,29 @@
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 143-522-848
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:30:40] "POST /user HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:31:36] "GET /user/luke.bland03@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:31:36] "GET /group/12 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:31:36] "[35m[1mPOST /group/12/luke.bland03@gmail.com HTTP/1.1[0m" 201 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:31:52] "GET /group/debt/12 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:32:32] "GET /group/debt/12 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:32:45] "GET /group/debt/12 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:33:48] "GET /group/debt/12 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:34:02] "GET /group/debt/11 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:34:40] "GET /group/debt/11 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:34:42] "GET /group/debt/11 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:35:04] "GET /group/11 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:35:04] "[35m[1mPOST //simplify/11 HTTP/1.1[0m" 201 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:35:07] "GET /group/debt/11 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:51:56] "POST /user HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:52:59] "[35m[1mPOST /group HTTP/1.1[0m" 201 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:53:22] "GET /user/luke.bland03@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:53:22] "GET /group/13 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:53:22] "[35m[1mPOST /group/13/luke.bland03@gmail.com HTTP/1.1[0m" 201 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:53:49] "GET /user/marcoferrucci1@hotmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:53:49] "GET /group/13 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:53:49] "[35m[1mPOST /group/13/marcoferrucci1@hotmail.com HTTP/1.1[0m" 201 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:54:42] "[33mGET /user/luke.bland01@gmail.com HTTP/1.1[0m" 404 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "GET /user/luke.bland03@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "GET /user/luke.bland03@gmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "GET /user/marcoferrucci1@hotmail.com HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "[35m[1mPOST /transaction HTTP/1.1[0m" 201 -

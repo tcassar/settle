@@ -32,7 +32,7 @@ The list of requirements low level requirements, identical to that in the Analys
 	7) Neighbours of a node should be easily accessed (neighbours for the purposes of a breadth first search)
 
 2) A reliable flow graph structure
-	1) All of the operations listed in B.1.1
+	1) All the operations listed in B.1.1
 	2)  Adding an edge should have different functionality: edge should be able to be added with a capacity, and edges should have a notion of flow and unused capacity
 	3) Be able to return neighbours of nodes in the residual graph (i.e. edges, including residual edges, that have unused capacity)
 	4) A way to get the bottleneck value of a path, given a path of nodes
@@ -40,7 +40,7 @@ The list of requirements low level requirements, identical to that in the Analys
 3) A reliable recursive BFS that works on flow graphs
 
 4) Implementation of Edmonds-Karp
-	1) Way to find shortest augmenting path between two nodes
+	1) Way to find the shortest augmenting path between two nodes
 	2) Way to find bottleneck value of a path
 	3) Finding max flow along a flow graph from source node to sink node
 
@@ -76,7 +76,7 @@ The list of requirements low level requirements, identical to that in the Analys
 	4) The simplification should accurately simplify a system of debts such that no one is owed / owes a different amount of money after simplification
 	5) The simplifying process should result in unverified transactions being produced, able to be signed by the user
 
-3) Ancilliary features
+3) Ancillary features
 	1) Users should be able to register for an account, providing name, email, password and a PEM formatted private key
 	2) Users should be able to create transactions where they are the party owing money; these transactions should be created as unsigned
 	3) Users should be able to create a group with a name and password
@@ -84,7 +84,7 @@ The list of requirements low level requirements, identical to that in the Analys
 	5) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
 	6) Users should be able to see which groups they are a member of
 	7) Users should be able to see all of their open transactions
-	8) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
+	8) Users should be able to see all the open transactions in a group (whether they are part of the group)
 	9) Users should be able to see the public key information of any user on the system
 	10) Users should be able to see individual transactions by passing in a transaction ID
 
@@ -104,7 +104,7 @@ The list of requirements low level requirements, identical to that in the Analys
 	5) Amount (£)
 	6) Payee's signature
 	7) Recipient's signature
-	8) Whether or not transaction has been settled
+	8) Whether transaction has been settled
 3)  Group information
 	1) Group name
 	2) Group password
@@ -113,7 +113,7 @@ The list of requirements low level requirements, identical to that in the Analys
 
 
 ## Unit Test Framework
-To demonstrate the effectiveness and completeness of sections A & B, I will provide my unit testing framework. I approaced implementation from a test-driven development perspective, and thus all of these tests were written before the code they run was implemented. 
+To demonstrate the effectiveness and completeness of sections A & B, I will provide my unit testing framework. I approached implementation from a test-driven development perspective, and thus all of these tests were written before the code they run was implemented. 
 
 This has led to the creation of an extensive, robust framework of tests, which effectively shows the extent to which I have completed sections A and B of my project.
 
@@ -160,7 +160,7 @@ Though the identifiers are different, the generated graph is in the form of the 
 
 It is clear from these diagrams that the settling process has worked as expected, matching up perfectly with the hand-traced data. The same results are shown in the CLI of the technical solution
 
-The first call`settle verify -g 11` returns all unsettled transactions stored by the database, and checks whether or not their signatures are valid. In this case, all signatures are valid and thus the group can be simplified. Transactions of the form of the graphs above are found in the group.
+The first call`settle verify -g 11` returns all unsettled transactions stored by the database, and checks whether their signatures are valid. In this case, all signatures are valid and thus the group can be simplified. Transactions of the form of the graphs above are found in the group.
 
 The second call is to `settle simplify 11`. This indicates to the server that group 11 should be simplified. The group's password has been entered correctly and thus simplification can occur.
 
@@ -174,10 +174,10 @@ This example fulfills requirements **D1.6**, **D2.1**, **D2.4**, and **D2.5**
 
 A note on UI: the verified flashes. This is hard to put in a screenshot.
 
-Hence, I can show that every requirement in setion A and B has been met.
+Hence, I can show that every requirement in section A and B has been met.
 
-### Evidence of Meeting Requriements - Section C
-To show that my techincal solution does in fact communicate over a REST API, I will show a simple get request made by the client and the corresponding logs produced by the server.
+### Evidence of Meeting Requirements - Section C
+To show that my technical solution does in fact communicate over a REST API, I will show a simple get request made by the client and the corresponding logs produced by the server.
 
 ![[Pasted image 20220322181211.png]]
 Here, it is possible to see that I have configured the API to run on the  `http://192.168.109.142:5000`. 
@@ -279,7 +279,7 @@ Evidence for **D3.6**:
 
 
 ### Evidence of Meeting Requirements - Section E
-To show that I have implemented the database structure that I laid out in my requriements, I will screenshot the the database tables, and briefly comment on which requirements each table fulfills.
+To show that I have implemented the database structure that I laid out in my requirements, I will screenshot the database tables, and briefly comment on which requirements each table fulfills.
 
 Not only does this show the structure of the data being stored, it also proves that I am storing data as per my requirements.
 
@@ -308,17 +308,17 @@ Hence, I have entirely fulfilled every requirement I outlined in Section E, and 
 # Evaluation
 I will evaluate my completed project by gaining the opinion of the end user that I talked in the Analysis phase. I plan to give him a demonstration of the project, and let him use the project for a week. I will then collate his feedback. 
 
-In the demo, I thought it important to directly address the main concerns that he originally highlighted. These were mainly centred around system administrators (me) altering the amount of money that people owe each other.
+In the demo, I thought it to be important to directly address the main concerns that he originally highlighted. These were mainly centred around system administrators (me) altering the amount of money that people owe each other.
 
 To put his mind at ease, I gave him a live demonstration of the tampering test I used to show that my system fulfilled requirement **D1.1**. He was extremely impressed with this and spent the next 5 minutes tampering with data in the database, and watching the previously verified transactions become unverified. 
 
-Once he had convinced himself that public key cryptography actually works, we moved on to addressing his next concern - debt simplification. Again, I showed him the simplify debt example that I used in my analysis, and we spent the next 10 minutes building graphs and watching them simplify down. 
+Once he had convinced himself that public key cryptography actually works, we moved on to addressing his next concern - debt simplification. Again, I showed him the 'simplify debt' example that I used in my analysis, and we spent the next 10 minutes building graphs and watching them simplify down. 
 
-During this, he became increasingly comfortable with using the CLI. He told me he was a bit hesitant when he saw it - it looked like nothing he had ever used before. While playing with the security and debt simplification features of the app, it was quite interesting to see just how quickly he got used to it. He told me that a CLI was definitely a good choice for this, due to just how simple it is to get things done. 
+During this, he became increasingly comfortable using the CLI. He told me he was a bit hesitant when he saw it - it looked like nothing he had ever used before. While playing with the security and debt simplification features of the app, it was quite interesting to see just how quickly he got used to it. He told me that a CLI was definitely a good choice for this, due to just how simple it is to get things done. 
 
 However, he was not completely without criticism.
 
-He reported, fairly, that it was slightly annoying to have to keep entering your email and password, especially when the you entered this information just one command before. 
+He reported, fairly, that it was slightly annoying to have to keep entering your email and password, especially when you entered this information just one command before. 
 
 He also said that he would like a way to see his closed transactions in a list view, not just accessing them by ID. 
 
@@ -328,7 +328,7 @@ I think that these are entirely valid concerns, and would be where I go next if 
 
 I decided to look int how I would go about implementing the end user's suggestions
 
-The email / password remembering could be achieved relatively straightforwardly with the `click` CLI library that I used using the concept called `contexts`. This is most definitely something that is doable, and would do a lot to aid the overall user experience.
+The email / password remembering could be achieved relatively straightforwardly with the `click` CLI library using the concept of `contexts`. This is most definitely something that is doable, and would do a lot to aid the overall user experience.
 
 Similarly, it would be trivial to add use a binding to OpenSSL and have my client be able to generate an RSA private key. This is just something I hadn't considered in my Analysis of the project, but would definitely add to the user experience.
 
@@ -366,7 +366,7 @@ This is something that I would like to investigate more in the future.
 
 The next two requirements can be addressed as one. I am very happy with the client-server model of the system, even though the client-server model was much more work than I imagined.  However, it is quite impressive to see communication across a network, even if it is currently a localhost network.
 
-Having a thin client is particularly easy and effective as it means that, if more people were to adopt this solution and I were to set up a full time server, this could be run on absolutely everything. 
+Having a thin client is particularly easy and effective as it means that, if more people were to adopt this solution and I were to set up a full-time server, this could be run on absolutely everything. 
 
 As was discussed with the end user, there are certain improvements that I could make to the CLI. These are very much quality of life improvements, and the CLI that I provided was more than adequate at fulfilling all of my initial requirements
 

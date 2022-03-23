@@ -2,11 +2,12 @@
 # Analysis
 ---
 ## Project Outline 
-A project to help groups of people manage money using digitally signed transactions. Since the project is not intended to handle actual money, it also provides a way to quickly and easily settle transactions using a minimal number of steps ^[based on a heuristic model]. To interact with the final product, a simple, easy to use command line interface will be provided
+
+This is a project aimed at helping groups of people manage money, secured with digitally signed transactions. It also provides a way to quickly and easily settle chains of debt ^[based on a heuristic model]. To interact with the final product, a simple, easy to use command line interface will be provided.
 
 **Features**
 + Cryptographically signed transactions guaranteeing security and integrity of your transactions
-+ Settle your group's debts in the fewest number of transactions
++ Simplify chains of debt in your group
 + Command Line Interface (CLI)
 + Client / Server Model
 + Database
@@ -16,7 +17,7 @@ A project to help groups of people manage money using digitally signed transacti
 + No policing of people who do not pay their debt - this is a problem for people in the group to deal with as they choose
 
 ## Background to the Problem
-A common problem for many young people is that of money. Specifically, keeping track of who owes who how much money in a group of friends. Arguments about how much money is owed, and whether or not people have been remunerated, are commonplace. This is something I often see amongst my own group of friends. I know one person in particular ([[Analysis#The End User|the end user]]) feels as though he is never payed back, and would like to see a solution to the money tracking problem.
+A common problem for many young people is that of money. Specifically, keeping track of who owes who how much money in a group of friends. Arguments about how much money is owed are commonplace. This is something I often see amongst my own group of friends. I know one person in particular ([[Analysis#The End User|the end user]]) feels as though he is never paid back, and would like to see a solution to the money tracking problem.
 
 In order to arrive at a solution, what is needed is a reliable, trustworthy way to track money. People who use the tracker will need some sort of guarantee that people cannot 'hack' the app, changing people's debts. Since I am the creator, and likely a future user of this app, my friends also need confidence that I will not be able to write off all of my debts. Hence, that is problem number 1 - **secured transactions**.
 
@@ -27,16 +28,16 @@ A problem inherent to a money tracker is that it is just that - a tracker. Since
 
 The end user that I had in mind is the friend who inspired this project. I think he fits perfectly within the target market - 13-18 years old, fairly sociable, not too technologically minded, and just wants an easy way to keep track of his transactions in his group of friends. 
 
-My interviewee was keen to point out that people may abuse this system. They may just use it to rack up debt, and then never pay anyone back. He wanted to know if there was a way that I could stop this occurring. To this I replied no, not really. They can do the same thing without the app. It is your decision whether or not to lend to them. With the app however you can see exactly how much they've taken. It does however assume that people are willing to pay up. It is up to the user to deal with the eventuality that they don't.
+My interviewee was keen to point out that people may abuse this system. They may just use it to rack up debt, and then never pay anyone back. He wanted to know if there was a way that I could stop this occurring. To this I replied no, not really. They can do the same thing without the app. It is your decision whether to lend to them. With the app however you can see exactly how much they've taken - it provides indisputable accountability. It does however assume that people are willing to pay up. It is up to the user to deal with the eventuality that they don't.
 
-Another problem that he identified was that of chains of debt. He (rightly) pointed out that if you owe people who owe people, its sometimes easier to cut out the middle man and turn two discreet transactions into one smaller one. This idea naturally extends to a group of friends, who may all have varying levels of debt between them. Thus, instead of making the group do a large number of transactions with money going back and forth frequently between the same hands, I will aim to let a group settle in the easiest way possible.
+Another problem that he identified was that of chains of debt. He (rightly) pointed out that if you owe people who owe people, it's sometimes easier to cut out the middle man and turn two discreet transactions into one smaller one. This idea naturally extends to a group of friends, who may all have varying levels of debt between them. Thus, instead of making the group do a large number of transactions with money going back and forth frequently between the same hands, I will aim to let a group settle in the easiest way possible.
 
-A valid concern with this plan is the fact that some may end up owing people they didn't before the simplification. Consider a simple case where A owes B £10, and B owes C £10. Two transactions could be reduced to 1, if A were to pay C directly. However, in a larger group, people may not like giving money to people who they do not directly owe on the will of my program. Hence, an important constraint is that no one owes someone that they didn't owe before settling occurred (see image below.)
+A valid concern with this plan is the fact that some may end up owing people they didn't before the simplification. Consider a simple case where A owes B £10, and B owes C £10. Two transactions could be reduced to 1 if A were to pay C directly. However, in a larger group, people may not like giving money to people who they do not directly owe on the will of my program. Hence, an important constraint is that no one owes someone that they didn't owe before settling occurred (see image below.)
 
 ![[abc_debt 1.png|400]]
 Even though the dashed edge would reduce transactions, it should not be added.
 
-The end user suggested that I keep the interface as simple as possible. He maintained that he didn't want lots of unnecessary frills - just a simple, functional interface. To this, I suggested the use of a CLI. I was a little concerned that most people would not have used one before and may not know what it is. However, once I explained the concept, he seemed to come round to the idea. It's main benefit over a graphical user interface (GUI) is that it is unambiguous. It is also, arguably, easier to do things with a CLI once you become comfortable with using one. 
+The end user suggested that I keep the interface as simple as possible. He maintained that he didn't want lots of unnecessary frills - just a simple, functional interface. To this, I suggested the use of a CLI. I was a little concerned that most people would not have used one before and may not know what it is. However, once I explained the concept, he seemed to come round to the idea. It's main benefit over a graphical user interface (GUI) is that it is unambiguous. It is also, arguably, easier to do things with a CLI once you become comfortable using one. 
 
 The final main worry that my interviewee brought up was that of guaranteed security. I had talked to him when I had the idea for this project, before I had learned about asymmetric encryption and cryptographic signatures. He wanted to know how a transaction coming from him could be verified as his, and no one else could pretend that they are, say, owed lots of money. He also didn't trust me, and said that if our group of friends started using this product, he would suspect that I would "code away my debts".
 
@@ -46,16 +47,16 @@ In short, the problems identified here are as follows:
 + How to settle debt across large graphs efficiently (here meaning few transactions per person)
 + How to make a CLI that is as simple as possible
 
-This is not an exhaustive list - it leaves out all of the technical problems I will likely face, which are discussed in the next two subsections
+This is not an exhaustive list - it leaves out all the technical problems I will likely face, which are discussed in the next two subsections
 
 ---
 ## Research of existing solutions
 
-Currently on the market, there are a few products similar to that which I am proposing. Having surveyed a few options, I decided to look at Evenfy and Splitwise in more detail.
+Currently, on the market, there are a few products similar to that which I am proposing. Having surveyed a few options, I decided to look at Evenfy and Splitwise in more detail.
 
 Both work on the same premise that I have outlined: an intuitive way to track who owes who in a group.
 
-This is all accurate at time of writing, however new updates since may 
+This is all accurate at time of writing.
 
 ### Evenfy
 Evenfy is an app that does exactly what I set out to achieve. It mainly focuses on group expenses, and can be accessed from a computer.
@@ -172,7 +173,7 @@ Residual edges are valid edges to consider when looking for an augmenting path, 
 
 **Augmenting the flow**
 The act of pushing as much flow as possible along an augmenting path. 
-The amount of flow pushed down the path is equal to the bottleneck value of the path. The bottleneck value is given by the edge with smallest amount of unused capacity
+The amount of flow pushed down the path is equal to the bottleneck value of the path. The bottleneck value is given by the edge with the smallest amount of unused capacity
 
 ![[images/augmenting flow example.png|600]]
 
@@ -187,7 +188,7 @@ Once no more augmenting paths can be found, the bottleneck values of each of the
 ##### Complexity
 Finding an augmenting path is completed in $\mathcal O(E)$ time (where $E$ is the number of edges in the graph). In the worst case, 1 unit of flow is added every iteration. This makes the overall time complexity of the Fulkerson-Ford Max Flow  $\mathcal O(E\cdot f)$, where $f$ is the max flow of the graph.
 
-This is not ideal, as the time complexity is heavily dependant on the flow through the graph. This is improved upon in the strongly polynomial Edmonds-Karp Max Flow algorithm
+This is not ideal, as the time complexity is heavily dependent on the flow through the graph. This is improved upon in the strongly polynomial Edmonds-Karp Max Flow algorithm
 
 
 #### Edmonds-Karp Max Flow
@@ -196,7 +197,7 @@ Edmonds-Karp Max Flow differs from Fulkerson-Ford in the finding of augmenting p
 
 This is ensured by using a Breadth First Search (BFS) to find augmenting paths.
 
-A short augmenting path is favourable, as the longer the augmenting path is, the higher the chance of an edge with with very little unused capacity. This could lead to edges reaching capacity in more iterations, giving a considerably slower runtime. As aforementioned, the worst case is that every path has a bottleneck of 1 unit of flow. Since Edmonds-Karp uses a BFS to find augmenting paths, we are guaranteed the shortest (in terms of number of edges traversed) path from $s$ to $t$.
+A short augmenting path is favourable, as the longer the augmenting path is, the higher the chance of an edge with very little unused capacity. This could lead to edges reaching capacity in more iterations, giving a considerably slower runtime. As aforementioned, the worst case is that every path has a bottleneck of 1 unit of flow. Since Edmonds-Karp uses a BFS to find augmenting paths, we are guaranteed the shortest (in terms of number of edges traversed) path from $s$ to $t$.
 
 This detail gives Edmonds-Karp a much more favourable time complexity, of $\mathcal O(EV^2)$.  This is a product of the time complexity of a BFS, $\mathcal O(V^2)$ (when using an adjacency matrix to represent the graph) and the Fulkerson Ford time complexity, $\mathcal O(E\cdot f)$. However, flow does not appear in the time complexity of Edmonds-Karp.
 
@@ -205,7 +206,7 @@ A property of BFS is that, when it finds a path from a source node $s$ to a targ
 Since Edmonds-Karp's runtime is independent of flow, its input, it is classed as a strongly polynomial algorithm, making it perform much better than the Fulkerson-Ford max flow algorithm. Thus, this is the algorithm that I will be implementing to simplify debts across a group. 
 
 ### Settling a graph using a Max Flow algorithm
-Having explored various max flow algorithms, the question now becomes how to settle an entire graph's worth of debt. This is a fairly challenging problem since max flow algorithms only work on a source node an sink node.
+Having explored various max flow algorithms, the question now becomes how to settle an entire graph's worth of debt. This is a fairly challenging problem since max flow algorithms only work on a source node and a sink node.
 
 
 After researching, I found a solution which proposed the following.
@@ -258,9 +259,9 @@ Notice that initially, Alice owed the group £15. Now she owes the group £20. S
 
 Thus, this algorithm is incorrect.
 
-The reason why is because it does not account for how max-flow is generated. In the case of the first edge we just considered, we calculated a max-flow of 15. This was achieved by pushing 5 units of flow down the Alice -> Bob -> Charlie path, and 10 units of flow directly from Alice -> Charlie. 
+The reason why is that it does not account for how max-flow is generated. In the case of the first edge we just considered, we calculated a max-flow of 15. This was achieved by pushing 5 units of flow down the Alice -> Bob -> Charlie path, and 10 units of flow directly from Alice -> Charlie. 
 
-Since all of these paths become saturated, it should be the case that **no more flow can be pushed through the graph**. This algorithm only removes the considered edge, instead of all of the edges saturated by the max-flow algorithm.
+Since all of these paths become saturated, it should be the case that **no more flow can be pushed through the graph**. This algorithm only removes the considered edge, instead of all the edges saturated by the max-flow algorithm.
 
 The approach I decided to take was to modify the initial graph in place. After a max-flow is run, and a new edge is added to the clean graph, the initial graph is restructured. The restructuring replaces the capacity of each edge (u, v) to its original unused capacity. Like this, any saturated edges are removed, and future iterations of the graph are constrained to only produce results based on outcomes of previous iterations. 
 
@@ -340,7 +341,7 @@ For the purposes of testing, these are low level requirements that I would like 
 	7) Neighbours of a node should be easily accessed (neighbours for the purposes of a breadth first search)
 
 2) A reliable flow graph structure
-	1) All of the operations listed in B.1.1
+	1) All the operations listed in B.1.1
 	2)  Adding an edge should have different functionality: edge should be able to be added with a capacity, and edges should have a notion of flow and unused capacity
 	3) Be able to return neighbours of nodes in the residual graph (i.e. edges, including residual edges, that have unused capacity)
 	4) A way to get the bottleneck value of a path, given a path of nodes
@@ -348,7 +349,7 @@ For the purposes of testing, these are low level requirements that I would like 
 3) A reliable recursive BFS that works on flow graphs
 
 4) Implementation of Edmonds-Karp
-	1) Way to find shortest augmenting path between two nodes
+	1) Way to find the shortest augmenting path between two nodes
 	2) Way to find bottleneck value of a path
 	3) Finding max flow along a flow graph from source node to sink node
 
@@ -384,7 +385,7 @@ For the purposes of testing, these are low level requirements that I would like 
 	4) The simplification should accurately simplify a system of debts such that no one is owed / owes a different amount of money after simplification
 	5) The simplifying process should result in unverified transactions being produced, able to be signed by the user
 
-3) Ancilliary features
+3) Ancillary features
 	1) Users should be able to register for an account, providing name, email, password and a PEM formatted private key
 	2) Users should be able to create transactions where they are the party owing money; these transactions should be created as unsigned
 	3) Users should be able to create a group with a name and password
@@ -392,7 +393,7 @@ For the purposes of testing, these are low level requirements that I would like 
 	5) Users should be able to mark a transaction as settled; transactions should only be marked as settled when both parties involved mark the transaction as settled
 	6) Users should be able to see which groups they are a member of
 	7) Users should be able to see all of their open transactions
-	8) Users should be able to see all of the open transactions in a group (whether or not they are part of the group)
+	8) Users should be able to see all the open transactions in a group (whether they are part of the group)
 	9) Users should be able to see the public key information of any user on the system
 	10) Users should be able to see individual transactions by passing in a transaction ID
 
@@ -412,7 +413,7 @@ For the purposes of testing, these are low level requirements that I would like 
 	5) Amount (£)
 	6) Payee's signature
 	7) Recipient's signature
-	8) Whether or not transaction has been settled
+	8) Whether transaction has been settled
 3)  Group information
 	1) Group name
 	2) Group password
@@ -427,7 +428,7 @@ The order in which I will carry out the project in 6 distinct phases
 2) Debt Simplification
 3) Combination of 1 & 2 into a fully encompassing transaction object
 4) Database setup and design of SQL statements to retrieve data
-5) API design to allow communication between client and server
+5) An API designed to allow communication between client and server
 6) User Command Line Interface design
 
 In more detail
@@ -595,7 +596,8 @@ def BFS(
  previous: prev_map,  
  neighbours: Callable,  
  do_to_neighbour: Callable = void,  
-) -> prev_map:```
+) -> prev_map:
+```
 
 Note: `prev_map`  and `disc_map` are not objects but custom type aliases. They are equivalent to
 
@@ -775,11 +777,11 @@ Just showing `schemas` and `models` that I designed to be able to serialise /
 
 #### API Endpoints and Resources 
 
-A lot of the work of the server is in serialising and deserialising objects / JSON. I will do this using the `marshmallow` library for Python. This requires that schema objects are set up with the same fields as the objects you want to serialise from / deserialise to.
+A lot of the work of the server is in serialising and deserializing objects / JSON. I will do this using the `marshmallow` library for Python. This requires that schema objects are set up with the same fields as the objects you want to serialise from / deserialize to.
 
-This means that a lot of boilerplate code is needed, so I will not talk to much about that here as it is not particularly interesting, and does not prevent me from having a fully considered design of my problem.
+This means that a lot of boilerplate code is needed, so I will not talk too much about that here as it is not particularly interesting, and does not prevent me from having a fully considered design of my problem.
 
-I thought it more important to discuss the resources and endpoints that I would need to serve over my API. My resources are listed in the class diagrams above, and all serve an important purpose.
+I thought it to be more important to discuss the resources and endpoints that I would need to serve over my API. My resources are listed in the class diagrams above, and all serve an important purpose.
 
 ```python
 Group, "/group/<int:id>", "/group"
@@ -794,13 +796,13 @@ GroupDebt, "/user/debt/<string:email>/<int:id>"
 
 This shows the `Resource` child classes as shown in the class diagram above with their endpoints. 
 
-A lot of the above resources implement GET and POST, which are self-explanatory by design in most cases (i.e. GET "user/<string:email> will return user data for a given email"). I will discuss certain less obvious resources and enpoints.
+A lot of the above resources implement GET and POST, which are self-explanatory by design in most cases (i.e. GET "user/<string:email> will return user data for a given email"). I will discuss certain less obvious resources and endpoints.
 
 `PrettyTransaction` is a transaction object that is intended for being viewed on the front end by a user. It has people saved as emails as opposed to IDs, an association with a group, no keys involved, the time of creation, reference, and verification status. It also has the transaction ID. The POST method of pretty transaction is used to post new transactions to the database. This is because the details entered by the user about new transactions line up exactly with the pretty transaction schema. All processing such as adding public keys and user IDs is done by the server. 
 
 `UserGroupBridge` also warrants discussion. The resource implements POST and GET. POST will add a user to a group, and GET will get all groups associated with a given user. 
 
-`TransactionSigVerif` implements GET and PATCH. GET will verify a transaction, returning copy of verified transaction. PATCH will, upon receiving a signature, check that the signature is valid with data from the database (public key data, etc), and if the signature is valid, the signature will be inserted into the database on the given transaction ID. 
+`TransactionSigVerif` implements GET and PATCH. GET will verify a transaction, returning copy of verified transaction. PATCH will, upon receiving a signature, check that the signature is valid with data from the database (public key data, etc.), and if the signature is valid, the signature will be inserted into the database on the given transaction ID. 
 
 
 I intend to run the API using `flask` and `flask_restful`; two commonly used Python libraries for such purpose. During testing, I will run the server on localhost as a proof of concept.
@@ -936,7 +938,7 @@ An important thing to keep in mind when designing my SQL statements is ensuring 
 #### Server Logic
 The server is, of course, more than just an API and database access - it will carry out the vast majority of the data processing. In that sense, my client server models is effectively thick server, thin client.
 
-As with the endpoints, a lot of the logic is minimal and self explanatory by design. Thus, here I will discuss two of the more intensive processes that the server can be asked to do. 
+As with the endpoints, a lot of the logic is minimal and self-explanatory by design. Thus, here I will discuss two of the more intensive processes that the server can be asked to do. 
 
 ##### Signing a transaction
 Below is a swim lane diagram to aid my explanation of how a transaction is signed
@@ -971,10 +973,10 @@ JOIN pairs p on p.id = transactions.pair_id
 WHERE transactions.group_id = ?;
 ```
 
-to get all of the data needed to build a `transaction.ledger.Ledger` of `transaction.transaction.Transaction` objects. Once those objects are build, all that needs to happen is I write `ledger.simplify_ledger()`. This will then invoke all of the logic discussed in the `simplify` module section, as well as handle the verification of signatures, as discussed in the `crypto` module section.  This will be wrapped in a `try: ... except: ...` clause, and any errors will be returned with a 40X error code and reason for failure.
+to get all the data needed to build a `transaction.ledger.Ledger` of `transaction.transaction.Transaction` objects. Once those objects are build, all that needs to happen is I write `ledger.simplify_ledger()`. This will then invoke all the logic discussed in the `simplify` module section, as well as handle the verification of signatures, as discussed in the `crypto` module section.  This will be wrapped in a `try: ... except: ...` clause, and any errors will be returned with a 40X error code and reason for failure.
 
 ### Client-side (`client`) module
-As aforementioned, the client is a thin client, meaning it does not have many responsibilities in the overarching structure of the program. Thus, this section will mainly be examples and mock ups of the elements of Human-Computer Interaction.
+As aforementioned, the client is a thin client, meaning it does not have many responsibilities in the overarching structure of the program. Thus, this section will mainly be examples and mock-ups of the elements of Human-Computer Interaction.
 
 To show this, I will provide screenshots of an output to STDOUT of how I would like certain outputs to look. Here I will provide mainly ancillary outputs. and how I would like certain prompts to appear upon a command being run
 
@@ -983,7 +985,7 @@ To show this, I will provide screenshots of an output to STDOUT of how I would l
 
 
 The program should prompt the user with the details that they need to enter to create their account. Password entering should be hidden, as it is commonly in CLIs.
-Passwords should be confirmed through asking for confirmation, as above. If the passwords entered do not match, the program should ask to user re enter thir password. The program should report a failure if an invalid path to a key is given, as here
+Passwords should be confirmed through asking for confirmation, as above. If the passwords entered do not match, the program should ask the user re-enter their password. The program should report a failure if an invalid path to a key is given, as here
 
 * Upon creating & joining a group
 ![[Pasted image 20220320221811.png]]
@@ -995,7 +997,7 @@ Passwords should be confirmed through asking for confirmation, as above. If the 
 
 ![[Pasted image 20220320223545.png]]
 
-This is not an exhaustive list, but is the general blueprint of how interaction should look. Every possible actions will end up looking like one of these above templates, be it something like simplifying or signing a transaction, which will just result in a confirmation, or seeing all of the open transactions in the group, which will look the same as seeing all of your open transactions. 
+This is not an exhaustive list, but is the general blueprint of how interaction should look. Every possible actions will end up looking like one of these above templates, be it something like simplifying or signing a transaction, which will just result in a confirmation, or seeing all the open transactions in the group, which will look the same as seeing all of your open transactions. 
 
 The full list of commands that I would like the user to be able to enter is below
 
@@ -1023,8 +1025,8 @@ This text should also be displayed when the `--help` flag is called after any of
 
 Note: the `whois` command may seem odd - it allows you to obtain information about other people. What makes a system like this work is the fact that it is trust free. The system is to be designed so that everyone can see everyone's public keys and everyone can see everyone's transactions.
 
-Like this, there is no where to hide - you will always be held accountable for your transactions.
+Like this, there is nowhere to hide - you will always be held accountable for your transactions.
 
 ### Error Handling in the CLI
-It is important that the user never experiences an unsightly looking crash message when an expected error in the program happens. For instance, if when registering for an account the user provides a path to a file that doesn't exist instead of their private key, they should not see the program crash. Instead, the program should prompt them that it could not complete the registration, because no file exists in that location. A mock up would look something like this.
+It is important that the user never experiences an unsightly looking crash message when an expected error in the program happens. For instance, if when registering for an account the user provides a path to a file that doesn't exist instead of their private key, they should not see the program crash. Instead, the program should prompt them that it could not complete the registration, because no file exists in that location. A mockup would look something like this.
 ![[Pasted image 20220322220744.png]]
