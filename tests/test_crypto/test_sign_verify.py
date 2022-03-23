@@ -33,7 +33,6 @@ class TestRSA(TestCase):
         message = " | maia"
         m_bytes = bytes(message, encoding="utf8")
         encrypted = rsa.RSA.encrypt(m_bytes, self.public)
-        # TODO: actually fix byte overflow affair
         decrypted = rsa.RSA.bytes_to_str(rsa.RSA.naive_decrypt(encrypted, self.private))
 
         with self.subTest("Catch Public Key"):
