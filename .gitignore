@@ -12,3 +12,5 @@ tests/graph_renders
 /graph_renders/
 !/*.uml
 write_up/.obsidian
+write_up/.zip
+tests/log
