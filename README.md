@@ -8,6 +8,7 @@ Note: this project is archived - no further changes will be made.
 
 ---
 ## Features
+
 1) Cryptographically verified transactions so that no one can tamper with debt
 2) Way to settle a groups debts in optimal number of transactions
 3) Client side CLI
@@ -82,4 +83,4 @@ settle
 
 ## Technical Write-up
 
-For those interested in how the settling algorithm works, the project architecture, or the motivation behind the project, see [settle/write_up/write-up.md](https://github.com/tcassar/settle/blob/master/write_up/Contents.md)
+For those interested in how the settling algorithm works, the project architecture, or the motivation behind the project, see [settle/write_up/write-up.md](https://github.com/tcassar/settle/blob/master/write_up/write-up.md)
