@@ -1,4 +1,6 @@
 # coding=utf-8
+import os
+import pathlib
 import unittest
 
 import src.simplify.flow_graph
@@ -10,7 +12,8 @@ from src.transactions.transaction import VerificationError
 
 def setUpModule():
     print(os.getcwd())
-    os.chdir("/home/tcassar/projects/settle")
+    # change to .../settle/
+    os.chdir(pathlib.Path(__file__).parent.parent.parent)  # change
 
 
 def key_path(usr: str, keytype="private") -> str:

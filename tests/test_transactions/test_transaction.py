@@ -1,14 +1,19 @@
 # coding=utf-8
 import os
+import pathlib
 import unittest
 
 from src.transactions.transaction import *
 
 
+def setUpModule():
+    os.chdir(pathlib.Path(__file__).parent.parent.parent / "src")
+    print(os.getcwd())
+
+
 class TestTransaction(unittest.TestCase):
     def setUp(self) -> None:
         # load keys
-        os.chdir("/home/tcassar/projects/settle/src")
         ldr = keys.RSAKeyLoader()
         ldr.load("./crypto/sample_keys/d_private-key.pem")
         ldr.parse()

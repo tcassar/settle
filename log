@@ -27,3 +27,5 @@ INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "GET /user/luke.bland03@gmail
 INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "GET /user/luke.bland03@gmail.com HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "GET /user/marcoferrucci1@hotmail.com HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [23/Mar/2022 10:55:21] "[35m[1mPOST /transaction HTTP/1.1[0m" 201 -
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)

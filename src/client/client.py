@@ -1,9 +1,9 @@
 # coding=utf-8
 import copy
+import json
 import sys
 
 import click
-import json
 import requests
 
 import src.client.cli_helpers as helpers
@@ -383,7 +383,9 @@ def tick(email: str, password: str, t_id: int):
     # auth user
     helpers.auth_usr(email, password)
 
-    rep = requests.patch(helpers.url(f"transaction/settle/{t_id}"), json=json.dumps({'email': email}, indent=4))
+    rep = requests.patch(
+        helpers.url(f"transaction/settle/{t_id}"),
+        json=json.dumps({"email": email}, indent=4),
+    )
     helpers.validate_response(rep)
-    click.secho(f'Transaction {t_id} marked as settled!', fg='green')
-
+    click.secho(f"Transaction {t_id} marked as settled!", fg="green")

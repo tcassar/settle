@@ -5,9 +5,14 @@ Unit tests for key handling
 """
 
 import os
+import pathlib
 from unittest import TestCase
 
 from src.crypto import keys
+
+
+def setUpModule():
+    os.chdir(pathlib.Path(__file__).parent.parent.parent / "src")
 
 
 class TestRSAKeyLoading(TestCase):
@@ -16,7 +21,6 @@ class TestRSAKeyLoading(TestCase):
     def setUp(self) -> None:
         """Initialise loaders fresh between tests"""
         self.loader = keys.RSAKeyLoader()
-        os.chdir("/home/tcassar/projects/settle/src")
         print(os.system("pwd"))
         self.key_path = "./crypto/sample_keys/d_private-key.pem"
         self.pub_key_path = "./crypto/sample_keys/d_public-key.pe"
@@ -113,5 +117,5 @@ class TestRSAKeyLoading(TestCase):
         with self.subTest("allowed access"):
             self.assertEqual(pub_key.e, 65537)
 
-        with (self.subTest("deny access"), self.assertRaises(keys.RSAPublicKeyError)):
+        with self.subTest("deny access"), self.assertRaises(keys.RSAPublicKeyError):
             _ = pub_key.p

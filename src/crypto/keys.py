@@ -64,7 +64,7 @@ class RSAKeyLoader:
         key = re.sub(r"\(0x[0|1]*\)", "", key)  # matches of the form (0x[0|1]*)
         head, key = key.split(")")
 
-        if head != "RSAPrivate-Key(2048bit,2primes":
+        if head != "Private-Key(2048bit,2primes":
             raise RSAParserError("File not in correct format")
 
         self.key = key

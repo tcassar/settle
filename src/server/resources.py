@@ -4,8 +4,8 @@ import json
 from flask import request
 from flask_restful import Resource, abort  # type: ignore
 
-import src.transactions.transaction as transactions
 import src.transactions.ledger as ledgers
+import src.transactions.transaction as transactions
 from src.server import models as models, schemas as schemas, processes as processes
 
 
@@ -396,7 +396,7 @@ class Simplifier(Resource):
             transaction.group = gid
             processes.push_transaction(transaction, cursor)
 
-        return 'success', 201
+        return "success", 201
 
 
 class GroupDebt(Resource):
@@ -445,14 +445,17 @@ class SignableTransaction(Resource):
 
     def patch(self, t_id):
         cursor = processes.get_db()
-        email: dict = json.loads(request.json)['email']
+        email: dict = json.loads(request.json)["email"]
 
         # determine if user is src or dest
-        emails = cursor.execute("""SELECT u.email, u2.email FROM transactions
+        emails = cursor.execute(
+            """SELECT u.email, u2.email FROM transactions
         JOIN pairs p on transactions.pair_id = p.id
         JOIN users u on p.src_id = u.id
         JOIN users u2 on p.dest_id = u2.id
-        WHERE transactions.id = ? """, [t_id]).fetchone()
+        WHERE transactions.id = ? """,
+            [t_id],
+        ).fetchone()
 
         if email == emails[0]:
             # usr is src thus append src_settled
@@ -460,7 +463,7 @@ class SignableTransaction(Resource):
         elif email == emails[1]:
             sql = """UPDATE transactions SET dest_settled = 1 WHERE id = ?"""
         else:
-            return f'Email provided is not involved in transaction {t_id}', 403
+            return f"Email provided is not involved in transaction {t_id}", 403
 
         cursor.execute(sql, [t_id])
         cursor.commit()

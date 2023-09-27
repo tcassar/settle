@@ -1,5 +1,7 @@
 # coding=utf-8
+
 import os
+import pathlib
 
 import click
 from flask import Flask, g
@@ -38,7 +40,7 @@ def settle_server():
 @click.option("-h", "--host", default="127.0.0.1")
 @settle_server.command()
 def start(host, debug):
-    os.chdir("/home/tcassar/projects/settle")
+    os.chdir(pathlib.Path(os.getcwd()).parent.parent)
     app.run(debug=debug, host=host)
     db = get_db()
 
@@ -61,4 +63,8 @@ api.add_resource(Simplifier, "/simplify/<int:gid>")
 
 api.add_resource(GroupDebt, "/group/debt/<int:id>")
 
-api.add_resource(SignableTransaction, "/transaction/settle/<int:t_id>", "/transaction/signable/<int:id>")
+api.add_resource(
+    SignableTransaction,
+    "/transaction/settle/<int:t_id>",
+    "/transaction/signable/<int:id>",
+)

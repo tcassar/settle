@@ -2,7 +2,7 @@
 
 import click
 
-import src.client.client as client
+import src.client as client
 
 
 @click.group()
@@ -26,12 +26,25 @@ def register(
     password,
     pub_key,
 ):
+    """Register as a new user
+
+    Args:
+        name: Full Name
+        email: Email
+        password: Password
+        pub_key: File pointing to your public key
+    """
+
     client.register(name, email, password, pub_key)
 
 
 @click.argument("email")
 @settle.command()
 def whois(email):
+    """Looks up user data about <email>
+
+    Provides full name"""
+
     client.whois(email)
 
 
@@ -50,7 +63,8 @@ def show(transactions, groups, email):
 @click.argument("transaction_id")
 @settle.command()
 def sign(transaction_id, key_path, email, password):
-    """Signs a transaction"""
+    """Signs a transaction using one's private key
+    """
     client.sign(transaction_id, key_path, email, password)
 
 
@@ -66,6 +80,9 @@ def verify(group, transaction):
 @click.option("--name", prompt=True)
 @settle.command(name="new-group")
 def new_group(name, password):
+    """Creates a new group
+
+    Requires a group password, and a name"""
     client.new_group(name, password)
 
 
@@ -107,21 +124,24 @@ def new_transaction(email, password, dest_email, amount, group, reference):
     client.new_transaction(email, password, dest_email, amount, group, reference)
 
 
-@click.option("--email", prompt=True)
-@click.option("--group_id", prompt="Group ID")
-@settle.command(name="show-group")
-def show_group(email, group_id):
-    client.group_debt(group_id, email)
+# @click.option("--email", prompt=True)
+# @click.option("--group_id", prompt="Group ID")
+# @settle.command(name="show-group")
+# def show_group(email, group_id):
+#     """Shows information about a group """
+#     client.group_debt(group_id, email)
 
 
 @click.option("--password", prompt=True, hide_input=True)
-@click.option('--email', prompt=True)
-@click.argument('transaction')
+@click.option("--email", prompt=True)
+@click.argument("transaction")
 @settle.command()
 def tick(email, transaction, password):
     """Ticks off a transaction as settled up in the real world"""
     if transaction is None:
-        click.secho('Please provide a transaction with the -t flag (--help for help)', fg='red')
+        click.secho(
+            "Please provide a transaction with the -t flag (--help for help)", fg="red"
+        )
         return
 
     client.tick(email, password, transaction)

@@ -1,4 +1,5 @@
 # coding=utf-8
+import pathlib
 import sqlite3
 
 from flask import g
@@ -7,7 +8,7 @@ import src.server.models as models
 import src.transactions.transaction
 from src.crypto import keys as keys
 
-DATABASE = "/home/tcassar/projects/settle/settle_db.sqlite"
+DATABASE = pathlib.Path(__file__).parent.parent.parent / "settle_db.sqlite"
 
 
 class ResourceNotFoundError(Exception):
@@ -235,7 +236,7 @@ def push_transaction(
             key_ids[0][0],
             key_ids[1][0],
             transaction.reference,
-            transaction.time
+            transaction.time,
         ],
     )
 

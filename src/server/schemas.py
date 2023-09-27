@@ -2,7 +2,7 @@
 
 from marshmallow import Schema, fields, post_load
 
-import models  # type: ignore
+import src.server.models  # type: ignore
 import src.transactions.ledger
 import src.transactions.transaction
 

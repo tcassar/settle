@@ -151,7 +151,6 @@ class FlowGraph(GenericDigraph):
                 if new_cap == 0:
                     self.pop_edge(dest, src)
 
-
             if update_debt:
                 # handle net_debt;
                 self.net_debt[src] += capacity

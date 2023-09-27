@@ -127,7 +127,7 @@ class Ledger:
             # print(
             #     "Graph already at few transactions per person; no optimisations found"
             # )
-            raise SettleError('Failed to settle graph... aborted')
+            raise SettleError("Failed to settle graph... aborted")
 
         except src.simplify.flow_algorithms.NoOptimisations:
             raise NoFutherSimplifications(

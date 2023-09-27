@@ -4,6 +4,7 @@
 Testing sign / verify through RSA working as expected
 """
 import os
+import pathlib
 from unittest import TestCase
 
 from src.crypto import keys
@@ -12,7 +13,7 @@ from src.transactions.transaction import Signable
 
 
 def setUpModule():
-    os.chdir("/home/tcassar/projects/settle/src")
+    os.chdir(pathlib.Path(__file__).parent.parent.parent / "src")
 
 
 class TestRSA(TestCase):
