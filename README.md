@@ -12,7 +12,7 @@ Note: this project is archived - no further changes will be made.
 1) Cryptographically verified transactions so that no one can tamper with debt
 2) Way to settle a groups debts in optimal number of transactions
 3) Client side CLI
-4) Local database (sqlite) storing transactions & usr info
+4) Local database (sqlite) storing transactions & user info
 
 ---
 ## Installation from source
